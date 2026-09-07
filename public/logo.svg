@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Relay">
+  <!--
+    A message bubble holding signal bars: the one thing this client does that others
+    don't is survive a bad connection. Vermilion is the palette's single accent, so the
+    mark needs no second colour. Every shape is a path or a plain rect so that thumbnail
+    renderers outside the browser draw the tile correctly too.
+  -->
+  <path d="M9 0h14a9 9 0 0 1 9 9v14a9 9 0 0 1-9 9H9a9 9 0 0 1-9-9V9a9 9 0 0 1 9-9z" fill="#cf3d18"/>
+  <g fill="#fff">
+    <path d="M18.6 15.5h4.4v9q0 1.4-1.3.6z"/>
+    <rect x="7" y="8" width="18" height="13" rx="5"/>
+  </g>
+  <g fill="#cf3d18">
+    <rect x="11.2" y="15.1" width="2.4" height="2.8" rx="1.2"/>
+    <rect x="14.8" y="13.1" width="2.4" height="4.8" rx="1.2"/>
+    <rect x="18.4" y="11.1" width="2.4" height="6.8" rx="1.2"/>
+  </g>
+</svg>

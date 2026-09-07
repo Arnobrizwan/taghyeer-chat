@@ -4,6 +4,7 @@ import { LoginForm } from '@/features/auth/login-form';
 import { ServerStatusBanner } from '@/components/ui/server-status-banner';
 import { PrewarmApi } from '@/features/landing/warm-link';
 import { ThemeToggle } from '@/features/theme';
+import { Logo } from '@/components/ui/logo';
 
 export const metadata = { title: 'Sign in — Relay' };
 
@@ -30,9 +31,7 @@ export default function LoginPage() {
                 href="/"
                 className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-ink-muted transition-colors hover:text-ink"
               >
-                <span className="flex size-6 items-center justify-center rounded-md bg-vermilion text-[11px] font-bold text-white">
-                  R
-                </span>
+                <Logo size={24} />
                 Relay
               </Link>
 

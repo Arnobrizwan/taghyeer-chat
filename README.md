@@ -129,7 +129,7 @@ src/
     cross-tab.ts             BroadcastChannel bus + Web Locks leader election
     domain.ts                the app's vocabulary — no wire types
     schemas.ts               Zod: two wire shapes -> one domain type
-  components/ui/             Button, Field, Avatar, Modal, states
+  components/ui/             Button, Field, Avatar, Modal, Logo, states
 ```
 
 **The rule:** nothing outside `lib/api` and `lib/schemas` ever sees `_id`, an ISO date

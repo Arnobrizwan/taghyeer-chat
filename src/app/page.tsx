@@ -3,6 +3,7 @@ import { OutboxDemo } from '@/features/landing/outbox-demo';
 import { PrewarmApi, WarmLink } from '@/features/landing/warm-link';
 import { ThemeToggle } from '@/features/theme';
 import { Reveal } from '@/features/landing/reveal';
+import { Logo } from '@/components/ui/logo';
 
 export const metadata: Metadata = {
   title: 'Relay — chat that survives a bad connection',
@@ -38,9 +39,7 @@ export default function LandingPage() {
       {/* ---------------------------------------------------------------- Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
         <span className="flex items-center gap-2.5">
-          <span className="flex size-7 items-center justify-center rounded-md bg-vermilion text-xs font-bold text-white">
-            R
-          </span>
+          <Logo size={28} />
           <span className="text-[15px] font-semibold tracking-tight">Relay</span>
         </span>
         <span className="flex items-center gap-3">
@@ -218,9 +217,7 @@ export default function LandingPage() {
         <footer className="border-t border-on-canvas/10">
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-7 text-sm text-on-canvas/45 sm:flex-row sm:px-8">
             <span className="flex items-center gap-2">
-              <span className="flex size-5 items-center justify-center rounded bg-vermilion text-[10px] font-bold text-white">
-                R
-              </span>
+              <Logo size={20} />
               Relay
             </span>
             <span>Built as a take-home for Taghyeer Technologies.</span>
