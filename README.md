@@ -47,6 +47,7 @@ npm run dev          # http://localhost:3000
 
 ```bash
 npm run build        # production build
+npm test             # 91 unit tests (vitest), ~0.4s, no network
 npm run lint         # eslint — currently 0 problems, not just 0 errors
 npx tsc --noEmit     # type check
 ```
@@ -138,6 +139,40 @@ string, or a `{ data }` wrapper. One shape in, one shape out.
 ---
 
 # Part 3 — Write-up
+
+## In 60 seconds
+
+If you read nothing else, read this. Each line points at the section that argues it.
+
+1. **I probed the API before writing a line of UI.** The spec declares
+   `responses: { default: Unspecified }`, so I scripted ~120 calls and wrote down what
+   actually came back — an unescaped-regex 500, `200` with a `null` body on a failed write,
+   `lastMessage: {}` instead of `null`, three different shapes of `participants`, and a
+   missing token answered with `400`, not `401`.
+   → [Issues with the given API](#issues-with-the-given-api) ·
+   [`docs/api-findings.md`](./docs/api-findings.md)
+2. **Those findings drove the architecture, not the other way round.** Messages send over
+   REST because the socket ack carries no body to reconcile against; the thread is keyed by
+   id because the pagination cursor is inclusive; a Web Locks leader elects the one tab
+   allowed to flush, because `POST /messages` is not idempotent.
+   → [Reconciliation](#reconciliation)
+3. **The original feature is an offline outbox.** Type on a dead connection and it queues,
+   survives a refresh, and flushes in order when you reconnect — visibly queued, never
+   disguised as delivered. → [Part 4](#part-4--the-original-feature-an-offline-outbox)
+4. **The landing page is that feature, running.** The hero is the real state machine, not a
+   screenshot, so Parts 1 and 2 argue the same thing.
+   → [Part 2 reasoning](#part-2-reasoning-design)
+5. **91 unit tests** cover reconciliation, ordering, wire-shape normalisation, validation
+   and the avatar hash — each one written against a defect that actually occurred.
+   → [How this was verified](#how-this-was-verified)
+6. **Known gaps, stated plainly:** no component or end-to-end tests, no virtualised message
+   list, no country picker on the phone field.
+   → [What I'd improve with more time](#what-id-improve-with-more-time)
+
+The rest of this document is the detail behind those six lines. It is long because the API
+findings are long; skip to any heading above.
+
+---
 
 ## Part 1 reasoning: architecture and trade-offs
 
@@ -338,8 +373,28 @@ accordion, no screenshot standing in for a product.
 
 ## AI usage
 
-Claude Code (Opus 5) was used throughout. Kept as a running log in
-[`docs/ai-usage-log.md`](./docs/ai-usage-log.md); the honest summary:
+**The split, up front: Claude Code (Opus 5) wrote most of the first-draft code in this
+repository, and every commit is co-authored accordingly.** `git log` will show you that
+immediately, so I would rather say it here than have you find it. The brief permits AI use
+and asks that it be documented; this section and
+[`docs/ai-usage-log.md`](./docs/ai-usage-log.md) are that documentation, and the log is a
+running record kept as I went, not written afterwards to look tidy.
+
+What that leaves as mine is the part I would want to be judged on: deciding to spend the
+first phase probing the API instead of building, reading the ~120 captured responses and
+working out which quirks had architectural consequences, choosing the offline outbox as the
+original feature, and every judgement call listed under *What I rejected or had to fix*
+below. The model was fastest at the work that was already specified — probe scripts,
+component scaffolding, turning captured JSON into tables. It was consistently wrong about
+anything that could only be settled by running the thing, which is why the verification
+section exists and why four of the bugs it lists were found in a browser rather than in
+review.
+
+Two habits I would keep. Every model-written explanation of *why* something is the way it
+is got checked against the captured responses before it went in, because plausible-sounding
+and wrong is the failure mode. And the tests in `src/**/*.test.ts` are deliberately written
+against defects that actually occurred here, including two the model itself introduced —
+the avatar hash below shipped broken twice.
 
 **What it did well:** writing the seven throwaway probe scripts that produced the API
 findings, first drafts of components, and turning captured JSON into documentation.
@@ -462,18 +517,34 @@ self-authored string with no interpolated input. Socket payloads, cross-tab even
 persisted outbox are all shape-validated before use, and ids are checked against an
 ObjectId pattern before they reach a URL.
 
-**Gates:** `npm run build`, `npx tsc --noEmit` and `npm run lint` are all clean — lint
-reports **0 problems**, including the React Compiler rules Next 16 enables, none of which
-are disabled anywhere in the codebase.
+**Unit tests: 91, across 7 files, in ~0.4s with no network.** They cover the parts where
+this app is either correct or not — cursor-seam de-duplication, message ordering and its
+ObjectId tie-break, the outbox lifecycle, the two wire shapes collapsing to one domain type,
+JWT expiry, phone and message validation, and the avatar hash.
+
+Two things about them are worth saying. **Every test was written against a defect that
+actually happened here**, not against a hypothetical: the seam duplicate, the avatar tint
+collision, `lastMessage: {}`, the invented `+` on a local phone number. And I checked the
+tests are not vacuous by reintroducing two of those bugs and confirming the suite goes red —
+restoring the old `h * 31 + c` hash fails the real-group tint test, and breaking the merge
+key fails the seam test.
+
+The suite is deliberately pure-logic and runs in Node with no jsdom. That is a consequence
+of the architecture rather than a shortcut: nearly every bug found across three review
+rounds was in logic that had been left sitting inside a component, and moving each one down
+into `lib/` is what made it testable at all.
+
+**Gates:** `npm test`, `npm run build`, `npx tsc --noEmit` and `npm run lint` are all clean
+— lint reports **0 problems**, including the React Compiler rules Next 16 enables, none of
+which are disabled anywhere in the codebase.
 
 ## What I'd improve with more time
 
-- **Tests.** The biggest gap. [How this was verified](#how-this-was-verified) describes
-  what I did instead, and it caught four real bugs — but a scripted browser session is a
-  one-off, not a regression net. The reconciliation logic (`store.ts`, `use-outbox.ts`,
-  `schemas.ts`) is pure and would take unit tests cleanly; the pill, pagination and
-  cross-tab behaviours want Playwright, which can drive two contexts properly rather than
-  the two-origin workaround I used by hand.
+- **Component and end-to-end tests.** The 91 unit tests cover the pure logic, which is
+  where the real risk is, but nothing renders a component or drives a browser. The pill,
+  scroll restoration on pagination, and the cross-tab leader election all want Playwright,
+  which can drive two browser contexts properly rather than the two-origin workaround I
+  used by hand. That is the next thing I would write.
 - **Virtualised message list.** Currently every loaded message stays in the DOM. Fine for
   hundreds, not for tens of thousands.
 - **A real gap-fill on reconnect.** Today reconnect refetches the newest page, which covers

@@ -4,6 +4,7 @@
 
 import { forwardRef, useEffect, useId, useRef } from 'react';
 import { cx } from '@/lib/utils';
+import { avatarTint, initials } from '@/lib/avatar';
 
 // --- Button -----------------------------------------------------------------
 
@@ -148,50 +149,6 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
  * other participant's user id, not `conversation.id`; only a group avatar is keyed by the
  * conversation, because a group is not a person.
  */
-const TINT_COUNT = 12;
-
-/**
- * FNV-1a with a MurmurHash3 finalizer.
- *
- * Two separate bugs got fixed here, and the second is the one that actually mattered.
- *
- * The original was the textbook `h * 31 + c`. Taken mod a palette size of 6 or 12 that is
- * worthless: 31 ≡ 1 (mod 12), so `h * 31 ≡ h` and the whole hash degenerates into a plain
- * sum of character codes. Ids that are near-permutations of each other — which sequential
- * ObjectIds are — landed on the same tint.
- *
- * Swapping in FNV-1a was not enough on its own, which is worth spelling out because it
- * looks like it should be. Selecting a bucket with `% 12` reads the *low* bits, and low
- * bits are exactly where a multiplicative hash avalanches worst: they depend only on the
- * low bits of the input, so ids sharing a tail keep sharing a bucket. Measured on this
- * app's real data, four group members produced only two distinct tints. The finalizer
- * below is MurmurHash3's `fmix32`, whose entire job is to fold high-order entropy down into
- * the low bits; with it the same four ids produce four distinct tints.
- *
- * `>>> 0` keeps the result unsigned — `Math.abs` on an overflowed int32 would fold two
- * distinct hashes onto one value.
- */
-function hashCode(s: string): number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  h ^= h >>> 16;
-  h = Math.imul(h, 2246822507);
-  h ^= h >>> 13;
-  h = Math.imul(h, 3266489909);
-  h ^= h >>> 16;
-  return h >>> 0;
-}
-
-export function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  if (parts.length === 1) return (parts[0] ?? '?').slice(0, 2).toUpperCase();
-  return `${parts[0]?.[0] ?? ''}${parts.at(-1)?.[0] ?? ''}`.toUpperCase();
-}
-
 export function Avatar({
   name,
   id,
@@ -203,7 +160,7 @@ export function Avatar({
   size?: 'sm' | 'md' | 'lg';
   isGroup?: boolean;
 }) {
-  const tint = `tint-${(hashCode(id) % TINT_COUNT) + 1}`;
+  const tint = avatarTint(id);
   return (
     <span
       aria-hidden="true"
