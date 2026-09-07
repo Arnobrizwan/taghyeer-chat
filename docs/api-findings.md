@@ -5,6 +5,10 @@ from the Swagger page. The published spec is deliberately request-only: it decla
 `responses: { default: Unspecified }` for every operation, so every status code, envelope
 and field type here was derived by calling the thing.
 
+Re-runnable proof: [`docs/recon/verify-api.mjs`](./recon/verify-api.mjs) asserts every
+claim in this document against the live API — `node docs/recon/verify-api.mjs`. Last run:
+**57/57 checks matched.**
+
 Raw captures: [`docs/recon/`](./recon) (`phase-a` auth · `phase-b` conversations/messages ·
 `phase-c` groups/admin · `phase-d` pagination · `phase-e`/`phase-f` sockets). JWTs redacted.
 
@@ -376,8 +380,9 @@ trustworthy identity anywhere in the UI.
 
 - **Cursor is a message `_id`.** An ISO timestamp in `before` returns **500**.
 - **Default `limit` is 20.** `limit=0`, `limit=-5` and `limit=abc` all silently fall back
-  to 20 rather than erroring. `limit=2.7` returns 2.
-- **No maximum limit.** `limit=9999` returned the entire history in one response.
+  to 20 rather than erroring — confirmed against a 29-message conversation, so 20 is a
+  real cap and not just "everything there was". `limit=2.7` returns 2.
+- **No maximum limit.** `limit=9999` returned all 29 messages in one response.
 - **A stale or unknown cursor is silently ignored.** `before=<valid-but-nonexistent
   ObjectId>` returns **page 1** instead of erroring — so a stale cursor makes "load older"
   silently re-serve the newest page. Caught by id-keyed merging, which makes it a no-op

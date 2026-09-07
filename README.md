@@ -55,6 +55,7 @@ Both are **optional** — the app falls back to the values below if unset. See
 | [`docs/API.md`](./docs/API.md) | **Deliverable 1.** Full reference for the API as it actually behaves, plus a "how I'd redesign this" section |
 | [`docs/openapi.yaml`](./docs/openapi.yaml) | Machine-readable version of the same |
 | [`docs/api-findings.md`](./docs/api-findings.md) | Everything I found probing the live API, with evidence |
+| [`docs/recon/verify-api.mjs`](./docs/recon/verify-api.mjs) | Re-runnable harness asserting every documented claim against the live API — `node docs/recon/verify-api.mjs` (57/57) |
 | [`docs/DECISIONS.md`](./docs/DECISIONS.md) | Every non-obvious decision: what I chose, what I rejected, why |
 | [`docs/ai-usage-log.md`](./docs/ai-usage-log.md) | Running log of AI use, kept as I went |
 | [`docs/recon/`](./docs/recon) | Raw JSON captures from the API probes (tokens redacted) |
@@ -110,6 +111,10 @@ The published spec is deliberately request-only — it declares
 scripting ~120 calls against the live service and recording exactly what came back
 ([`docs/api-findings.md`](./docs/api-findings.md), raw captures in
 [`docs/recon/`](./docs/recon)).
+
+That documentation isn't a snapshot I hope still holds — `docs/recon/verify-api.mjs`
+asserts every claim in it against the live API and currently reports **57/57**, so a
+reviewer can check it rather than take my word for it.
 
 That wasn't diligence for its own sake. Six of those findings each changed a decision, and
 every one of them would have been a silent bug had I assumed conventional behaviour:
