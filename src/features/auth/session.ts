@@ -2,6 +2,14 @@
 
 import { create } from 'zustand';
 import type { UserRef } from '@/lib/domain';
+/*
+ * The expiry rule lives in `lib/jwt` because the socket needs it too: a locally-expired
+ * token should not produce a handshake any more than it should produce a request. We still
+ * verify against `/auth/me` on boot — a locally-valid token can have been invalidated
+ * server-side, and trusting an unverified client-side decode is how you end up rendering a
+ * shell for a user who isn't signed in.
+ */
+import { isTokenUsable } from '@/lib/jwt';
 
 const TOKEN_KEY = 'taghyeer-chat:token:v1';
 const USER_KEY = 'taghyeer-chat:user:v1';
@@ -40,27 +48,6 @@ function write(key: string, value: unknown): void {
   }
 }
 
-/**
- * The JWT is valid for 7 days and carries `sub` (findings §8), so an expired token can be
- * detected locally rather than by burning a round trip on a request that will 401.
- * We still verify against `/auth/me` on boot — a locally-valid token can have been
- * invalidated server-side, and trusting an unverified client-side decode is how you end
- * up rendering a shell for a user who isn't signed in.
- */
-export function isTokenExpired(token: string): boolean {
-  try {
-    const payload = token.split('.')[1];
-    if (!payload) return true;
-    const json = JSON.parse(
-      atob(payload.replace(/-/g, '+').replace(/_/g, '/')),
-    ) as { exp?: number };
-    if (typeof json.exp !== 'number') return false;
-    return json.exp * 1000 <= Date.now();
-  } catch {
-    return true;
-  }
-}
-
 export const useSession = create<SessionState>((set) => ({
   status: 'loading',
   token: null,
@@ -87,7 +74,7 @@ export const useSession = create<SessionState>((set) => ({
   hydrate: () => {
     const token = read<string>(TOKEN_KEY);
     const user = read<UserRef>(USER_KEY);
-    if (!token || !user || isTokenExpired(token)) {
+    if (!user || !isTokenUsable(token)) {
       write(TOKEN_KEY, null);
       write(USER_KEY, null);
       set({ token: null, user: null, status: 'anonymous' });

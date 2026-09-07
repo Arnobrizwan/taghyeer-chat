@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listConversations } from '@/lib/api/endpoints';
 import type { Conversation, Message } from '@/lib/domain';
 import { useSocket } from '@/lib/socket/provider';
+import { useSession } from '@/features/auth/session';
 
 export const conversationsKey = ['conversations'] as const;
 
@@ -16,14 +17,25 @@ export const conversationsKey = ['conversations'] as const;
  * conversation *creation* emits nothing at all (findings §7), which is why the query also
  * refetches on window focus and reconnect — that is the only way a new incoming direct
  * chat appears without a manual refresh.
+ *
+ * Gated on an authenticated session. `AppShell` calls this above its own session guard —
+ * hooks can't be called conditionally — and the store starts at `status: 'loading'` with a
+ * null token until `Providers` hydrates it from localStorage. React runs child effects
+ * before parent ones, so without this gate the query fires on mount, *before* that
+ * hydration, and the request goes out with no Authorization header. This API answers a
+ * missing token with `400 NO_TOKEN` rather than 401 (findings §3.1), so the symptom was a
+ * 400 in the console on every cold load of /app. The gate also stops a refetch being
+ * issued in the moment between signing out and the redirect landing.
  */
 export function useConversations() {
   const queryClient = useQueryClient();
   const { onMessage, onConversationUpdated, reconnectNonce } = useSocket();
+  const status = useSession((s) => s.status);
 
   const query = useQuery({
     queryKey: conversationsKey,
     queryFn: ({ signal }) => listConversations(signal),
+    enabled: status === 'authenticated',
   });
 
   useEffect(() => {

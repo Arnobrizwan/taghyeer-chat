@@ -5,6 +5,7 @@ import { io, type Socket } from 'socket.io-client';
 import { SOCKET_ORIGIN } from '@/lib/api/client';
 import { groupSchema, socketMessageSchema } from '@/lib/schemas';
 import type { Conversation, Message } from '@/lib/domain';
+import { isTokenUsable } from '@/lib/jwt';
 
 export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'unauthorised';
 
@@ -40,7 +41,7 @@ export function SocketProvider({
   // Derived, not stored: with no token there is nothing to connect, and writing that
   // into state from an effect would just be a render the compiler rightly objects to.
   // Providers remounts this component when the token changes, so state starts fresh.
-  const connection: ConnectionState = token ? socketState : 'disconnected';
+  const connection: ConnectionState = isTokenUsable(token) ? socketState : 'disconnected';
   const [reconnectNonce, setReconnectNonce] = useState(0);
 
   const messageHandlers = useRef(new Set<(m: Message) => void>());
@@ -48,7 +49,10 @@ export function SocketProvider({
   const hasConnectedOnce = useRef(false);
 
   useEffect(() => {
-    if (!token) return;
+    // Same JWT rule the session uses: a token that is already spent cannot produce a
+    // successful handshake, so attempting one only yields a `connect_error` and a
+    // reconnect loop behind it. The REST side reaches the same conclusion via `hydrate`.
+    if (!isTokenUsable(token)) return;
 
     const socket: Socket = io(SOCKET_ORIGIN, {
       auth: { token },
