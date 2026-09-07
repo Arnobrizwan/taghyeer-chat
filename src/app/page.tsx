@@ -22,7 +22,7 @@ const REPO = 'https://github.com/Arnobrizwan/taghyeer-chat';
  */
 const FOOTER_LINKS = [
   { label: 'Source', href: REPO },
-  { label: 'Architecture write-up', href: `${REPO}#part-3--write-up` },
+  { label: 'Architecture write-up', href: `${REPO}/blob/main/docs/WRITEUP.md` },
   { label: 'API findings', href: `${REPO}/blob/main/docs/API.md` },
 ];
 
@@ -273,10 +273,16 @@ export default function LandingPage() {
           normal text. `ink-muted` clears it at 4.9:1.
         */}
         <footer className="border-t border-line">
-          <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-7 text-sm text-ink-muted sm:flex-row sm:justify-between sm:px-8">
-            <span className="flex items-center gap-2">
-              <Logo size={20} />
-              Relay
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 py-7 text-sm text-ink-muted md:flex-row md:justify-between md:px-8">
+            <span className="flex flex-col items-center gap-x-2.5 gap-y-1 text-center sm:flex-row sm:text-left">
+              <span className="flex shrink-0 items-center gap-2">
+                <Logo size={20} />
+                Relay
+              </span>
+              <span aria-hidden="true" className="hidden text-ink-faint sm:inline">
+                ·
+              </span>
+              <span>Built by Arnob as a take-home for Taghyeer Technologies.</span>
             </span>
 
             <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
@@ -286,16 +292,12 @@ export default function LandingPage() {
                   href={l.href}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
+                  className="whitespace-nowrap underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
                 >
                   {l.label}
                 </a>
               ))}
             </nav>
-
-            <span className="text-center sm:text-right">
-              Built by Arnob as a take-home for Taghyeer Technologies.
-            </span>
           </div>
         </footer>
       </section>
