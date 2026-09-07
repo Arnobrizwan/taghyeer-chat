@@ -32,7 +32,7 @@ const CAPABILITIES = [
 
 export default function LandingPage() {
   return (
-    <div className="bg-canvas text-on-canvas">
+    <div className="bg-paper text-ink">
       {/* Begins waking the sleeping API while the visitor reads. Renders nothing. */}
       <PrewarmApi />
 
@@ -43,11 +43,10 @@ export default function LandingPage() {
           <span className="text-[15px] font-semibold tracking-tight">Relay</span>
         </span>
         <span className="flex items-center gap-3">
-          {/* The hero is always dark, so the control sits on a fixed dark ground here. */}
-          <ThemeToggle tone="canvas" />
+          <ThemeToggle />
           <WarmLink
             href="/app"
-            className="rounded-lg bg-on-canvas px-4 py-2 text-sm font-semibold text-canvas transition-transform duration-200 hover:-translate-y-0.5"
+            className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-paper transition-transform duration-200 hover:-translate-y-0.5"
           >
             Open the app
           </WarmLink>
@@ -59,7 +58,7 @@ export default function LandingPage() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
           <div>
             <Reveal>
-              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-on-canvas/15 px-3 py-1 text-xs font-medium tracking-wide text-on-canvas/70 uppercase">
+              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1 text-xs font-medium tracking-wide text-ink-muted uppercase">
                 <span className="size-1.5 rounded-full bg-vermilion-bright" />
                 Real-time messaging
               </p>
@@ -81,7 +80,7 @@ export default function LandingPage() {
             </Reveal>
 
             <Reveal delay={120}>
-              <p className="mt-6 max-w-md text-[17px] leading-relaxed text-on-canvas/70">
+              <p className="mt-6 max-w-md text-[17px] leading-relaxed text-ink-muted">
                 Most chat apps quietly drop what you typed while the signal was gone. Relay
                 queues it, keeps the order, and sends it the moment you&apos;re back — so
                 the thread reads the way you actually wrote it.
@@ -99,7 +98,7 @@ export default function LandingPage() {
                     <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </WarmLink>
-                <span className="text-sm text-on-canvas/45">
+                <span className="text-sm text-ink-faint">
                   No password — your phone number signs you in.
                 </span>
               </div>
@@ -111,11 +110,11 @@ export default function LandingPage() {
             <div className="relative">
               <div
                 aria-hidden="true"
-                className="absolute -inset-6 rounded-[2rem] bg-vermilion/15 blur-3xl"
+                className="absolute -inset-6 rounded-[2rem] bg-vermilion/10 blur-3xl"
               />
               <div className="relative">
                 <OutboxDemo />
-                <p className="mt-3 text-center text-xs text-on-canvas/45">
+                <p className="mt-3 text-center text-xs text-ink-faint">
                   Interactive demo — cut the connection, keep typing, then reconnect.
                 </p>
               </div>
@@ -125,7 +124,7 @@ export default function LandingPage() {
       </section>
 
       {/* ------------------------------------------------------- The argument */}
-      <section className="border-t border-on-canvas/10 bg-paper text-ink">
+      <section className="border-t border-line bg-paper-sunken text-ink">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
           <Reveal>
             <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3rem)] leading-tight text-balance">
@@ -155,7 +154,7 @@ export default function LandingPage() {
       </section>
 
       {/* ------------------------------------------------------ How it works */}
-      <section className="bg-paper-sunken text-ink">
+      <section className="border-t border-line bg-paper text-ink">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
           <Reveal>
             <h2 className="font-display text-[clamp(1.75rem,4vw,2.5rem)] leading-tight">
@@ -194,7 +193,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------------------------------------------------------------- CTA */}
-      <section className="bg-canvas">
+      <section className="border-t border-line bg-paper-sunken text-ink">
         <div className="mx-auto max-w-6xl px-5 py-24 text-center sm:px-8">
           <Reveal>
             <h2 className="mx-auto max-w-3xl font-display text-[clamp(2.25rem,5.5vw,3.75rem)] leading-[1.05] text-balance">
@@ -214,8 +213,8 @@ export default function LandingPage() {
           </Reveal>
         </div>
 
-        <footer className="border-t border-on-canvas/10">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-7 text-sm text-on-canvas/45 sm:flex-row sm:px-8">
+        <footer className="border-t border-line">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-7 text-sm text-ink-faint sm:flex-row sm:px-8">
             <span className="flex items-center gap-2">
               <Logo size={20} />
               Relay

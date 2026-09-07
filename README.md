@@ -299,8 +299,9 @@ the other way.
 (`#e0451f`). One accent only, used with discipline: anything vermilion is something you can
 do. Teal and amber appear solely as status colours — teal for delivered and connected,
 amber for queued and waking — so state is never competing with action for attention. The
-app runs on paper; the landing page inverts to ink. Same tokens, different ground, which
-makes them feel like one product rather than two pages.
+Paper and ink are *roles* rather than fixed colours, and every surface resolves them
+through the same tokens — app, landing and sign-in alike — so the theme toggle reaches the
+whole product and no page is pinned to a ground the reader didn't choose.
 
 **Typography.** Instrument Serif for display, Inter for everything else. The serif is doing
 real work: it's editorial and slightly unexpected on a messaging product, it gives the

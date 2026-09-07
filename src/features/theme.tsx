@@ -86,19 +86,7 @@ export function useTheme() {
  * A two-state toggle can't express "follow my OS", which is the setting most people
  * actually want and the one a binary switch silently overwrites the moment it is touched.
  */
-export function ThemeToggle({
-  tone = 'surface',
-  className,
-}: {
-  /**
-   * `canvas` for the always-dark landing hero and login panel. Passing overrides through
-   * `className` doesn't work for this: both would be background-colour utilities of equal
-   * specificity, so which one wins is decided by their order in the generated stylesheet,
-   * not by the order they appear in the class attribute.
-   */
-  tone?: 'surface' | 'canvas';
-  className?: string;
-}) {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
 
   const options: { value: Theme; label: string; icon: React.ReactNode }[] = [
@@ -112,10 +100,7 @@ export function ThemeToggle({
       role="radiogroup"
       aria-label="Colour theme"
       className={cx(
-        'inline-flex items-center gap-0.5 rounded-full border p-0.5',
-        tone === 'canvas'
-          ? 'border-on-canvas/15 bg-on-canvas/5 text-on-canvas'
-          : 'border-line bg-paper-raised text-ink',
+        'inline-flex items-center gap-0.5 rounded-full border border-line bg-paper-raised p-0.5 text-ink',
         className,
       )}
     >

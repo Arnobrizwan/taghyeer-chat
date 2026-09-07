@@ -69,7 +69,7 @@ Newest at the bottom of each phase. Feeds the Part 3 write-up.
 - **Whole ink ramp raised so the faintest step still clears 4.5:1** — a conventional light grey for metadata — timestamps are 11px normal text, and `#9ca3af` sat at **2.38:1**. Teal moved from `#0f9488` (3.5:1) to `#0d7f74` so "Connected" is legible as text rather than decoration.
 - **Active conversation marked with a left rule, not only a tint** — background tint alone — a tint is indistinguishable from hover when the pointer happens to be resting on a row.
 - **Both headers pinned to `h-16`** — intrinsic heights — the sidebar and thread rules have to meet exactly across the split, and they did not.
-- **Login rebuilt as a split screen with the landing page's ink panel** — a form centred on an empty page — signing in should not feel like arriving at a different product; the panel also restates the one thing that makes this app different.
+- **Sign-in is a single centred column, and the landing page runs on the same paper/ink roles as the app** — rather than either one being pinned to a fixed dark ground — a page that ignores the theme toggle reads as a different product, not a bolder one; the demo in the hero already restates what makes this app different, so a decorative panel was only competing with it.
 - **The landing demo's bubbles rebuilt to match the app exactly** — leaving the demo on its original styling — the landing page is showing the product, and a reviewer clicking through would land somewhere that looks unrelated.
 
 ## Theming and anti-spam

@@ -8,7 +8,8 @@
  * deliberate rather than defaulted. One accent only — vermilion carries every primary
  * action, so anything vermilion is always something you can do.
  *
- * The app runs on paper; the landing page inverts to ink. Same tokens, different ground.
+ * Every surface — app, landing and sign-in alike — runs on the same paper/ink roles, so
+ * the theme toggle reaches the whole product and no page is pinned to one ground.
  */
 /*
  * Tokens.
@@ -50,14 +51,9 @@
   --color-line-strong: var(--line-strong);
 
   /*
-   * Fixed in both themes. The landing hero and the login side panel are a deliberate dark
-   * statement, so they must not invert with the palette — and a modal scrim has to darken
-   * whatever is behind it regardless of theme.
+   * Fixed in both themes: a modal scrim has to darken whatever is behind it, so it cannot
+   * invert with the palette the way every other token does.
    */
-  --color-canvas: #14171f;
-  --color-canvas-soft: #1c2029;
-  --color-on-canvas: #f3f0ea;
-  --color-on-canvas-amber: #f0c485;
   --color-scrim: rgb(9 11 16 / 62%);
 
   --font-display: var(--font-instrument-serif), Georgia, serif;
