@@ -74,7 +74,7 @@ export function UserSearchPicker({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name or phone…"
-          className="w-full rounded-lg border border-line-strong bg-paper py-2.5 pr-9 pl-10 text-[15px] transition-colors placeholder:text-ink-faint hover:border-ink-faint"
+          className="w-full rounded-lg border border-line-strong bg-paper-raised py-2.5 pr-9 pl-10 text-[15px] transition-colors placeholder:text-ink-faint hover:border-ink-faint"
         />
         {isSearching && (
           <Spinner className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-ink-faint" />
@@ -123,7 +123,7 @@ export function UserSearchPicker({
             reason the threshold exists.
           */
           <div className="flex flex-col items-center gap-2 px-4 py-6 text-center">
-            <span className="flex size-9 items-center justify-center rounded-full bg-paper-sunken text-ink-faint">
+            <span className="flex size-9 items-center justify-center rounded-full text-ink-faint">
               <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                 <circle cx="9" cy="9" r="5.5" />
                 <path d="M13.5 13.5 17.5 17.5" strokeLinecap="round" />

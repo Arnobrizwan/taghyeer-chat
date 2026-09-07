@@ -14,20 +14,10 @@ export const metadata: Metadata = {
     'Direct and group messaging with an offline outbox. Messages you send on a dropped connection queue locally and flush in order when you reconnect — nothing is silently lost.',
 };
 
-const REPO = 'https://github.com/Arnobrizwan/taghyeer-chat';
-
 /**
  * A take-home is read as much as it is used, so the reading material is linked rather than
  * left for someone to go hunting through the repo for.
  */
-/*
- * One link, not three. The brief frames this page as an introduction for real users, and a
- * real user does not want an API findings document — those two links were reviewer plumbing
- * on a page that is meant to be in character. Both are the first rows of the README's
- * documentation table, which is where a reviewer actually arrives.
- */
-const FOOTER_LINKS = [{ label: 'Source', href: REPO }];
-
 const CAPABILITIES = [
   {
     title: 'Direct and group chats',
@@ -88,13 +78,6 @@ export default function LandingPage() {
         */}
         <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
           <div className="contents lg:block">
-            <Reveal className="order-1 lg:order-none">
-              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1 text-xs font-medium tracking-wide text-ink-muted uppercase">
-                <span className="size-1.5 rounded-full bg-vermilion-bright" />
-                Real-time messaging
-              </p>
-            </Reveal>
-
             <Reveal delay={60} className="order-1 lg:order-none">
               {/*
                 Broken by hand rather than left to the browser: "…on a / dead connection"
@@ -275,7 +258,7 @@ export default function LandingPage() {
           normal text. `ink-muted` clears it at 4.9:1.
         */}
         <footer className="border-t border-line">
-          <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 py-7 text-sm text-ink-muted md:flex-row md:justify-between md:px-8">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 py-7 text-sm text-ink-muted md:flex-row md:justify-center md:px-8">
             <span className="flex flex-col items-center gap-x-2.5 gap-y-1 text-center sm:flex-row sm:text-left">
               <span className="flex shrink-0 items-center gap-2">
                 <Logo size={20} />
@@ -287,19 +270,6 @@ export default function LandingPage() {
               <span>Built by Arnob as a take-home for Taghyeer Technologies.</span>
             </span>
 
-            <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-              {FOOTER_LINKS.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="whitespace-nowrap underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
-                >
-                  {l.label}
-                </a>
-              ))}
-            </nav>
           </div>
         </footer>
       </section>

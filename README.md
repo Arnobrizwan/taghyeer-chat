@@ -21,19 +21,6 @@ API works.
 > server while you read it, and a slow request shows a "waking the server up" banner with a
 > live counter rather than an unexplained spinner.
 
-### Worth trying, in about three minutes
-
-1. **Real-time.** Open `/app` in two browsers, sign in as two numbers, and find the other by
-   **name** — not phone. The search endpoint cannot match a `+`-prefixed number at all
-   ([why](./docs/WRITEUP.md#issues-with-the-given-api)).
-2. **The offline outbox.** On the landing page hit **Cut the connection**, keep typing, then
-   **Reconnect**. Messages queue and flush in order. The real app does the same on airplane mode.
-3. **Scroll behaviour.** Scroll up in a long thread while the other window sends. You are not
-   yanked down; a "new messages" pill appears instead.
-4. **Two tabs, one account.** Open `/app` twice in the *same* browser and send from one. The
-   other updates instantly — which the API alone does not allow, because it sends the author
-   no echo of their own message.
-
 ## Running locally
 
 ```bash

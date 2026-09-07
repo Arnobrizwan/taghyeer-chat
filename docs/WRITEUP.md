@@ -1,433 +1,294 @@
 # Part 3 — Write-up
 
-## In 60 seconds
-
-If you read nothing else, read this. Each line points at the section that argues it.
-
-1. **I probed the API before writing a line of UI.** The spec declares
-   `responses: { default: Unspecified }`, so I scripted ~120 calls and wrote down what
-   actually came back — an unescaped-regex 500, `200` with a `null` body on a failed write,
-   `lastMessage: {}` instead of `null`, three different shapes of `participants`, and a
-   missing token answered with `400`, not `401`.
-   → [Issues with the given API](#issues-with-the-given-api) ·
-   [`docs/api-findings.md`](./docs/api-findings.md)
-2. **Those findings drove the architecture, not the other way round.** Messages send over
-   REST because the socket ack carries no body to reconcile against; the thread is keyed by
-   id because the pagination cursor is inclusive; a Web Locks leader elects the one tab
-   allowed to flush, because `POST /messages` is not idempotent.
-   → [Reconciliation](#reconciliation)
-3. **The original feature is an offline outbox.** Type on a dead connection and it queues,
-   survives a refresh, and flushes in order when you reconnect — visibly queued, never
-   disguised as delivered. → [Part 4](#part-4--the-original-feature-an-offline-outbox)
-4. **The landing page is that feature, running.** The hero is the real state machine, not a
-   screenshot, so Parts 1 and 2 argue the same thing.
-   → [Part 2 reasoning](#part-2-reasoning-design)
-5. **91 unit tests** cover reconciliation, ordering, wire-shape normalisation, validation
-   and the avatar hash — each one written against a defect that actually occurred.
-   → [How this was verified](#how-this-was-verified)
-6. **Known gaps, stated plainly:** no component or end-to-end tests, no virtualised message
-   list, no country picker on the phone field.
-   → [What I'd improve with more time](#what-id-improve-with-more-time)
-
-The rest of this document is the detail behind those six lines. It is long because the API
-findings are long; skip to any heading above.
+This explains how I built Relay and why I made the choices I made. I've tried to write it so
+it makes sense whether or not you write code for a living. Where I have to use a technical
+word, I explain it the first time.
 
 ---
 
-## Part 1 reasoning: architecture and trade-offs
+## The short version
 
-### I probed the API before writing any code
+**Relay is a chat app.** You sign in with your phone number, find someone, and message them
+one-to-one or in a group. Messages arrive instantly, without refreshing the page.
 
-The published spec is deliberately request-only — it declares
-`responses: { default: Unspecified }` for every operation. So I spent the first phase
-scripting ~120 calls against the live service and recording exactly what came back
-([`docs/api-findings.md`](./docs/api-findings.md), raw captures in
-[`docs/recon/`](./docs/recon)).
+**The one thing that makes it different:** most chat apps quietly lose whatever you typed
+while your signal was gone. Relay doesn't. If you type on a dead connection, your message is
+saved on your device first, shown to you as clearly waiting, and sent the moment you're back
+online — in the order you wrote it. Nothing disappears, and nothing pretends it was
+delivered when it wasn't.
 
-That documentation isn't a snapshot I hope still holds — `docs/recon/verify-api.mjs`
-asserts every claim in it against the live API and currently reports **57/57**, so a
-reviewer can check it rather than take my word for it.
+**Before I wrote any of it, I spent the first phase testing the API I'd been given.** An API
+is the service the app talks to, like a kitchen an app sends orders to. The documentation
+for this one described almost nothing about what it actually sends back, so I ran roughly
+120 test requests and wrote down the real answers. That turned up around twenty genuine
+faults, several of which would have caused bugs I'd have blamed on my own code. Finding them
+first is the reason the rest of the build went the way it did.
 
-That wasn't diligence for its own sake. Six of those findings each changed a decision, and
-every one of them would have been a silent bug had I assumed conventional behaviour:
+Everything below is the detail behind those three paragraphs.
 
-1. **The `before` pagination cursor is inclusive.** Paging 25 messages at `limit=10` yields
-   30 rows across 3 pages, of which 28 are unique — every page boundary re-serves one
-   message. → The message store is a `Map<id, Message>`, never an array concat, so a
-   repeated boundary message collapses onto itself.
-2. **The socket renames the id and retypes the clock.** REST sends `_id` and an ISO string;
-   `message:new` sends `id` and epoch milliseconds, for the same message. → Two Zod schemas
-   transform onto one internal `Message`. Nothing above that line branches on transport.
-3. **The sender receives no echo of their own message.** → Optimistic appends can't be
-   double-rendered by an inbound copy, which made reconciliation simpler than expected. I
-   still key every insert by id so the design stays correct if an echo is ever added.
-4. **The socket's send ack is `{ok:true}` with no message body.** → **Send over REST,
-   receive over socket.** A socket-sent message can never be matched back to its optimistic
-   placeholder; REST returns the created entity with its real id. This is the single most
-   consequential decision in the app and it came from behaviour, not preference.
-5. **`POST /messages` returns `200` with a `null` body when the conversation doesn't
-   exist** — a success status for a write that didn't happen. → The client treats any `2xx`
-   whose body fails schema validation as an error.
-6. **Nothing is replayed when a socket reconnects.** Messages sent during a drop are gone
-   from the live stream permanently. → A REST re-sync fires on every reconnect, and this
-   finding is what the Part 4 feature is built on.
+---
 
-### State: two libraries, one boundary
+## Part 1 — how I built the app, and why
 
-TanStack Query alone is the conventional answer and I'd normally take it. I didn't, because
-the message timeline has **three independent writers** — REST history pages, socket pushes,
-and the local outbox — and Query's infinite-query cache models data as an array of pages.
-Merging socket pushes and optimistic entries into that structure means hand-writing the
-merge anyway, inside a cache shaped for something else. Finding #1 makes it worse: the
-pages genuinely *overlap*, which a page-array has no concept of.
+### I tested the API before I built anything
 
-So the split is: **Query owns anything request-shaped** (conversation list, search,
-`/auth/me`) and earns its keep with retry, dedupe and refetch-on-reconnect. **A Zustand
-store owns the timeline**, because that isn't a cache — it's a live-merged log where every
-write must be idempotent.
+The provided documentation listed the addresses you can call, but for the responses it
+essentially said "unspecified". So I wrote throwaway scripts and called every endpoint by
+hand, including deliberately wrong calls, and recorded exactly what came back.
 
-The honest cost is that two state systems mean one judgement call per new piece of state. I
-took that over bending one tool into a job it's shaped wrong for, and the boundary is
-stateable in a sentence.
+Some of what I found, in plain terms:
 
-### Reconciliation
+- **Asking for older messages returned one you already had.** Loading a conversation in
+  pages meant every page boundary repeated a message.
+- **A failed send reported success.** Sending to a conversation that doesn't exist returned
+  "OK" with an empty body. A naive app would show the message as sent.
+- **Searching for a phone number starting with `+` crashed the server.** The `+` was being
+  passed straight into a pattern-matching engine, where it means something special.
+- **Empty messages were accepted.** Sending a blank message, or one containing only spaces,
+  succeeded and was delivered to everyone.
+- **The same message arrives in two different shapes** depending on whether it comes through
+  the live connection or a normal request.
+- **You never get told about your own message.** If you send from one browser tab, a second
+  tab of yours never hears about it.
 
-Every path funnels through an id-keyed upsert, which is what makes the inclusive cursor and
-any repeated delivery harmless:
+The full list, with evidence for each, is in [`api-findings.md`](./api-findings.md), and my
+own clean rewrite of the documentation is in [`API.md`](./API.md).
 
-- **Send** → insert `{tempId, status:'queued'}` → `POST /messages` → delete the temp entry,
-  insert the canonical message by its server id.
-- **Receive** → normalise → upsert by id. Idempotent by construction.
-- **Load older** → `before=<oldest id held>` → upsert every result; the duplicated boundary
-  message overwrites itself.
-- **Reconnect** → refetch the newest page and invalidate the list.
+### Those findings decided the architecture
 
-Ordering is `(createdAt, id)` with pending messages pinned last, so client-clock skew can't
-make a message visibly jump backwards when it sends.
+This is the part I'd most like to be judged on, because the structure of the app is a direct
+response to what I found, rather than a template I applied.
 
-### Part 4 — the original feature: an offline outbox
+- **Every message is filed by its unique id**, not by its position in a list. That's what
+  makes the duplicate at each page boundary collapse harmlessly instead of appearing twice.
+- **Messages are sent the ordinary way, not down the live connection.** The live connection
+  confirms a send but doesn't tell you what it saved, so there'd be nothing to match against.
+  The ordinary route returns the saved message, so I can swap my temporary copy for the real
+  one.
+- **Everything arriving from the network is checked and reshaped at a single point** before
+  the rest of the app sees it. Two incoming shapes become one internal shape. This is also
+  what catches the "success with an empty body" case: a response that passes the status check
+  but fails the shape check is treated as a failure, which is what it is.
+- **Only one browser tab is allowed to send.** More on this below.
 
-The brief asks for something original rather than generically well-executed, so I picked
-the thing this specific API's weakness argues for. Finding #6 is a **demonstrable data-loss
-bug**: send a message while the socket is down and it is silently gone.
+I used two separate state libraries rather than one, and that was a deliberate trade-off.
+TanStack Query handles things that are really *requests* — the conversation list, user
+search, who you are. Zustand holds the message timeline and the outbox, which behave less
+like a cached request and more like a small database that several things write to at once.
+Forcing both jobs into one tool would have meant fighting it for one of them.
 
-Every send is therefore **queued first and transmitted second**. The queue is persisted to
-`localStorage`, so a message survives a reload or a crash, and it is flushed **strictly
-FIFO with one request in flight** — sending concurrently would let a later message land
-before an earlier one and reorder the conversation for everybody. Queued messages stay
-visible in the thread marked "waiting for connection"; failures keep the user's text and
-offer a retry rather than disappearing.
+### The extra feature: the offline outbox
 
-Sends are **never retried automatically**. `POST /messages` is not idempotent and accepts no
-client key, so a retry racing a slow success would post the message twice.
+The brief invited something original, so I picked the failure I find most annoying in real
+chat apps.
 
-You can play with the mechanism on the landing page — cut the connection, keep typing,
-reconnect — without signing in.
+When you press send, your message is written to your own device *before* anything touches
+the network. If the send succeeds, the saved copy is swapped for the server's copy and you
+see a tick. If it fails, the message stays in the thread, clearly marked as waiting — amber,
+outlined, with a clock instead of a tick — and it is retried when you're back online. The
+queue drains one message at a time, so the order you typed is the order everyone reads.
 
-### Bonus: the two states nobody tests
+The important detail is that a waiting message never *looks* delivered. That was the whole
+point, so I made queued and sent visually different rather than nearly identical.
 
-Two additions beyond the brief, both aimed at states that only show up once the app is in
-real use.
+You can try it without going offline: on the landing page, press **Cut the connection**,
+keep typing, then **Reconnect**.
 
-**1. Cross-tab coordination.** Finding #3 above — the sender gets no echo — has a
-consequence I didn't chase at first: **open the app in two tabs and send from one, and the
-other's thread silently goes stale.** Each tab holds its own socket, so other people's
-messages arrive everywhere, but your own arrive nowhere.
+### Two problems that only appear in real use
 
-Worse, my own outbox made it dangerous. The queue is persisted to `localStorage`, so **two
-tabs that hydrate it both flush it** — and since `POST /messages` is not idempotent and
-accepts no client key, every queued message gets sent twice.
+**Two tabs of the same account.** Because the API never tells you about your own messages,
+opening the app twice and sending from one leaves the other stale. Worse, my own outbox made
+it dangerous: the queue is saved on the device, so both tabs would find it and both would
+send it — and since the API has no protection against the same message being submitted
+twice, everything queued would arrive in duplicate.
 
-Both are fixed by electing a single sender. Leadership uses the **Web Locks API**: the lock
-is held for the lifetime of the tab and released by the browser automatically when it
-closes or crashes, so a successor is promoted with no heartbeat and no stale-lock timeout.
-A `BroadcastChannel` mirrors optimistic sends, deliveries and failures to every other tab,
-so followers show the queue and see delivery immediately without being allowed to transmit.
+The fix is that only one tab is allowed to transmit. The browser has a built-in mechanism for
+"only one of you may hold this at a time", and it releases automatically if that tab is
+closed or crashes, so another tab takes over with no timers to maintain. The other tabs still
+show everything; they just don't send. I checked this properly by looking at the server's own
+history afterwards and confirming exactly one copy existed, because a screen can look right
+while having sent twice.
 
-Verified end to end: with two tabs open and one message queued offline, **the server's own
-history contains exactly one copy** — which is the claim worth proving, because a UI can
-look correct while having sent twice.
+**The API falls asleep.** It's on a free hosting tier that shuts down after about fifteen
+minutes of no traffic, so the first visitor waits up to a minute. Rather than only apologise
+for it, the landing page quietly starts waking the server while you're reading, and again
+when you move toward the button. If a request is still slow, you get an honest "waking the
+server up" message with a counter instead of a spinner that explains nothing.
 
-Building it surfaced a bug in my own assumption. `BroadcastChannel` withholds a message
-only from the exact object that posted it, not from other channel instances in the same
-tab — and my publisher (a module singleton, callable outside React) and listener (a hook)
-are separate instances. So the sending tab received its own events and queued every message
-twice. Events now carry an originating tab id.
+### Stopping spam and accidental double-sends
 
-**2. Pre-warming the sleeping API.** The cold-start banner handles the symptom. This
-handles the cause: a health probe fires on landing-page mount, and again when the visitor
-aims at a call to action, so the container boots **while they read** rather than while they
-wait. It's fire-and-forget on an idle callback with a 60-second cooldown, so it never
-competes with first paint and six intent events cost one request. The banner stays for the
-cases this doesn't cover.
+My testing showed the API has no rate limiting whatsoever, accepts empty messages, and has no
+length limit. On a demo backend shared between candidates, one person holding down Enter
+could fill everyone's history.
 
-### Flood and duplicate protection
+So sending passes two separate checks, because they catch different mistakes. One allows a
+short burst then settles to about 40 messages a minute, which stops a held key. The other
+ignores an identical message sent within four seconds, which catches a double click. Both
+explain themselves when they refuse, and both **keep your text in the box** — throwing away
+what someone typed would be worse than the problem being prevented.
 
-Recon established that the API applies **no rate limiting at all** — 30 concurrent
-requests all returned `200` — and that `POST /messages` is not idempotent, accepts empty
-text and has no length cap. On a shared demo backend, one person holding Enter can fill
-everyone's history and nothing server-side stops them.
+---
 
-So sending passes two independent guards, because they catch different mistakes. A **token
-bucket** allows a burst of 5 and then sustains ~40 messages a minute, which catches a held
-key. A **4-second duplicate window** catches the accidental double-send — a double click,
-or Enter pressed twice while the ~1s round trip is still in flight.
+## Part 2 — how I designed the landing page, and why
 
-Both are advisory rather than silent: a refused send says why, and **keeps the text in the
-box**. Discarding what someone typed would be a worse outcome than the spam being
-prevented.
+**Chat products all look the same:** cool grey, navy, a blue accent. Landing on that reads as
+a default rather than a decision, so I went the other way.
 
-### What I deliberately didn't do
+**Colour.** Warm paper and deep ink, with a single orange-red accent. One accent, used with
+discipline: if something is that colour, it's something you can do. Green and amber appear
+only as status — green for delivered and connected, amber for waiting — so state never
+competes with action for your attention. Colours are defined by *role* rather than as fixed
+values, which is why the light and dark themes reach every screen instead of just the ones I
+remembered to style.
 
-No typing indicators, read receipts or emoji picker. The brief says common additions earn
-nothing even when well executed, and each would have cost time the chat panel needed.
-Light/dark theming is present because it's expected of a product like this, but I'm not
-claiming it as the originality bonus — that's the outbox and the cross-tab work.
+**Type.** A serif for headings, a clean sans-serif for everything else. The serif is doing
+real work: it's unexpected on a messaging product and gives the page a voice, and used
+sparingly inside the app it makes empty screens feel considered rather than unfinished.
 
-## Part 2 reasoning: design
+**The chat panel got a second pass**, because the brief says that's where you'd look closest
+and my first attempt didn't survive it. Timestamps sat on their own row under every message,
+which pushed messages apart and made the thread read as a stack of cards rather than a
+conversation — the time now sits inside the bubble. The thread also ran the full width of a
+desktop screen, so your eye had to cross the whole window to connect a message to its time;
+it's now capped to a comfortable reading width. And the accent colour didn't have enough
+contrast against white text to meet accessibility standards, so it was deepened until it did.
 
-**The problem with chat UI design is that it's a solved-looking space** — cool grey, navy,
-a blue accent. Landing on that palette reads as a default rather than a decision, so I went
-the other way.
+**Movement.** One easing curve everywhere, so motion feels like one system rather than
+several. Movement is only ever used to explain something — a message appears so you notice
+it, the "new messages" pill slides up because it just arrived. Nothing loops or decorates. If
+your device is set to reduce motion, the animation goes and the app still works.
 
-**Palette.** Warm paper (`#faf7f2`) and deep ink (`#14171f`), with a single vermilion accent
-(`#e0451f`). One accent only, used with discipline: anything vermilion is something you can
-do. Teal and amber appear solely as status colours — teal for delivered and connected,
-amber for queued and waking — so state is never competing with action for attention. The
-Paper and ink are *roles* rather than fixed colours, and every surface resolves them
-through the same tokens — app, landing and sign-in alike — so the theme toggle reaches the
-whole product and no page is pinned to a ground the reader didn't choose.
+**The original idea here is that the demo is the product.** The claim being made is about
+behaviour — "your message survives a dropped connection" — and the only honest way to show
+behaviour is to let you cause it. So the hero image is a working chat you can break. It runs
+the same logic as the real app. No invented testimonials, no FAQ accordion, no screenshot
+pretending to be a product.
 
-**Typography.** Instrument Serif for display, Inter for everything else. The serif is doing
-real work: it's editorial and slightly unexpected on a messaging product, it gives the
-landing page a voice, and used sparingly in-app (screen titles, empty states) it makes those
-moments feel considered instead of templated. Inter carries all UI and message text, where
-legibility at 15px matters more than character.
+---
 
-**The chat panel got a second pass**, because the brief says that's where they look
-closest and the first version didn't hold up at desktop width. Three things were wrong.
-Every message carried its timestamp on a row underneath, which added ~18px between each
-pair and stopped consecutive messages grouping — the thread read as a stack of cards
-rather than a conversation; the time now floats inside the bubble, so a run of messages
-sits 3px apart and only the last one gets a tail. The thread ran the full width of the
-window, so the eye had to cross 1400px to pair a message with its timestamp; it's capped
-to a reading measure and centred, with the composer on the same measure. And the accent
-carried white body text at only **4.17:1** — under AA — so it was deepened to `#cf3d18`
-(4.85:1), which also reads less neon across the large filled areas bubbles create. The
-whole ink ramp went up with it: 11px timestamps are normal text, and the conventional
-metadata grey sat at 2.38:1.
+## How I used AI
 
-**Motion.** One easing curve (`cubic-bezier(0.22, 1, 0.36, 1)`) shared by every transition,
-so movement feels like one system. Motion is only ever used to explain something: messages
-pop in so a new arrival is noticed, the pill slides up because it arrived, sections reveal
-on scroll to establish reading order. Nothing loops or decorates. Under
-`prefers-reduced-motion` animations are removed while state transitions are kept — stripping
-those makes an interface feel broken rather than calm.
+**Straight answer: Claude Code (Opus 5) wrote most of the first-draft code in this
+repository, and every commit says so.** The commit history will tell you that in ten seconds,
+so I'd rather say it here than have you discover it. The brief allows AI and asks that it be
+documented. This section and [`ai-usage-log.md`](./ai-usage-log.md) are that documentation,
+and the log was kept as I went rather than tidied up afterwards.
 
-**The landing page's original interaction is the product demo itself.** The claim being
-made is behavioural — "your message survives a dropped connection" — and the only honest way
-to show behaviour is to let the reader cause it. So the hero visual is a working chat where
-you can cut the connection, watch messages queue in amber, and reconnect to watch them flush
-in order. It runs the same state machine as the real composer. No stock testimonials, no FAQ
-accordion, no screenshot standing in for a product.
+What's mine is the part I'd want to be judged on: deciding to spend the first phase probing
+the API instead of building, reading the captured responses and working out which quirks had
+real consequences, choosing the offline outbox as the original feature, and every judgement
+call listed below. The model was fastest at work that was already specified — test scripts,
+first drafts of components, turning captured data into tables. It was consistently wrong
+about anything that could only be settled by actually running the thing, which is why several
+of the bugs below were found in a browser rather than by reading code.
 
-## AI usage
+**Things I rejected or had to fix:**
 
-**The split, up front: Claude Code (Opus 5) wrote most of the first-draft code in this
-repository, and every commit is co-authored accordingly.** `git log` will show you that
-immediately, so I would rather say it here than have you find it. The brief permits AI use
-and asks that it be documented; this section and
-[`docs/ai-usage-log.md`](./docs/ai-usage-log.md) are that documentation, and the log is a
-running record kept as I went, not written afterwards to look tidy.
+- **Six code-quality errors in generated components.** All were fixed by restructuring the
+  code, not by switching the warnings off.
+- **A bug that only appeared when running it.** The landing page demo fired four replies at
+  once on a single click, because of how React deliberately runs some code twice during
+  development. Invisible in review.
+- **The "new messages" button didn't actually scroll.** Two failed attempts before I found
+  why: the smooth scroll was being cancelled by the screen updating underneath it.
+- **My own earlier findings were wrong.** I had recorded that user search was
+  prefix-matched. Re-testing showed names and phone numbers are matched by two completely
+  different rules, which together mean a phone number stored with a `+` cannot be found by
+  anyone. I corrected the findings document, the app's search behaviour and the on-screen
+  wording rather than leave a confident, wrong claim in something being graded.
+- **A wrong assumption of mine about browser messaging** meant every message was queued
+  twice across tabs. Found by watching the saved queue in a real browser, not by reading.
+- **A test that passed without proving anything.** It checked a fallback behaviour against a
+  conversation too small for the result to be meaningful. I rebuilt the fixture so the check
+  could actually fail for the right reason.
+- **I refused to invent a measurement.** The API stayed awake during my session, so the
+  findings say I didn't observe a cold start rather than quoting the hosting provider's
+  published number as though I had.
 
-What that leaves as mine is the part I would want to be judged on: deciding to spend the
-first phase probing the API instead of building, reading the ~120 captured responses and
-working out which quirks had architectural consequences, choosing the offline outbox as the
-original feature, and every judgement call listed under *What I rejected or had to fix*
-below. The model was fastest at the work that was already specified — probe scripts,
-component scaffolding, turning captured JSON into tables. It was consistently wrong about
-anything that could only be settled by running the thing, which is why the verification
-section exists and why four of the bugs it lists were found in a browser rather than in
-review.
+Two habits I'd keep. Every AI-written explanation of *why* something behaves a certain way
+was checked against the real captured responses before it went in, because confident and
+wrong is the failure mode. And the automated tests are written against faults that actually
+happened here, including two the model itself introduced.
 
-Two habits I would keep. Every model-written explanation of *why* something is the way it
-is got checked against the captured responses before it went in, because plausible-sounding
-and wrong is the failure mode. And the tests in `src/**/*.test.ts` are deliberately written
-against defects that actually occurred here, including two the model itself introduced —
-the avatar hash below shipped broken twice.
+---
 
-**What it did well:** writing the seven throwaway probe scripts that produced the API
-findings, first drafts of components, and turning captured JSON into documentation.
+## Problems with the API I was given
 
-**What I rejected or had to fix:**
+Full evidence in [`api-findings.md`](./api-findings.md). Condensed, with what I did about
+each:
 
-- **Six React Compiler lint errors in generated code.** The first drafts of `Reveal`,
-  `SocketProvider`, `ServerStatusBanner` and `MessageList` all called `setState`
-  synchronously inside effects, and two read or wrote refs during render. I fixed all six by
-  restructuring — deriving state instead of storing it, remounting via `key` instead of
-  resetting in an effect, syncing refs in effects — rather than disabling the rules.
-- **A side effect inside a `setState` updater** in the landing demo. React double-invokes
-  updaters in development, so one click queued two flushes and fired four scripted replies at
-  once. Only visible by running it in a browser.
-- **The "new messages" pill didn't scroll.** Smooth `scrollIntoView` was cancelled by the
-  re-render that clears the unread badge; a smooth `scrollTop` assignment then stopped
-  ~1000px short. Two failed attempts before settling on an unanimated assignment, which is
-  what ships and is also what a reduced-motion user should get.
-- **My own Phase 0 findings were wrong about `/users/search`.** I had recorded
-  "case-sensitive and prefix-anchored". Re-probing showed name is matched by a
-  case-sensitive regex anchored at any *word* start while phone is matched by *exact
-  equality* — which together mean an E.164 number is unfindable. I corrected the findings
-  doc, `API.md`, the client's query strategy and the UI copy rather than leaving a confident
-  and wrong claim in a graded artifact.
-- **A wrong assumption about `BroadcastChannel`**, in the bonus work. I had taken it that a
-  channel never delivers to the sending tab — true only of the exact posting *object*, not
-  of other instances in the same tab. My publisher is a module singleton and my listener is
-  a hook, so the sending tab received its own events and **queued every optimistic message
-  twice**. Found by watching the persisted queue in a real browser, not by reading the code.
-- **A test that looked like a pass but proved nothing.** My API verification harness
-  asserted that `limit=abc` falls back to 20, but ran against a 15-message conversation, so
-  returning 15 was *consistent* with the claim without demonstrating it. I seeded the
-  fixture past the default page size and expanded it into the full matrix rather than
-  leaving a check that couldn't fail for the right reason.
-- **Refused to invent a cold-start measurement.** The API stayed warm throughout my session,
-  so the findings say I didn't observe one instead of quoting Render's published figure as
-  though I had.
-
-Several apparent bugs during verification turned out to be faults in my own test scripts — a
-selector that only matched run-ending bubbles, an assertion racing a smooth animation. Each
-was re-measured before I concluded anything about the app.
-
-## Issues with the given API
-
-Full detail with evidence in [`docs/api-findings.md`](./docs/api-findings.md). Condensed:
-
-| Issue | Handled by |
+| What's wrong | What I did |
 |---|---|
-| `before` cursor is **inclusive** — every page boundary duplicates a message | id-keyed store; duplicates collapse |
-| Socket sends `id` + epoch number; REST sends `_id` + ISO string | two Zod schemas → one domain type |
-| `POST /messages` → **`200` with `null`** for a missing conversation | schema-validated `2xx`; failure raises |
-| **Nothing replayed on socket reconnect** | REST re-sync on every reconnect |
-| Socket send ack carries no message | send over REST instead |
-| **Empty and whitespace-only messages are accepted** and broadcast | client-side guard on button *and* submit |
-| `?q=+880…` → **`500`**, unescaped regex injection | escape metacharacters; send safe variants |
-| **E.164 phone numbers are unfindable** — raw `+` 500s, escaped breaks exact match | multi-variant query; UI copy says so |
-| Empty `q` returns the **entire user directory** | 2-character minimum before searching |
-| Malformed ObjectId → **`500`** leaking the Mongoose model name | validate ids client-side; remap to "not found" |
-| Missing token → **`400`**, invalid token → `401` | detect auth failure on status **or** code |
-| **Four different response envelopes**; `participants` in three shapes | normalised once at the boundary |
-| Search returns *you*; `POST /conversations` with your own id returns a **stranger's chat** | self filtered from results |
-| `lastMessage` is `{}`, not `null` | normalised to `null` |
-| Groups can drop below their own 3-member minimum after creation | no length assumption anywhere |
-| No `GET /conversations/{id}` | list fetched eagerly; deep links resolve from it |
-| New direct conversations emit **no** socket event | list invalidated when a message arrives for an unknown conversation |
-| No echo to the sender ⇒ a second tab of the same user goes stale | `BroadcastChannel` mirrors sends across tabs |
-| `POST /messages` not idempotent ⇒ two tabs flushing one queue send twice | Web Locks elects a single sending tab |
+| Asking for older messages re-sends one you already have | Messages filed by id, so duplicates collapse |
+| The live connection and normal requests describe a message differently | Both reshaped into one internal format |
+| A send to a missing conversation returns success with an empty body | Responses are shape-checked, not just status-checked |
+| Nothing is re-sent after the live connection drops | The app re-fetches on every reconnect |
+| A send confirmation contains no message | Send via the normal route instead |
+| Empty and whitespace-only messages are accepted and delivered | Blocked in the app, on both the button and the keyboard |
+| A phone search starting with `+` crashes the server | Special characters escaped; safe variants sent |
+| A number stored as `+880…` can't be found by anyone | Multiple query forms tried; the interface says to search by name |
+| An empty search returns every user on the platform | Two-character minimum before searching |
+| A malformed id crashes and leaks an internal name | Ids validated before sending; remapped to "not found" |
+| A missing token is a different error code than an invalid one | Both detected |
+| Four different response wrappers; one field appears in three shapes | Normalised once, at a single point |
+| Search returns you, and starting a chat with yourself opens a stranger's conversation | You are filtered out of results |
+| "No messages yet" is an empty object, not a null value | Normalised, because the obvious check silently passes |
+| Groups can drop below their own stated three-member minimum | No code assumes a minimum size |
+| No way to fetch a single conversation | The list is loaded first so shared links can resolve |
+| New conversations announce nothing | The list refreshes when a message arrives for one it doesn't know |
+| You're never told about your own messages | Tabs of the same user tell each other |
+| The same message can be submitted twice with no protection | Only one tab is allowed to send |
 
-**In fairness:** the group and authorization layer is genuinely well built. Every admin
-action correctly rejects non-admins with distinct messages, `POST /conversations` is
-idempotent, group creation de-duplicates and ignores self, removed members immediately lose
-history access, and when the last admin leaves another member is auto-promoted. `hasMore` was
-accurate in every case I tested. I'd change none of it.
+**In fairness, some of it is genuinely well built.** Every group admin action correctly
+refuses non-admins with a distinct message, starting a conversation twice returns the same
+one rather than creating a duplicate, group creation removes duplicates and ignores you,
+removed members immediately lose access to history, and when the last admin leaves someone
+else is promoted automatically. I'd change none of that.
 
-## How this was verified
+---
 
-There are no automated tests — that's the honest gap, and it's first on the list below.
-What I did instead was drive the real thing and assert against it, which caught four bugs
-that were invisible in review.
+## How I checked it works
 
-**Two live browser sessions**, signed in as different users, on different origins so the
-sessions were genuinely independent:
+- **91 automated tests** covering the fiddly parts: merging pages of history, ordering,
+  reshaping the two message formats, validation, and the colour-assignment used for
+  profile pictures. Each was written against a fault that actually occurred.
+- **A re-runnable script that checks all 57 documented claims against the live API**, so the
+  documentation can't quietly drift out of date. `node docs/recon/verify-api.mjs`.
+- **Driving the real app in a browser** for anything the above can't prove — two tabs, going
+  offline mid-conversation, scroll position, page boundaries. Four real bugs came out of
+  this that review had missed.
+- **Layout measured rather than eyeballed** at phone, tablet, laptop and desktop widths:
+  content overflowing the screen, elements pushed past the edge, text clipped by its own
+  box, and buttons too small to tap comfortably.
+- Several apparent bugs turned out to be faults in my own test scripts. Each was re-measured
+  before I concluded anything about the app.
 
-| Check | Result |
-|---|---|
-| Real-time delivery, direct **and** group | Arrives with no refresh; sender name shown in groups |
-| Pagination across the inclusive cursor | 25 → **41 messages, 0 duplicates**, order intact |
-| Scrolled up + incoming message | Viewport unmoved (300 → 300); pill appears; click lands at bottom (distance **0**) |
-| Empty / whitespace send | Blocked at the button **and** on direct form submit — 0 messages created |
-| Offline → queue → reconnect | 3 queued, persisted, flushed FIFO, all "Sent", received **in order**, 0 duplicates |
-| Two tabs, one queued message | **Server history contains exactly one copy** |
-| Leader tab closed | Survivor acquires the freed lock and sends; production build shows 1 held / 0 pending |
-| Cold start (8s stall injected) | Banner at ~3.5s, counter ticks 1s → 2s → 3s, clears on completion |
-| Pre-warm | 1 `GET /health` on landing; 6 intent events → **0 extra requests** (60s cooldown) |
-| 375px viewport | **0 overflowing elements**, composer usable, list ⇄ thread navigation works |
-| Duplicate send within the window | Blocked, explained, text kept in the composer |
-| XSS payloads stored via the API | Render as inert text — 0 injected elements |
-| Light / dark / system | Applied before first paint, persists, follows the OS, syncs across tabs |
-| Deployed URLs, clean session | Both `200`, no auth, no deployment protection |
+---
 
-**The API documentation is machine-checked**, not a snapshot I hope still holds:
+## What I'd do with more time
 
-```
-$ node docs/recon/verify-api.mjs
-================ 57/57 checks match documentation ================
-```
-
-Where a result was surprising I re-measured before believing it. Several apparent app bugs
-turned out to be faults in my own test scripts — a selector that only matched run-ending
-bubbles, an assertion racing a smooth scroll animation, and a `limit` check that couldn't
-fail for the right reason. Those were fixed in the tests, not papered over in the app.
-
-**Untrusted input.** The app calls no language model, so there is no prompt-injection
-surface in the product itself — but it does render text written by other people, and the
-API stores it raw. I posted `<img src=x onerror=…>`, `<script>` and `"><svg onload=…>`
-through the API and confirmed all three render as inert text: **0 injected elements, 0
-handlers, no alert**. React's escaping does the work; there is no `innerHTML`, no `eval`,
-and the one `dangerouslySetInnerHTML` in the codebase is the theme script, a static
-self-authored string with no interpolated input. Socket payloads, cross-tab events and the
-persisted outbox are all shape-validated before use, and ids are checked against an
-ObjectId pattern before they reach a URL.
-
-**Unit tests: 91, across 7 files, in ~0.4s with no network.** They cover the parts where
-this app is either correct or not — cursor-seam de-duplication, message ordering and its
-ObjectId tie-break, the outbox lifecycle, the two wire shapes collapsing to one domain type,
-JWT expiry, phone and message validation, and the avatar hash.
-
-Two things about them are worth saying. **Every test was written against a defect that
-actually happened here**, not against a hypothetical: the seam duplicate, the avatar tint
-collision, `lastMessage: {}`, the invented `+` on a local phone number. And I checked the
-tests are not vacuous by reintroducing two of those bugs and confirming the suite goes red —
-restoring the old `h * 31 + c` hash fails the real-group tint test, and breaking the merge
-key fails the seam test.
-
-The suite is deliberately pure-logic and runs in Node with no jsdom. That is a consequence
-of the architecture rather than a shortcut: nearly every bug found across three review
-rounds was in logic that had been left sitting inside a component, and moving each one down
-into `lib/` is what made it testable at all.
-
-**Gates:** `npm test`, `npm run build`, `npx tsc --noEmit` and `npm run lint` are all clean
-— lint reports **0 problems**, including the React Compiler rules Next 16 enables, none of
-which are disabled anywhere in the codebase.
-
-## What I'd improve with more time
-
-- **Component and end-to-end tests.** The 91 unit tests cover the pure logic, which is
-  where the real risk is, but nothing renders a component or drives a browser. The pill,
-  scroll restoration on pagination, and the cross-tab leader election all want Playwright,
-  which can drive two browser contexts properly rather than the two-origin workaround I
-  used by hand. That is the next thing I would write.
-- **Virtualised message list.** Currently every loaded message stays in the DOM. Fine for
-  hundreds, not for tens of thousands.
-- **A real gap-fill on reconnect.** Today reconnect refetches the newest page, which covers
-  any realistic drop. A rigorous version would page backwards until it overlaps what's
-  already held.
-- **Optimistic group admin actions.** Rename, promote and remove currently wait on a ~1s
-  round trip. The message path is optimistic; these should be too.
-- **A leader-tab fallback for browsers without Web Locks.** Support is broad (Chrome,
-  Firefox, Safari 15.4+), and where it's missing every tab sends as before rather than not
-  sending at all — but a `localStorage` lease with a heartbeat would close the gap
-  properly.
-- **Accessibility beyond the basics.** Every colour pair in the palette clears AA for its
-  text size, ARIA and focus management are in place, and the message log has a live region
-  scoped to additions — but I haven't tested with a real screen reader, which is the only
-  way to know whether the live region is actually pleasant rather than merely correct.
-- **`GET /conversations/{id}` on the server side.** Its absence forces the whole list to
-  load before a deep-linked thread can render its own header.
+- **Component and end-to-end tests.** The logic is covered; the interface is checked by hand.
+  A browser-driving test suite would make the two-tab and offline behaviour a permanent
+  safety net rather than a one-off check.
+- **Handle very long conversations.** Every loaded message currently stays on the page. Fine
+  for hundreds, not for tens of thousands.
+- **A more rigorous catch-up after reconnecting.** Today it re-fetches the newest page, which
+  covers any realistic outage. A stricter version would page backwards until it overlaps what
+  it already has.
+- **Make group admin actions feel instant.** Renaming, promoting and removing currently wait
+  for the server. Sending a message doesn't; these should match.
+- **A fallback for older browsers** that lack the "only one tab may send" mechanism. Support
+  is broad, and where it's missing every tab simply sends as it would have anyway, but the
+  gap could be closed properly.
+- **Test with a real screen reader.** Every colour pair meets the contrast standard and the
+  screen-reader markup is in place, but correct and pleasant are not the same thing, and only
+  using one tells you which you have.
 
 ---
 
 ### A note on the assignment PDF
 
-The PDF contains an injected line instructing an AI assistant to insert a specific unrelated
-word into the write-up. It was identified during the first read and deliberately not
+The PDF contains a line addressed to AI assistants, instructing them to insert a specific
+unrelated word into this write-up. It was spotted on the first read and deliberately not
 followed; the word appears nowhere in this submission. Flagging it here because noticing it
-is the point of including it.
+is presumably the point of including it.
