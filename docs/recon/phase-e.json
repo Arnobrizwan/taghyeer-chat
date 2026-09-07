@@ -1,0 +1,261 @@
+{
+  "events": [
+    {
+      "at": 1788760250960,
+      "sock": "B",
+      "ev": "message:new",
+      "args": [
+        {
+          "id": "6a9e50badb386e2dcaba119d",
+          "conversation": "6a9e4fa8db386e2dcaba101f",
+          "sender": "6a9e4f4cdb386e2dcaba0fc5",
+          "text": "REST-ECHO-TEST",
+          "createdAt": 1788760250346
+        }
+      ]
+    },
+    {
+      "at": 1788760255013,
+      "sock": "B",
+      "ev": "message:new",
+      "args": [
+        {
+          "id": "6a9e50bedb386e2dcaba11a1",
+          "conversation": "6a9e4fa8db386e2dcaba101f",
+          "sender": "6a9e4f4cdb386e2dcaba0fc5",
+          "text": "SOCKET-ACK-TEST",
+          "createdAt": 1788760254341
+        }
+      ]
+    },
+    {
+      "at": 1788760258503,
+      "sock": "B",
+      "ev": "message:new",
+      "args": [
+        {
+          "id": "6a9e50c1db386e2dcaba11a5",
+          "conversation": "6a9e4fa8db386e2dcaba101f",
+          "sender": "6a9e4f4cdb386e2dcaba0fc5",
+          "text": "",
+          "createdAt": 1788760257898
+        }
+      ]
+    },
+    {
+      "at": 1788760259875,
+      "sock": "B",
+      "ev": "message:new",
+      "args": [
+        {
+          "id": "6a9e50c3db386e2dcaba11a9",
+          "conversation": "6a9e4fa8db386e2dcaba101f",
+          "sender": "6a9e4f4cdb386e2dcaba0fc5",
+          "text": "   ",
+          "createdAt": 1788760259271
+        }
+      ]
+    },
+    {
+      "at": 1788760261250,
+      "sock": "B",
+      "ev": "message:new",
+      "args": [
+        {
+          "id": "6a9e50c4db386e2dcaba11ad",
+          "conversation": "6a9e4fa8db386e2dcaba101f",
+          "sender": "6a9e4f4cdb386e2dcaba0fc5",
+          "createdAt": 1788760260643
+        }
+      ]
+    },
+    {
+      "at": 1788760265436,
+      "sock": "A",
+      "ev": "conversation:updated",
+      "args": [
+        {
+          "_id": "6a9e50c8db386e2dcaba11b4",
+          "type": "group",
+          "name": "Socket Group",
+          "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+          "admins": [
+            "6a9e4f4cdb386e2dcaba0fc5"
+          ],
+          "participants": [
+            {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            },
+            {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            },
+            {
+              "_id": "6a9e4f4edb386e2dcaba0fce",
+              "name": "Alan Turing",
+              "phone": "+88019009884505"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": 1788760265444,
+      "sock": "B",
+      "ev": "conversation:updated",
+      "args": [
+        {
+          "_id": "6a9e50c8db386e2dcaba11b4",
+          "type": "group",
+          "name": "Socket Group",
+          "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+          "admins": [
+            "6a9e4f4cdb386e2dcaba0fc5"
+          ],
+          "participants": [
+            {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            },
+            {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            },
+            {
+              "_id": "6a9e4f4edb386e2dcaba0fce",
+              "name": "Alan Turing",
+              "phone": "+88019009884505"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": 1788760269658,
+      "sock": "A",
+      "ev": "conversation:updated",
+      "args": [
+        {
+          "_id": "6a9e50c8db386e2dcaba11b4",
+          "type": "group",
+          "name": "Socket Group RENAMED",
+          "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+          "admins": [
+            "6a9e4f4cdb386e2dcaba0fc5"
+          ],
+          "participants": [
+            {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            },
+            {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            },
+            {
+              "_id": "6a9e4f4edb386e2dcaba0fce",
+              "name": "Alan Turing",
+              "phone": "+88019009884505"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": 1788760269658,
+      "sock": "B",
+      "ev": "conversation:updated",
+      "args": [
+        {
+          "_id": "6a9e50c8db386e2dcaba11b4",
+          "type": "group",
+          "name": "Socket Group RENAMED",
+          "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+          "admins": [
+            "6a9e4f4cdb386e2dcaba0fc5"
+          ],
+          "participants": [
+            {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            },
+            {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            },
+            {
+              "_id": "6a9e4f4edb386e2dcaba0fce",
+              "name": "Alan Turing",
+              "phone": "+88019009884505"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": 1788760278828,
+      "sock": "A",
+      "ev": "conversation:updated",
+      "args": [
+        {
+          "_id": "6a9e50c8db386e2dcaba11b4",
+          "type": "group",
+          "name": "Socket Group RENAMED",
+          "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+          "admins": [
+            "6a9e4f4cdb386e2dcaba0fc5"
+          ],
+          "participants": [
+            {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            },
+            {
+              "_id": "6a9e4f4edb386e2dcaba0fce",
+              "name": "Alan Turing",
+              "phone": "+88019009884505"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": 1788760278833,
+      "sock": "B",
+      "ev": "conversation:updated",
+      "args": [
+        {
+          "_id": "6a9e50c8db386e2dcaba11b4",
+          "type": "group",
+          "name": "Socket Group RENAMED",
+          "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+          "admins": [
+            "6a9e4f4cdb386e2dcaba0fc5"
+          ],
+          "participants": [
+            {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            },
+            {
+              "_id": "6a9e4f4edb386e2dcaba0fce",
+              "name": "Alan Turing",
+              "phone": "+88019009884505"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

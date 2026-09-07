@@ -1,0 +1,51 @@
+# Decisions
+
+One line per non-obvious decision: **decision — alternative rejected — why.**
+Newest at the bottom of each phase. Feeds the Part 3 write-up.
+
+## Phase 0 — Recon
+
+- **Probe the live API with scripted Node runs before writing any code** — reading the Swagger page and assuming conventional REST — the spec documents zero response bodies and zero status codes, so every shape had to be observed; this surfaced six behaviours (§1 of `api-findings.md`) that would each have been a silent bug.
+- **Send messages over REST, receive over socket** — sending over `message:send` — the socket ack is `{ok:true}` with no message body, so a socket send can never be reconciled with its optimistic placeholder; REST returns the full created message including `_id` and `createdAt`.
+- **Key the message store by id (`Map<id, Message>`) rather than an array** — appending to an array — the `before` cursor is inclusive, so every pagination boundary re-serves one message; id-keying makes the duplicate collapse instead of render.
+- **Normalise both transports onto one internal `Message` type at the API boundary** — using the raw payloads and branching at render time — REST sends `_id` + ISO string, the socket sends `id` + epoch number for the same entity; normalising once means no component ever sees two shapes.
+- **Treat a 2xx whose body fails schema validation as an error** — trusting the status code — `POST /messages` returns `200 null` for a non-existent conversation, so status alone reports a failed write as success.
+- **Detect session expiry on `401 || code === 'NO_TOKEN'`** — checking `401` alone — a missing token returns `400 NO_TOKEN`, so status-only detection misses half of all auth failures.
+- **Store raw recon captures in `docs/recon/` with JWTs redacted** — keeping them in a scratch dir — the findings doc makes strong claims about the API; the evidence should be checkable by a reviewer.
+
+## Phase 2 — Skeleton
+
+- **TanStack Query for request-shaped state, a Zustand store for the message timeline** — one library for everything — the timeline has three independent writers (history pages, socket pushes, the outbox) and an *overlapping* page cursor, which is precisely what Query's array-of-pages cache models worst; the conversation list and search are ordinary requests and get retry/dedupe/refetch-on-reconnect for free.
+- **`request()` is a plain module wired to the session via a token-provider callback** — a `useApi()` hook — the outbox flusher runs outside React's tree and still needs authenticated calls.
+- **A `2xx` whose body fails Zod validation raises `ApiError`** — trusting status codes — `POST /messages` answers `200` with `null` for a non-existent conversation.
+- **Two Zod schemas (REST + socket) transforming onto one `Message`** — a single loose schema — the transports genuinely disagree on both field name and timestamp type; normalising once means nothing above the boundary branches.
+- **`ApiError.kind` rather than raw status codes** — branching on `err.status` at call sites — auth failure spans `400` and `401`, and a malformed id arrives as `500`, so status alone is not a usable signal.
+- **Cast-error `500`s are remapped to a friendly "not found"** — surfacing the server message — the raw text leaks the Mongoose model name and is meaningless to a user.
+
+## Phase 3 — Features
+
+- **Warm-latency-aware caching (`staleTime: 30s`)** — aggressive refetching — every request costs ~1s even warm, so casual refetches are expensive.
+- **Search is not issued below 2 characters** — searching on every keystroke — an empty `q` returns the entire user directory.
+- **Self is filtered from search results** — leaving the API's response as-is — the API returns you, and selecting yourself opens an unrelated conversation via the `$all: [me, me]` bug.
+- **Existing direct conversations are resolved from the local list before calling the API** — always POSTing — the endpoint is idempotent so both work, but the local path avoids a ~1s round trip and reads as "open" rather than "create".
+- **Admin-only controls are not rendered for non-admins** — rendering them and surfacing the 403 — the API enforces this correctly; a button that always fails is worse than no button.
+- **`MessageList` is remounted per conversation via `key`** — resetting scroll state in an effect — a new conversation is genuinely new state, and this removed a `setState`-in-effect the React Compiler lint correctly rejected.
+- **"Pinned to bottom" is a ref, not state** — `useState` — nothing renders from it and it changes every scroll frame; as state it re-rendered the whole list on every scroll.
+- **The jump-to-latest scroll is instant, never animated** — smooth scrolling — verified twice in-browser that animated scrolling silently failed to land (see `ai-usage-log.md`); for the one scroll behaviour the brief names explicitly, landing reliably beats animating.
+- **`searchUsers` sends several safe query variants and merges them** — a single escaped query — escaping prevents the `500` but breaks the endpoint's exact-equality phone match, so a raw variant is also sent whenever it contains no regex metacharacters.
+
+## Phase 4 — Offline outbox
+
+- **Every send is queued first and transmitted second** — sending directly and queueing only on failure — a single path means a message can never be lost between "typed" and "failed", including across a reload.
+- **The queue is persisted to `localStorage` and flushed strictly FIFO, one in flight** — parallel flush — concurrent sends would let a later message land first and reorder the conversation for everyone.
+- **Sends are never retried automatically after an ambiguous failure** — automatic retry — `POST /messages` is not idempotent and takes no client key, so a retry racing a slow success posts twice; the user gets an explicit Retry instead.
+
+## Phase 5 — Landing
+
+- **Warm paper/ink with a single vermilion accent** — the usual cool-grey or dark-navy chat palette — one accent means anything vermilion is always actionable, and the warmth reads as chosen rather than defaulted.
+- **The product visual is a working demo, not a screenshot** — a static image — the claim being made is behavioural ("your message survives a drop"), and the only honest way to show behaviour is to let the reader cause it.
+- **Reveal animations use IntersectionObserver with no reduced-motion branch** — a JS check for `prefers-reduced-motion` — the global stylesheet already collapses transition durations, so one code path serves both.
+
+## Phase 7 — Verification
+
+- **`allowedDevOrigins` for `127.0.0.1` and the LAN IP** — testing both sessions on one origin — same-origin tabs share `localStorage` and therefore the session; two origins give two genuinely independent logins. Dev-only, no effect on the production build.

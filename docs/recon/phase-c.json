@@ -1,0 +1,1130 @@
+{
+  "gid": "6a9e4ff6db386e2dcaba1078",
+  "log": [
+    {
+      "label": "create group (A admin, B+C members)",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "Recon Squad",
+        "participantIds": [
+          "6a9e4f4ddb386e2dcaba0fca",
+          "6a9e4f4edb386e2dcaba0fce"
+        ]
+      },
+      "status": 201,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          },
+          {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:47:34.362Z"
+      }
+    },
+    {
+      "label": "create group with ONE participant (2 members total)",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "Too Small",
+        "participantIds": [
+          "6a9e4f4ddb386e2dcaba0fca"
+        ]
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "participantIds",
+              "message": "a group needs at least 3 members"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "create group with ZERO participants",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "Empty",
+        "participantIds": []
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "participantIds",
+              "message": "a group needs at least 3 members"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "create group missing name",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "participantIds": [
+          "6a9e4f4ddb386e2dcaba0fca",
+          "6a9e4f4edb386e2dcaba0fce"
+        ]
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "name",
+              "message": "Required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "create group empty name",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "",
+        "participantIds": [
+          "6a9e4f4ddb386e2dcaba0fca",
+          "6a9e4f4edb386e2dcaba0fce"
+        ]
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "name",
+              "message": "name is required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "create group whitespace name",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "   ",
+        "participantIds": [
+          "6a9e4f4ddb386e2dcaba0fca",
+          "6a9e4f4edb386e2dcaba0fce"
+        ]
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Group name is required",
+          "code": "INVALID_NAME"
+        }
+      }
+    },
+    {
+      "label": "create group bogus participant",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "Ghosts",
+        "participantIds": [
+          "6a9e4f4cdb386e2dcaba0000"
+        ]
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "participantIds",
+              "message": "a group needs at least 3 members"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "create group DUPLICATE participants",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "Dupes",
+        "participantIds": [
+          "6a9e4f4ddb386e2dcaba0fca",
+          "6a9e4f4ddb386e2dcaba0fca",
+          "6a9e4f4edb386e2dcaba0fce"
+        ]
+      },
+      "status": 201,
+      "body": {
+        "_id": "6a9e4ffadb386e2dcaba1083",
+        "type": "group",
+        "name": "Dupes",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          },
+          {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:38.574Z",
+        "updatedAt": "2026-09-07T05:47:38.574Z"
+      }
+    },
+    {
+      "label": "create group including SELF in participantIds",
+      "method": "POST",
+      "path": "/conversations/group",
+      "reqBody": {
+        "name": "SelfIncl",
+        "participantIds": [
+          "6a9e4f4cdb386e2dcaba0fc5",
+          "6a9e4f4ddb386e2dcaba0fca",
+          "6a9e4f4edb386e2dcaba0fce"
+        ]
+      },
+      "status": 201,
+      "body": {
+        "_id": "6a9e4ffbdb386e2dcaba1088",
+        "type": "group",
+        "name": "SelfIncl",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          },
+          {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:39.758Z",
+        "updatedAt": "2026-09-07T05:47:39.758Z"
+      }
+    },
+    {
+      "label": "conversations list A (shows group shape)",
+      "method": "GET",
+      "path": "/conversations",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "_id": "6a9e4ffbdb386e2dcaba1088",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:39.758Z",
+            "name": "SelfIncl",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4ffadb386e2dcaba1083",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:38.574Z",
+            "name": "Dupes",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4ff6db386e2dcaba1078",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:34.362Z",
+            "name": "Recon Squad",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4fa8db386e2dcaba101f",
+            "type": "direct",
+            "lastMessage": {
+              "text": "<img src=x onerror=alert(1)>",
+              "sender": "6a9e4f4cdb386e2dcaba0fc5",
+              "createdAt": "2026-09-07T05:46:33.620Z"
+            },
+            "updatedAt": "2026-09-07T05:46:33.857Z",
+            "participant": {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "group history (empty)",
+      "method": "GET",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/messages",
+      "status": 200,
+      "body": {
+        "messages": [],
+        "hasMore": false
+      }
+    },
+    {
+      "label": "send to group",
+      "method": "POST",
+      "path": "/messages",
+      "reqBody": {
+        "conversationId": "6a9e4ff6db386e2dcaba1078",
+        "text": "Grace in the group"
+      },
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ffedb386e2dcaba1093",
+        "conversation": "6a9e4ff6db386e2dcaba1078",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "Grace in the group",
+        "createdAt": "2026-09-07T05:47:42.858Z"
+      }
+    },
+    {
+      "label": "conversations list A (after group msg — ordering/preview)",
+      "method": "GET",
+      "path": "/conversations",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "_id": "6a9e4ff6db386e2dcaba1078",
+            "type": "group",
+            "lastMessage": {
+              "text": "Grace in the group",
+              "sender": "6a9e4f4ddb386e2dcaba0fca",
+              "createdAt": "2026-09-07T05:47:42.858Z"
+            },
+            "updatedAt": "2026-09-07T05:47:43.094Z",
+            "name": "Recon Squad",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4ffbdb386e2dcaba1088",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:39.758Z",
+            "name": "SelfIncl",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4ffadb386e2dcaba1083",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:38.574Z",
+            "name": "Dupes",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4fa8db386e2dcaba101f",
+            "type": "direct",
+            "lastMessage": {
+              "text": "<img src=x onerror=alert(1)>",
+              "sender": "6a9e4f4cdb386e2dcaba0fc5",
+              "createdAt": "2026-09-07T05:46:33.620Z"
+            },
+            "updatedAt": "2026-09-07T05:46:33.857Z",
+            "participant": {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "NON-ADMIN rename (B)",
+      "method": "PATCH",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078",
+      "reqBody": {
+        "name": "Hijacked"
+      },
+      "status": 403,
+      "body": {
+        "error": {
+          "message": "Only admins can rename the group",
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "label": "NON-ADMIN add member (B)",
+      "method": "POST",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/participants",
+      "reqBody": {
+        "userIds": [
+          "6a9e4f4cdb386e2dcaba0fc5"
+        ]
+      },
+      "status": 403,
+      "body": {
+        "error": {
+          "message": "Only admins can add participants",
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "label": "NON-ADMIN remove member (B removes C)",
+      "method": "DELETE",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/participants/6a9e4f4edb386e2dcaba0fce",
+      "status": 403,
+      "body": {
+        "error": {
+          "message": "Only admins can remove other members",
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "label": "NON-ADMIN promote (B promotes self)",
+      "method": "POST",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/admins",
+      "reqBody": {
+        "userId": "6a9e4f4ddb386e2dcaba0fca"
+      },
+      "status": 403,
+      "body": {
+        "error": {
+          "message": "Only admins can promote members",
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "label": "NON-PARTICIPANT rename (C not in? actually C is in)",
+      "method": "PATCH",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078",
+      "reqBody": {
+        "name": "Nope"
+      },
+      "status": 403,
+      "body": {
+        "error": {
+          "message": "Only admins can rename the group",
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "label": "ADMIN rename",
+      "method": "PATCH",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078",
+      "reqBody": {
+        "name": "Recon Squad v2"
+      },
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad v2",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          },
+          {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:47:48.687Z"
+      }
+    },
+    {
+      "label": "ADMIN rename to EMPTY",
+      "method": "PATCH",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078",
+      "reqBody": {
+        "name": ""
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "name",
+              "message": "name is required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "ADMIN rename to WHITESPACE",
+      "method": "PATCH",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078",
+      "reqBody": {
+        "name": "   "
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Group name is required",
+          "code": "INVALID_NAME"
+        }
+      }
+    },
+    {
+      "label": "ADMIN rename missing name",
+      "method": "PATCH",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078",
+      "reqBody": {},
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "name",
+              "message": "Required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "ADMIN promote B",
+      "method": "POST",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/admins",
+      "reqBody": {
+        "userId": "6a9e4f4ddb386e2dcaba0fca"
+      },
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad v2",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5",
+          "6a9e4f4ddb386e2dcaba0fca"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          },
+          {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:47:51.683Z"
+      }
+    },
+    {
+      "label": "ADMIN promote B AGAIN (idempotent?)",
+      "method": "POST",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/admins",
+      "reqBody": {
+        "userId": "6a9e4f4ddb386e2dcaba0fca"
+      },
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad v2",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5",
+          "6a9e4f4ddb386e2dcaba0fca"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          },
+          {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:47:53.135Z"
+      }
+    },
+    {
+      "label": "ADMIN promote NON-MEMBER",
+      "method": "POST",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/admins",
+      "reqBody": {
+        "userId": "6a9e4f4cdb386e2dcaba0000"
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Target user is not a member of this group",
+          "code": "NOT_A_MEMBER"
+        }
+      }
+    },
+    {
+      "label": "ADMIN add member (re-add existing C)",
+      "method": "POST",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/participants",
+      "reqBody": {
+        "userIds": [
+          "6a9e4f4edb386e2dcaba0fce"
+        ]
+      },
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad v2",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5",
+          "6a9e4f4ddb386e2dcaba0fca"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          },
+          {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:47:55.509Z"
+      }
+    },
+    {
+      "label": "ADMIN add EMPTY userIds array",
+      "method": "POST",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/participants",
+      "reqBody": {
+        "userIds": []
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "userIds",
+              "message": "userIds is required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "ADMIN remove C",
+      "method": "DELETE",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/participants/6a9e4f4edb386e2dcaba0fce",
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad v2",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5",
+          "6a9e4f4ddb386e2dcaba0fca"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:47:57.469Z"
+      }
+    },
+    {
+      "label": "ADMIN remove C AGAIN (not a member now)",
+      "method": "DELETE",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/participants/6a9e4f4edb386e2dcaba0fce",
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad v2",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5",
+          "6a9e4f4ddb386e2dcaba0fca"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          },
+          {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:47:59.026Z"
+      }
+    },
+    {
+      "label": "C reads history after removal",
+      "method": "GET",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/messages",
+      "status": 403,
+      "body": {
+        "error": {
+          "message": "Not a participant of this conversation",
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "label": "LEAVE: B removes self",
+      "method": "DELETE",
+      "path": "/conversations/6a9e4ff6db386e2dcaba1078/participants/6a9e4f4ddb386e2dcaba0fca",
+      "status": 200,
+      "body": {
+        "_id": "6a9e4ff6db386e2dcaba1078",
+        "type": "group",
+        "name": "Recon Squad v2",
+        "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+        "admins": [
+          "6a9e4f4cdb386e2dcaba0fc5"
+        ],
+        "participants": [
+          {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada RENAMED",
+            "phone": "+88017009884505"
+          }
+        ],
+        "createdAt": "2026-09-07T05:47:34.362Z",
+        "updatedAt": "2026-09-07T05:48:01.182Z"
+      }
+    },
+    {
+      "label": "conversations list B (after leaving)",
+      "method": "GET",
+      "path": "/conversations",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "_id": "6a9e4ffbdb386e2dcaba1088",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:39.758Z",
+            "name": "SelfIncl",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4ffadb386e2dcaba1083",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:38.574Z",
+            "name": "Dupes",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4fa8db386e2dcaba101f",
+            "type": "direct",
+            "lastMessage": {
+              "text": "<img src=x onerror=alert(1)>",
+              "sender": "6a9e4f4cdb386e2dcaba0fc5",
+              "createdAt": "2026-09-07T05:46:33.620Z"
+            },
+            "updatedAt": "2026-09-07T05:46:33.857Z",
+            "participant": {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "group now has 1 member — still valid?",
+      "method": "GET",
+      "path": "/conversations",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "_id": "6a9e4ff6db386e2dcaba1078",
+            "type": "group",
+            "lastMessage": {
+              "text": "Grace in the group",
+              "sender": "6a9e4f4ddb386e2dcaba0fca",
+              "createdAt": "2026-09-07T05:47:42.858Z"
+            },
+            "updatedAt": "2026-09-07T05:48:01.182Z",
+            "name": "Recon Squad v2",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4ffbdb386e2dcaba1088",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:39.758Z",
+            "name": "SelfIncl",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4ffadb386e2dcaba1083",
+            "type": "group",
+            "lastMessage": {},
+            "updatedAt": "2026-09-07T05:47:38.574Z",
+            "name": "Dupes",
+            "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+            "admins": [
+              "6a9e4f4cdb386e2dcaba0fc5"
+            ],
+            "participants": [
+              {
+                "_id": "6a9e4f4cdb386e2dcaba0fc5",
+                "name": "Ada RENAMED",
+                "phone": "+88017009884505"
+              },
+              {
+                "_id": "6a9e4f4ddb386e2dcaba0fca",
+                "name": "Grace Hopper",
+                "phone": "+88018009884505"
+              },
+              {
+                "_id": "6a9e4f4edb386e2dcaba0fce",
+                "name": "Alan Turing",
+                "phone": "+88019009884505"
+              }
+            ]
+          },
+          {
+            "_id": "6a9e4fa8db386e2dcaba101f",
+            "type": "direct",
+            "lastMessage": {
+              "text": "<img src=x onerror=alert(1)>",
+              "sender": "6a9e4f4cdb386e2dcaba0fc5",
+              "createdAt": "2026-09-07T05:46:33.620Z"
+            },
+            "updatedAt": "2026-09-07T05:46:33.857Z",
+            "participant": {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "rename a DIRECT conversation",
+      "method": "PATCH",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f",
+      "reqBody": {
+        "name": "Direct Renamed?"
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "Not a group conversation",
+          "code": "NOT_A_GROUP"
+        }
+      }
+    }
+  ]
+}

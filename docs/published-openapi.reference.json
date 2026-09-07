@@ -1,0 +1,515 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Chat API",
+    "version": "1.0.0",
+    "description": "A real-time 1-to-1 and group chat API (REST + WebSocket) for the take-home assignment.\n\n**This spec is intentionally request-focused.** It documents the endpoints, methods,\nparameters, and request bodies — but it does **not** specify response bodies or status\ncodes. Documenting the request/response structures in your own way is part of the task:\ninspect the live responses and formalize them however you prefer.\n\n### Authentication\n1. `POST /auth/login` with a phone number and a name. There is no separate signup —\n   a new phone number is registered automatically; an existing one logs in. The\n   response includes a JWT.\n2. Send the token on every protected request: `Authorization: Bearer <token>`.\n3. For the WebSocket, pass the same token in the Socket.io handshake auth.\n\n### WebSocket (Socket.io) — not part of OpenAPI, listed here for reference\n**Connect to the server's root origin — NOT the `/api` base used for REST.** The socket\nlives at the host root (Socket.io serves itself at `/socket.io/`):\n\n```js\nconst socket = io('https://frontend-task-chatapp.onrender.com', { auth: { token } });\n```\n\nConnect with the JWT in the handshake (an invalid/missing token is rejected). Events:\n- **client → server** `message:send` — `{ conversationId, text }` (optional ack callback).\n- **server → client** `message:new` — a new message arrived for you.\n- **server → client** `conversation:updated` — a group you're in changed (created,\n  renamed, or members/admins changed).\n\n### Groups\nA conversation is a **direct** (1-to-1) chat or a **group** with three or more members.\nGroups have a name and one or more **admins** (the creator starts as an admin). Only\nadmins add/remove members, promote others to admin, and rename; any member can leave.\nGroup messages use the same `POST /messages` endpoint and `message:new` event.\n"
+  },
+  "servers": [
+    {
+      "url": "{baseUrl}/api",
+      "description": "Live deployment",
+      "variables": {
+        "baseUrl": {
+          "default": "https://frontend-task-chatapp.onrender.com"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Login / register and current user"
+    },
+    {
+      "name": "Users",
+      "description": "Find other users"
+    },
+    {
+      "name": "Conversations",
+      "description": "Direct conversations and message history"
+    },
+    {
+      "name": "Groups",
+      "description": "Group creation and member / admin management"
+    },
+    {
+      "name": "Messages",
+      "description": "Sending messages"
+    },
+    {
+      "name": "System"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log in or register",
+        "description": "One step for both login and registration. If the phone number is new, an account is created; if it already exists, you're logged in.\n",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Current user",
+        "description": "Returns the user associated with the bearer token. Useful for restoring a session.",
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/users/search": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Search users by name or phone",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Search term — a user's name or phone number.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Ada"
+          }
+        ],
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/conversations": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "List my conversations",
+        "description": "The conversations the current user is part of (direct and group).",
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Start a direct conversation",
+        "description": "Start (or open) a 1-to-1 conversation with another user.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartConversationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/conversations/{id}/messages": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get message history",
+        "description": "Message history for a conversation, with pagination for loading older messages.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The conversation id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of messages to return per page.",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "description": "Cursor for fetching the page of messages before a given message.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/messages": {
+      "post": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Send a message",
+        "description": "Send a message to a conversation (direct or group). Messages are also delivered over the WebSocket (`message:new`), so you can send via REST or the socket.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/conversations/group": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Create a group",
+        "description": "Create a group conversation. The creator becomes an admin.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/conversations/{id}/participants": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Add members to a group",
+        "description": "Add one or more members to a group (admins only).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The group id.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddParticipantsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/conversations/{id}/participants/{userId}": {
+      "delete": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Remove a member / leave a group",
+        "description": "Remove a member from a group (admins only). Passing your own id leaves the group.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The group id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "The member to remove (your own id to leave).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/conversations/{id}/admins": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Promote a member to admin",
+        "description": "Promote an existing group member to admin (admins only).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The group id.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/conversations/{id}": {
+      "patch": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Rename a group",
+        "description": "Rename a group (admins only).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The group id.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameGroupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health check",
+        "security": [],
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/Unspecified"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "responses": {
+      "Unspecified": {
+        "description": "Response bodies and status codes are intentionally not specified in this document. Inspect the live API and document the responses yourself.\n"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "phone",
+          "name"
+        ],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+15551234567"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ada Lovelace"
+          }
+        }
+      },
+      "StartConversationRequest": {
+        "type": "object",
+        "required": [
+          "userId"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The id of the user to converse with (from /users/search).",
+            "example": "665f0c2a9b1e4a0012ab34cd"
+          }
+        }
+      },
+      "SendMessageRequest": {
+        "type": "object",
+        "required": [
+          "conversationId",
+          "text"
+        ],
+        "properties": {
+          "conversationId": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string",
+            "example": "Hello!"
+          }
+        }
+      },
+      "CreateGroupRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "participantIds"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Project Team"
+          },
+          "participantIds": {
+            "type": "array",
+            "description": "Ids of the members to add (besides you).",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AddParticipantsRequest": {
+        "type": "object",
+        "required": [
+          "userIds"
+        ],
+        "properties": {
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PromoteRequest": {
+        "type": "object",
+        "required": [
+          "userId"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string"
+          }
+        }
+      },
+      "RenameGroupRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Renamed Team"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,684 @@
+openapi: 3.0.3
+info:
+  title: Chat API — documented from live behaviour
+  version: 1.0.0-observed
+  description: |
+    Re-documentation of the take-home Chat API. The published spec is request-only and
+    declares no response bodies or status codes; every schema, status code and error shape
+    below was observed against the live service on 7 September 2026.
+
+    Deviations from the published spec, and behaviour that will surprise a client author,
+    are flagged inline with **QUIRK**. Narrative versions: `docs/API.md`,
+    `docs/api-findings.md`. Raw evidence: `docs/recon/`.
+
+    Not covered by OpenAPI: the Socket.io contract. See `docs/API.md#websocket-contract`.
+
+servers:
+  - url: https://frontend-task-chatapp.onrender.com/api
+    description: REST base
+  - url: https://frontend-task-chatapp.onrender.com
+    description: |
+      Root origin. Hosts `GET /health` and the Socket.io endpoint at `/socket.io/`.
+      QUIRK: the published spec places /health under the /api server, but /api/health 404s.
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Conversations
+  - name: Messages
+  - name: Groups
+  - name: System
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in or register
+      description: |
+        No separate signup: an unknown phone registers, a known phone logs in.
+
+        QUIRK: supplying an existing phone with a different `name` **renames that
+        account**. The phone number is the entire credential; there is no password.
+
+        QUIRK: `phone` is not validated in any way — `"hello world"` returns 200.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Logged in or registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Current user
+      description: Returns a bare User object, not wrapped in an envelope.
+      responses:
+        '200':
+          description: The authenticated user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '400': { $ref: '#/components/responses/NoToken' }
+        '401': { $ref: '#/components/responses/InvalidToken' }
+
+  /users/search:
+    get:
+      tags: [Users]
+      summary: Search users by name or phone
+      description: |
+        Returns a bare array, capped at 50 results, with no pagination.
+
+        QUIRK: `q` is interpolated into a MongoDB regex **unescaped**. A leading `+` —
+        i.e. any E.164 phone, the format the original spec itself uses as its example —
+        returns **500**. `q=.*` matches every user.
+
+        QUIRK: an empty or omitted `q` returns 50 users (the whole directory) despite
+        `q` being declared required.
+
+        QUIRK: matching is case-**sensitive** and prefix-**anchored**: `grace` finds
+        nothing, and a phone's trailing digits find nothing.
+
+        QUIRK: results include the calling user.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+          example: Ada
+      responses:
+        '200':
+          description: Matches (possibly empty)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserRef' }
+        '400': { $ref: '#/components/responses/NoToken' }
+        '500':
+          description: QUIRK — `q` contained regex metacharacters
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelopeNumericCode' }
+              example:
+                error:
+                  message: 'Regular expression is invalid: quantifier does not follow a repeatable item'
+                  code: 51091
+
+  /conversations:
+    get:
+      tags: [Conversations]
+      summary: List my conversations
+      description: |
+        Sorted by `updatedAt` descending. Direct and group items are mixed; discriminate
+        on `type`. Wrapped in `{ data: [...] }` — an envelope used by no other endpoint.
+      responses:
+        '200':
+          description: Conversation list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ConversationListItem' }
+        '400': { $ref: '#/components/responses/NoToken' }
+    post:
+      tags: [Conversations]
+      summary: Start a direct conversation
+      description: |
+        Idempotent: calling twice for the same pair returns the identical conversation,
+        with 200 in both cases and no signal as to which occurred.
+
+        QUIRK: the returned `participants` is an array of **bare id strings**, unlike the
+        populated objects returned everywhere else.
+
+        QUIRK: passing your **own** id returns an arbitrary conversation you are already
+        in — not an error, not a self-chat. Consistent with a degenerate
+        `$all: [me, me]` lookup.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StartConversationRequest' }
+      responses:
+        '200':
+          description: Created, or the existing conversation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DirectConversationCreated' }
+        '400':
+          description: VALIDATION_ERROR (missing userId) or UNKNOWN_USER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+        '500': { $ref: '#/components/responses/CastError' }
+
+  /conversations/{id}/messages:
+    get:
+      tags: [Conversations]
+      summary: Get message history
+      description: |
+        Newest-first (descending). Reverse for display.
+
+        QUIRK — **`before` is INCLUSIVE.** The message named by the cursor is returned
+        again as the first item of the next page, so every page boundary duplicates one
+        message. Merge by id; never concatenate. (25 messages at limit=10 → 30 rows
+        across 3 pages, 28 unique.)
+
+        QUIRK: `before` must be a message `_id`. An ISO timestamp returns 500.
+
+        QUIRK: an unknown-but-well-formed `before` is **silently ignored** and page 1 is
+        returned, so a stale cursor makes "load older" re-serve the newest messages.
+
+        QUIRK: `limit=0`, `limit=-5` and `limit=abc` all silently fall back to the default
+        of 20. There is no maximum — `limit=9999` returned the entire history.
+
+        `hasMore` is accurate in every case tested and is the reliable stop signal.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          description: Default 20. Invalid values silently fall back to 20. No maximum.
+          schema: { type: integer, default: 20 }
+        - name: before
+          in: query
+          required: false
+          description: A message `_id`. INCLUSIVE. Unknown values are silently ignored.
+          schema: { type: string }
+      responses:
+        '200':
+          description: A page of messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MessagePage' }
+        '400': { $ref: '#/components/responses/NoToken' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/CastError' }
+
+  /messages:
+    post:
+      tags: [Messages]
+      summary: Send a message
+      description: |
+        The only send path that returns the created entity — the socket `message:send`
+        ack does not. This is why a correct client sends over REST and receives over
+        the socket.
+
+        QUIRK — **returns `200` with body `null`** when the conversation does not exist:
+        a success status for a write that did not happen. The socket path returns a
+        proper error for the same input. Treat a 2xx whose body fails schema validation
+        as a failure.
+
+        QUIRK: empty and whitespace-only `text` are accepted (200) and broadcast. There
+        is no trimming and no length cap (10,000 characters accepted). The "no empty
+        messages" rule is unenforceable server-side.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendMessageRequest' }
+      responses:
+        '200':
+          description: |
+            The created message — **or** `null` if the conversation did not exist.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Message'
+                  - type: 'null'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/CastError' }
+
+  /conversations/group:
+    post:
+      tags: [Groups]
+      summary: Create a group
+      description: |
+        The caller is added automatically as the sole admin and must not be counted in
+        `participantIds`, which requires at least 2 entries (3 members including you).
+
+        Duplicates are de-duplicated and the caller's own id is ignored if included.
+
+        QUIRK: this is the **only** endpoint in the API that returns 201; every other
+        create returns 200.
+
+        QUIRK: the 3-member minimum is enforced only here. Removals may take a group
+        below it and it remains a fully functional group.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateGroupRequest' }
+      responses:
+        '201':
+          description: Group created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupConversation' }
+        '400':
+          description: |
+            VALIDATION_ERROR (name missing/empty, fewer than 2 participants) ·
+            UNKNOWN_USER · INVALID_NAME for a whitespace-only name — QUIRK: a different
+            code *and* a different shape, with no `details[]`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+        '500': { $ref: '#/components/responses/CastError' }
+
+  /conversations/{id}:
+    patch:
+      tags: [Groups]
+      summary: Rename a group
+      description: Admin only.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RenameGroupRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GroupUpdated' }
+        '400':
+          description: VALIDATION_ERROR · INVALID_NAME · NOT_A_GROUP (target is a direct)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+        '403':
+          description: 'FORBIDDEN — "Only admins can rename the group"'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /conversations/{id}/participants:
+    post:
+      tags: [Groups]
+      summary: Add members to a group
+      description: Admin only. Re-adding an existing member is a silent 200 no-op.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddParticipantsRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GroupUpdated' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403':
+          description: 'FORBIDDEN — "Only admins can add participants"'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /conversations/{id}/participants/{userId}:
+    delete:
+      tags: [Groups]
+      summary: Remove a member, or leave
+      description: |
+        Admins may remove anyone; any member may pass their own id to leave. A removed
+        member immediately receives 403 on that conversation's history.
+
+        When the last admin leaves, another member is auto-promoted, so groups are never
+        left without an admin.
+
+        QUIRK: removing a user who is not a member returns 200 and silently no-ops.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: userId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/GroupUpdated' }
+        '403':
+          description: 'FORBIDDEN — "Only admins can remove other members"'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /conversations/{id}/admins:
+    post:
+      tags: [Groups]
+      summary: Promote a member to admin
+      description: |
+        Admin only. Idempotent. There is no demote endpoint — admin status cannot be
+        removed once granted.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PromoteRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GroupUpdated' }
+        '400':
+          description: NOT_A_MEMBER — the target is not in this group
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+        '403':
+          description: 'FORBIDDEN — "Only admins can promote members"'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /health:
+    servers:
+      - url: https://frontend-task-chatapp.onrender.com
+    get:
+      tags: [System]
+      summary: Health check
+      description: QUIRK — lives at the root origin. `/api/health` returns 404.
+      security: []
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        HS256, claims `{sub, iat, exp}`, 7-day lifetime. `sub` is the user id. There is
+        no refresh endpoint and no revocation.
+
+  responses:
+    NoToken:
+      description: |
+        QUIRK — **400, not 401.** Returned when the Authorization header is absent,
+        empty, or uses a non-Bearer scheme. Session-expiry detection must therefore check
+        `401 || code === 'NO_TOKEN'` rather than status alone.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { error: { message: No token provided, code: NO_TOKEN } }
+    InvalidToken:
+      description: Malformed, tampered or bad-signature JWT.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { error: { message: Invalid token, code: INVALID_TOKEN } }
+    ValidationError:
+      description: Body validation failed. Carries `details[]`, usable for field errors.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example:
+            error:
+              message: Validation failed
+              code: VALIDATION_ERROR
+              details: [{ path: text, message: Required }]
+    Forbidden:
+      description: Not a participant, or not an admin.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    NotFound:
+      description: No such conversation, or unknown route/verb.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    CastError:
+      description: |
+        QUIRK — a malformed ObjectId supplied by the client produces a **500** carrying
+        the raw driver message and the internal model name. This is a client error
+        reported as a server fault, and it leaks schema internals.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example:
+            error:
+              message: Cast to ObjectId failed for value "nope" (type string) at path "_id" for model "Conversation"
+              code: SERVER_ERROR
+    GroupUpdated:
+      description: The full updated group.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/GroupConversation' }
+
+  schemas:
+    User:
+      type: object
+      required: [_id, name, phone]
+      properties:
+        _id: { type: string, example: 6a9e4f4cdb386e2dcaba0fc5 }
+        name: { type: string }
+        phone: { type: string }
+        createdAt:
+          type: string
+          format: date-time
+          description: Present on /auth/login and /auth/me only.
+
+    UserRef:
+      type: object
+      description: The reduced user shape embedded in search results and participants.
+      required: [_id, name, phone]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        phone: { type: string }
+
+    Message:
+      type: object
+      description: |
+        REST shape. The socket `message:new` payload describes the same entity but uses
+        `id` instead of `_id`, an epoch-millisecond **number** for `createdAt`, and may
+        omit `text` entirely.
+      required: [_id, conversation, sender, createdAt]
+      properties:
+        _id: { type: string }
+        conversation: { type: string }
+        sender:
+          type: string
+          description: Bare user id — never populated. Resolve names via participants[].
+        text:
+          type: string
+          description: May be empty or whitespace-only; the server does not validate it.
+        createdAt: { type: string, format: date-time }
+
+    MessagePage:
+      type: object
+      required: [messages, hasMore]
+      properties:
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/Message' }
+          description: Newest-first.
+        hasMore: { type: boolean }
+
+    LastMessage:
+      type: object
+      description: |
+        QUIRK — this is `{}` (an empty object, not null) when the conversation has no
+        messages, so a truthiness guard on it always passes.
+      properties:
+        text: { type: string }
+        sender: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    ConversationListItem:
+      oneOf:
+        - $ref: '#/components/schemas/DirectConversationListItem'
+        - $ref: '#/components/schemas/GroupConversationListItem'
+      discriminator:
+        propertyName: type
+
+    DirectConversationListItem:
+      type: object
+      required: [_id, type, participant, lastMessage, updatedAt]
+      properties:
+        _id: { type: string }
+        type: { type: string, enum: [direct] }
+        participant:
+          allOf: [{ $ref: '#/components/schemas/UserRef' }]
+          description: QUIRK — **singular**, and the *other* user. Groups use `participants[]`.
+        lastMessage: { $ref: '#/components/schemas/LastMessage' }
+        updatedAt: { type: string, format: date-time }
+
+    GroupConversationListItem:
+      type: object
+      required: [_id, type, name, createdBy, admins, participants, lastMessage, updatedAt]
+      properties:
+        _id: { type: string }
+        type: { type: string, enum: [group] }
+        name: { type: string }
+        createdBy: { type: string }
+        admins:
+          type: array
+          items: { type: string }
+          description: Bare ids.
+        participants:
+          type: array
+          items: { $ref: '#/components/schemas/UserRef' }
+          description: Populated objects here, unlike POST /conversations.
+        lastMessage: { $ref: '#/components/schemas/LastMessage' }
+        updatedAt: { type: string, format: date-time }
+
+    GroupConversation:
+      type: object
+      description: Returned by every group write.
+      required: [_id, type, name, createdBy, admins, participants]
+      properties:
+        _id: { type: string }
+        type: { type: string, enum: [group] }
+        name: { type: string }
+        createdBy: { type: string }
+        admins: { type: array, items: { type: string } }
+        participants:
+          type: array
+          items: { $ref: '#/components/schemas/UserRef' }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    DirectConversationCreated:
+      type: object
+      description: |
+        QUIRK — the third representation of participants: bare id strings, where the
+        list endpoint returns a singular populated `participant` and groups return
+        populated `participants[]`.
+      required: [_id, participants, createdAt]
+      properties:
+        _id: { type: string }
+        participants: { type: array, items: { type: string } }
+        createdAt: { type: string, format: date-time }
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [message, code]
+          properties:
+            message: { type: string }
+            code:
+              type: string
+              description: |
+                Observed: NO_TOKEN, INVALID_TOKEN, VALIDATION_ERROR, INVALID_NAME,
+                UNKNOWN_USER, NOT_A_MEMBER, NOT_A_GROUP, FORBIDDEN, NOT_FOUND,
+                SERVER_ERROR.
+            details:
+              type: array
+              description: Present on VALIDATION_ERROR only — maps onto per-field errors.
+              items:
+                type: object
+                properties:
+                  path: { type: string }
+                  message: { type: string }
+
+    ErrorEnvelopeNumericCode:
+      type: object
+      description: |
+        QUIRK — MongoDB-level failures surface a **numeric** `code`, breaking the
+        "code is a string" assumption the rest of the API establishes.
+      required: [error]
+      properties:
+        error:
+          type: object
+          properties:
+            message: { type: string }
+            code: { type: integer, example: 51091 }
+
+    LoginRequest:
+      type: object
+      required: [phone, name]
+      properties:
+        phone: { type: string, example: '+8801700988450' }
+        name: { type: string, example: Ada Lovelace }
+
+    LoginResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+
+    StartConversationRequest:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: string }
+
+    SendMessageRequest:
+      type: object
+      required: [conversationId, text]
+      properties:
+        conversationId: { type: string }
+        text: { type: string }
+
+    CreateGroupRequest:
+      type: object
+      required: [name, participantIds]
+      properties:
+        name: { type: string }
+        participantIds:
+          type: array
+          minItems: 2
+          items: { type: string }
+          description: Excludes the caller, who becomes the sole admin.
+
+    AddParticipantsRequest:
+      type: object
+      required: [userIds]
+      properties:
+        userIds: { type: array, minItems: 1, items: { type: string } }
+
+    PromoteRequest:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: string }
+
+    RenameGroupRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }

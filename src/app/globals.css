@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ *
+ * Direction: warm paper and deep ink with a single vermilion accent. Chat products are
+ * near-universally cool grey or dark navy, so a warm, slightly editorial palette reads as
+ * deliberate rather than defaulted. One accent only — vermilion carries every primary
+ * action, so anything vermilion is always something you can do.
+ *
+ * The app runs on paper; the landing page inverts to ink. Same tokens, different ground.
+ */
+@theme {
+  /* Ground */
+  --color-paper: #faf7f2;
+  --color-paper-raised: #ffffff;
+  --color-paper-sunken: #f2ece3;
+
+  /* Ink */
+  --color-ink: #14171f;
+  --color-ink-soft: #3d434f;
+  --color-ink-muted: #6b7280;
+  --color-ink-faint: #9ca3af;
+
+  /* Accent */
+  --color-vermilion: #e0451f;
+  --color-vermilion-bright: #ff5c38;
+  --color-vermilion-soft: #fde8e2;
+
+  /* Support */
+  --color-teal: #0f9488;
+  --color-teal-soft: #d6f2ef;
+  --color-amber: #b45309;
+  --color-amber-soft: #fdf0d5;
+
+  --color-line: #e5ded3;
+  --color-line-strong: #d4cabb;
+
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* A single easing shared by every transition, so motion feels like one system. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Focus: one visible, high-contrast ring everywhere. Never removed. */
+:focus-visible {
+  outline: 2px solid var(--color-vermilion);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Motion vocabulary -------------------------------------------------------- */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgb(15 148 136 / 45%); }
+  70%  { box-shadow: 0 0 0 6px rgb(15 148 136 / 0%); }
+  100% { box-shadow: 0 0 0 0 rgb(15 148 136 / 0%); }
+}
+
+.animate-rise { animation: rise 260ms var(--ease-out-quint) both; }
+.animate-pop-in { animation: pop-in 200ms var(--ease-out-quint) both; }
+.animate-slide-up-fade { animation: slide-up-fade 240ms var(--ease-out-quint) both; }
+.animate-pulse-ring { animation: pulse-ring 2s ease-out infinite; }
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-paper-sunken) 25%,
+    #e9e2d7 37%,
+    var(--color-paper-sunken) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Message tails ------------------------------------------------------------ */
+
+.bubble-out {
+  border-radius: 14px 14px 4px 14px;
+}
+.bubble-in {
+  border-radius: 14px 14px 14px 4px;
+}
+
+/* Scrollbars: present but quiet. */
+.scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+.scroll-quiet::-webkit-scrollbar { width: 10px; }
+.scroll-quiet::-webkit-scrollbar-track { background: transparent; }
+.scroll-quiet::-webkit-scrollbar-thumb {
+  background-color: var(--color-line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+/*
+ * Reduced motion.
+ *
+ * Animations are removed rather than shortened, but transitions that communicate state
+ * (a button press, a focus ring) keep working — stripping those makes the UI feel broken
+ * rather than calm.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .skeleton { animation: none; background: var(--color-paper-sunken); }
+}

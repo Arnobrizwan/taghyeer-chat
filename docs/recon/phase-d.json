@@ -1,0 +1,1552 @@
+{
+  "cid": "6a9e4fa8db386e2dcaba101f",
+  "log": [
+    {
+      "label": "fresh direct conv for pagination",
+      "method": "POST",
+      "path": "/conversations",
+      "status": 200,
+      "body": {
+        "_id": "6a9e4fa8db386e2dcaba101f",
+        "participants": [
+          "6a9e4f4cdb386e2dcaba0fc5",
+          "6a9e4f4ddb386e2dcaba0fca"
+        ],
+        "createdAt": "2026-09-07T05:46:16.555Z"
+      }
+    },
+    {
+      "label": "existing count",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=100",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e4fb9db386e2dcaba1062",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "<img src=x onerror=alert(1)>",
+            "createdAt": "2026-09-07T05:46:33.620Z"
+          },
+          {
+            "_id": "6a9e4fb8db386e2dcaba105d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "createdAt": "2026-09-07T05:46:32.390Z"
+          },
+          {
+            "_id": "6a9e4fb4db386e2dcaba1052",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "  padded  ",
+            "createdAt": "2026-09-07T05:46:28.718Z"
+          },
+          {
+            "_id": "6a9e4fb3db386e2dcaba104d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "     ",
+            "createdAt": "2026-09-07T05:46:27.514Z"
+          },
+          {
+            "_id": "6a9e4fb2db386e2dcaba1048",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "",
+            "createdAt": "2026-09-07T05:46:26.286Z"
+          },
+          {
+            "_id": "6a9e4fb1db386e2dcaba1042",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "Hi Ada, Grace here",
+            "createdAt": "2026-09-07T05:46:25.053Z"
+          },
+          {
+            "_id": "6a9e4fafdb386e2dcaba103b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "Hello from Ada",
+            "createdAt": "2026-09-07T05:46:23.837Z"
+          }
+        ],
+        "hasMore": false
+      }
+    },
+    {
+      "label": "seed 1",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5050db386e2dcaba10e8",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-01",
+        "createdAt": "2026-09-07T05:49:04.651Z"
+      }
+    },
+    {
+      "label": "seed 2",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5051db386e2dcaba10f0",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-02",
+        "createdAt": "2026-09-07T05:49:05.865Z"
+      }
+    },
+    {
+      "label": "seed 3",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5053db386e2dcaba10f8",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-03",
+        "createdAt": "2026-09-07T05:49:07.066Z"
+      }
+    },
+    {
+      "label": "seed 4",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5054db386e2dcaba10ff",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-04",
+        "createdAt": "2026-09-07T05:49:08.270Z"
+      }
+    },
+    {
+      "label": "seed 5",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5055db386e2dcaba1104",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-05",
+        "createdAt": "2026-09-07T05:49:09.465Z"
+      }
+    },
+    {
+      "label": "seed 6",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5056db386e2dcaba1109",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-06",
+        "createdAt": "2026-09-07T05:49:10.693Z"
+      }
+    },
+    {
+      "label": "seed 7",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5057db386e2dcaba110e",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-07",
+        "createdAt": "2026-09-07T05:49:11.904Z"
+      }
+    },
+    {
+      "label": "seed 8",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5059db386e2dcaba1113",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-08",
+        "createdAt": "2026-09-07T05:49:13.357Z"
+      }
+    },
+    {
+      "label": "seed 9",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e505adb386e2dcaba1118",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-09",
+        "createdAt": "2026-09-07T05:49:14.565Z"
+      }
+    },
+    {
+      "label": "seed 10",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e505bdb386e2dcaba111d",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-10",
+        "createdAt": "2026-09-07T05:49:15.766Z"
+      }
+    },
+    {
+      "label": "seed 11",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e505cdb386e2dcaba1122",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-11",
+        "createdAt": "2026-09-07T05:49:16.952Z"
+      }
+    },
+    {
+      "label": "seed 12",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e505edb386e2dcaba1127",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-12",
+        "createdAt": "2026-09-07T05:49:18.145Z"
+      }
+    },
+    {
+      "label": "seed 13",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e505fdb386e2dcaba112c",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-13",
+        "createdAt": "2026-09-07T05:49:19.331Z"
+      }
+    },
+    {
+      "label": "seed 14",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5060db386e2dcaba1131",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-14",
+        "createdAt": "2026-09-07T05:49:20.534Z"
+      }
+    },
+    {
+      "label": "seed 15",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5061db386e2dcaba1136",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-15",
+        "createdAt": "2026-09-07T05:49:21.732Z"
+      }
+    },
+    {
+      "label": "seed 16",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5063db386e2dcaba113b",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-16",
+        "createdAt": "2026-09-07T05:49:23.439Z"
+      }
+    },
+    {
+      "label": "seed 17",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5064db386e2dcaba1140",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-17",
+        "createdAt": "2026-09-07T05:49:24.657Z"
+      }
+    },
+    {
+      "label": "seed 18",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5065db386e2dcaba1145",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-18",
+        "createdAt": "2026-09-07T05:49:25.838Z"
+      }
+    },
+    {
+      "label": "seed 19",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5067db386e2dcaba114a",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-19",
+        "createdAt": "2026-09-07T05:49:27.087Z"
+      }
+    },
+    {
+      "label": "seed 20",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5068db386e2dcaba114f",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-20",
+        "createdAt": "2026-09-07T05:49:28.290Z"
+      }
+    },
+    {
+      "label": "seed 21",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e5069db386e2dcaba1154",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-21",
+        "createdAt": "2026-09-07T05:49:29.538Z"
+      }
+    },
+    {
+      "label": "seed 22",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e506adb386e2dcaba1159",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-22",
+        "createdAt": "2026-09-07T05:49:30.734Z"
+      }
+    },
+    {
+      "label": "seed 23",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e506bdb386e2dcaba115e",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-23",
+        "createdAt": "2026-09-07T05:49:31.957Z"
+      }
+    },
+    {
+      "label": "seed 24",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e506ddb386e2dcaba1163",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4ddb386e2dcaba0fca",
+        "text": "seq-24",
+        "createdAt": "2026-09-07T05:49:33.138Z"
+      }
+    },
+    {
+      "label": "seed 25",
+      "method": "POST",
+      "path": "/messages",
+      "status": 200,
+      "body": {
+        "_id": "6a9e506edb386e2dcaba1168",
+        "conversation": "6a9e4fa8db386e2dcaba101f",
+        "sender": "6a9e4f4cdb386e2dcaba0fc5",
+        "text": "seq-25",
+        "createdAt": "2026-09-07T05:49:34.429Z"
+      }
+    },
+    {
+      "label": "page1 limit=10",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=10",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          },
+          {
+            "_id": "6a9e506bdb386e2dcaba115e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-23",
+            "createdAt": "2026-09-07T05:49:31.957Z"
+          },
+          {
+            "_id": "6a9e506adb386e2dcaba1159",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-22",
+            "createdAt": "2026-09-07T05:49:30.734Z"
+          },
+          {
+            "_id": "6a9e5069db386e2dcaba1154",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-21",
+            "createdAt": "2026-09-07T05:49:29.538Z"
+          },
+          {
+            "_id": "6a9e5068db386e2dcaba114f",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-20",
+            "createdAt": "2026-09-07T05:49:28.290Z"
+          },
+          {
+            "_id": "6a9e5067db386e2dcaba114a",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-19",
+            "createdAt": "2026-09-07T05:49:27.087Z"
+          },
+          {
+            "_id": "6a9e5065db386e2dcaba1145",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-18",
+            "createdAt": "2026-09-07T05:49:25.838Z"
+          },
+          {
+            "_id": "6a9e5064db386e2dcaba1140",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-17",
+            "createdAt": "2026-09-07T05:49:24.657Z"
+          },
+          {
+            "_id": "6a9e5063db386e2dcaba113b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-16",
+            "createdAt": "2026-09-07T05:49:23.439Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "page2 before=<last _id of page1>",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=10&before=6a9e5063db386e2dcaba113b",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e5063db386e2dcaba113b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-16",
+            "createdAt": "2026-09-07T05:49:23.439Z"
+          },
+          {
+            "_id": "6a9e5061db386e2dcaba1136",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-15",
+            "createdAt": "2026-09-07T05:49:21.732Z"
+          },
+          {
+            "_id": "6a9e5060db386e2dcaba1131",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-14",
+            "createdAt": "2026-09-07T05:49:20.534Z"
+          },
+          {
+            "_id": "6a9e505fdb386e2dcaba112c",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-13",
+            "createdAt": "2026-09-07T05:49:19.331Z"
+          },
+          {
+            "_id": "6a9e505edb386e2dcaba1127",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-12",
+            "createdAt": "2026-09-07T05:49:18.145Z"
+          },
+          {
+            "_id": "6a9e505cdb386e2dcaba1122",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-11",
+            "createdAt": "2026-09-07T05:49:16.952Z"
+          },
+          {
+            "_id": "6a9e505bdb386e2dcaba111d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-10",
+            "createdAt": "2026-09-07T05:49:15.766Z"
+          },
+          {
+            "_id": "6a9e505adb386e2dcaba1118",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-09",
+            "createdAt": "2026-09-07T05:49:14.565Z"
+          },
+          {
+            "_id": "6a9e5059db386e2dcaba1113",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-08",
+            "createdAt": "2026-09-07T05:49:13.357Z"
+          },
+          {
+            "_id": "6a9e5057db386e2dcaba110e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-07",
+            "createdAt": "2026-09-07T05:49:11.904Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "page2 before=<createdAt ISO>",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=10&before=2026-09-07T05%3A49%3A23.439Z",
+      "status": 500,
+      "body": {
+        "error": {
+          "message": "Cast to ObjectId failed for value \"2026-09-07T05:49:23.439Z\" (type string) at path \"_id\" for model \"Message\"",
+          "code": "SERVER_ERROR"
+        }
+      }
+    },
+    {
+      "label": "page3",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=10&before=6a9e5057db386e2dcaba110e",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e5057db386e2dcaba110e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-07",
+            "createdAt": "2026-09-07T05:49:11.904Z"
+          },
+          {
+            "_id": "6a9e5056db386e2dcaba1109",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-06",
+            "createdAt": "2026-09-07T05:49:10.693Z"
+          },
+          {
+            "_id": "6a9e5055db386e2dcaba1104",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-05",
+            "createdAt": "2026-09-07T05:49:09.465Z"
+          },
+          {
+            "_id": "6a9e5054db386e2dcaba10ff",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-04",
+            "createdAt": "2026-09-07T05:49:08.270Z"
+          },
+          {
+            "_id": "6a9e5053db386e2dcaba10f8",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-03",
+            "createdAt": "2026-09-07T05:49:07.066Z"
+          },
+          {
+            "_id": "6a9e5051db386e2dcaba10f0",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-02",
+            "createdAt": "2026-09-07T05:49:05.865Z"
+          },
+          {
+            "_id": "6a9e5050db386e2dcaba10e8",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-01",
+            "createdAt": "2026-09-07T05:49:04.651Z"
+          },
+          {
+            "_id": "6a9e4fb9db386e2dcaba1062",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "<img src=x onerror=alert(1)>",
+            "createdAt": "2026-09-07T05:46:33.620Z"
+          },
+          {
+            "_id": "6a9e4fb8db386e2dcaba105d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "createdAt": "2026-09-07T05:46:32.390Z"
+          },
+          {
+            "_id": "6a9e4fb4db386e2dcaba1052",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "  padded  ",
+            "createdAt": "2026-09-07T05:46:28.718Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "page4 (past the end)",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=10&before=6a9e4fb4db386e2dcaba1052",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e4fb4db386e2dcaba1052",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "  padded  ",
+            "createdAt": "2026-09-07T05:46:28.718Z"
+          },
+          {
+            "_id": "6a9e4fb3db386e2dcaba104d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "     ",
+            "createdAt": "2026-09-07T05:46:27.514Z"
+          },
+          {
+            "_id": "6a9e4fb2db386e2dcaba1048",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "",
+            "createdAt": "2026-09-07T05:46:26.286Z"
+          },
+          {
+            "_id": "6a9e4fb1db386e2dcaba1042",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "Hi Ada, Grace here",
+            "createdAt": "2026-09-07T05:46:25.053Z"
+          },
+          {
+            "_id": "6a9e4fafdb386e2dcaba103b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "Hello from Ada",
+            "createdAt": "2026-09-07T05:46:23.837Z"
+          }
+        ],
+        "hasMore": false
+      }
+    },
+    {
+      "label": "lim limit=0",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=0",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          },
+          {
+            "_id": "6a9e506bdb386e2dcaba115e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-23",
+            "createdAt": "2026-09-07T05:49:31.957Z"
+          },
+          {
+            "_id": "6a9e506adb386e2dcaba1159",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-22",
+            "createdAt": "2026-09-07T05:49:30.734Z"
+          },
+          {
+            "_id": "6a9e5069db386e2dcaba1154",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-21",
+            "createdAt": "2026-09-07T05:49:29.538Z"
+          },
+          {
+            "_id": "6a9e5068db386e2dcaba114f",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-20",
+            "createdAt": "2026-09-07T05:49:28.290Z"
+          },
+          {
+            "_id": "6a9e5067db386e2dcaba114a",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-19",
+            "createdAt": "2026-09-07T05:49:27.087Z"
+          },
+          {
+            "_id": "6a9e5065db386e2dcaba1145",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-18",
+            "createdAt": "2026-09-07T05:49:25.838Z"
+          },
+          {
+            "_id": "6a9e5064db386e2dcaba1140",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-17",
+            "createdAt": "2026-09-07T05:49:24.657Z"
+          },
+          {
+            "_id": "6a9e5063db386e2dcaba113b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-16",
+            "createdAt": "2026-09-07T05:49:23.439Z"
+          },
+          {
+            "_id": "6a9e5061db386e2dcaba1136",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-15",
+            "createdAt": "2026-09-07T05:49:21.732Z"
+          },
+          {
+            "_id": "6a9e5060db386e2dcaba1131",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-14",
+            "createdAt": "2026-09-07T05:49:20.534Z"
+          },
+          {
+            "_id": "6a9e505fdb386e2dcaba112c",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-13",
+            "createdAt": "2026-09-07T05:49:19.331Z"
+          },
+          {
+            "_id": "6a9e505edb386e2dcaba1127",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-12",
+            "createdAt": "2026-09-07T05:49:18.145Z"
+          },
+          {
+            "_id": "6a9e505cdb386e2dcaba1122",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-11",
+            "createdAt": "2026-09-07T05:49:16.952Z"
+          },
+          {
+            "_id": "6a9e505bdb386e2dcaba111d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-10",
+            "createdAt": "2026-09-07T05:49:15.766Z"
+          },
+          {
+            "_id": "6a9e505adb386e2dcaba1118",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-09",
+            "createdAt": "2026-09-07T05:49:14.565Z"
+          },
+          {
+            "_id": "6a9e5059db386e2dcaba1113",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-08",
+            "createdAt": "2026-09-07T05:49:13.357Z"
+          },
+          {
+            "_id": "6a9e5057db386e2dcaba110e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-07",
+            "createdAt": "2026-09-07T05:49:11.904Z"
+          },
+          {
+            "_id": "6a9e5056db386e2dcaba1109",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-06",
+            "createdAt": "2026-09-07T05:49:10.693Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "lim limit=1",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=1",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "lim limit=-5",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=-5",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          },
+          {
+            "_id": "6a9e506bdb386e2dcaba115e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-23",
+            "createdAt": "2026-09-07T05:49:31.957Z"
+          },
+          {
+            "_id": "6a9e506adb386e2dcaba1159",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-22",
+            "createdAt": "2026-09-07T05:49:30.734Z"
+          },
+          {
+            "_id": "6a9e5069db386e2dcaba1154",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-21",
+            "createdAt": "2026-09-07T05:49:29.538Z"
+          },
+          {
+            "_id": "6a9e5068db386e2dcaba114f",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-20",
+            "createdAt": "2026-09-07T05:49:28.290Z"
+          },
+          {
+            "_id": "6a9e5067db386e2dcaba114a",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-19",
+            "createdAt": "2026-09-07T05:49:27.087Z"
+          },
+          {
+            "_id": "6a9e5065db386e2dcaba1145",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-18",
+            "createdAt": "2026-09-07T05:49:25.838Z"
+          },
+          {
+            "_id": "6a9e5064db386e2dcaba1140",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-17",
+            "createdAt": "2026-09-07T05:49:24.657Z"
+          },
+          {
+            "_id": "6a9e5063db386e2dcaba113b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-16",
+            "createdAt": "2026-09-07T05:49:23.439Z"
+          },
+          {
+            "_id": "6a9e5061db386e2dcaba1136",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-15",
+            "createdAt": "2026-09-07T05:49:21.732Z"
+          },
+          {
+            "_id": "6a9e5060db386e2dcaba1131",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-14",
+            "createdAt": "2026-09-07T05:49:20.534Z"
+          },
+          {
+            "_id": "6a9e505fdb386e2dcaba112c",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-13",
+            "createdAt": "2026-09-07T05:49:19.331Z"
+          },
+          {
+            "_id": "6a9e505edb386e2dcaba1127",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-12",
+            "createdAt": "2026-09-07T05:49:18.145Z"
+          },
+          {
+            "_id": "6a9e505cdb386e2dcaba1122",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-11",
+            "createdAt": "2026-09-07T05:49:16.952Z"
+          },
+          {
+            "_id": "6a9e505bdb386e2dcaba111d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-10",
+            "createdAt": "2026-09-07T05:49:15.766Z"
+          },
+          {
+            "_id": "6a9e505adb386e2dcaba1118",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-09",
+            "createdAt": "2026-09-07T05:49:14.565Z"
+          },
+          {
+            "_id": "6a9e5059db386e2dcaba1113",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-08",
+            "createdAt": "2026-09-07T05:49:13.357Z"
+          },
+          {
+            "_id": "6a9e5057db386e2dcaba110e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-07",
+            "createdAt": "2026-09-07T05:49:11.904Z"
+          },
+          {
+            "_id": "6a9e5056db386e2dcaba1109",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-06",
+            "createdAt": "2026-09-07T05:49:10.693Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "lim limit=9999",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=9999",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          },
+          {
+            "_id": "6a9e506bdb386e2dcaba115e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-23",
+            "createdAt": "2026-09-07T05:49:31.957Z"
+          },
+          {
+            "_id": "6a9e506adb386e2dcaba1159",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-22",
+            "createdAt": "2026-09-07T05:49:30.734Z"
+          },
+          {
+            "_id": "6a9e5069db386e2dcaba1154",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-21",
+            "createdAt": "2026-09-07T05:49:29.538Z"
+          },
+          {
+            "_id": "6a9e5068db386e2dcaba114f",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-20",
+            "createdAt": "2026-09-07T05:49:28.290Z"
+          },
+          {
+            "_id": "6a9e5067db386e2dcaba114a",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-19",
+            "createdAt": "2026-09-07T05:49:27.087Z"
+          },
+          {
+            "_id": "6a9e5065db386e2dcaba1145",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-18",
+            "createdAt": "2026-09-07T05:49:25.838Z"
+          },
+          {
+            "_id": "6a9e5064db386e2dcaba1140",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-17",
+            "createdAt": "2026-09-07T05:49:24.657Z"
+          },
+          {
+            "_id": "6a9e5063db386e2dcaba113b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-16",
+            "createdAt": "2026-09-07T05:49:23.439Z"
+          },
+          {
+            "_id": "6a9e5061db386e2dcaba1136",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-15",
+            "createdAt": "2026-09-07T05:49:21.732Z"
+          },
+          {
+            "_id": "6a9e5060db386e2dcaba1131",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-14",
+            "createdAt": "2026-09-07T05:49:20.534Z"
+          },
+          {
+            "_id": "6a9e505fdb386e2dcaba112c",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-13",
+            "createdAt": "2026-09-07T05:49:19.331Z"
+          },
+          {
+            "_id": "6a9e505edb386e2dcaba1127",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-12",
+            "createdAt": "2026-09-07T05:49:18.145Z"
+          },
+          {
+            "_id": "6a9e505cdb386e2dcaba1122",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-11",
+            "createdAt": "2026-09-07T05:49:16.952Z"
+          },
+          {
+            "_id": "6a9e505bdb386e2dcaba111d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-10",
+            "createdAt": "2026-09-07T05:49:15.766Z"
+          },
+          {
+            "_id": "6a9e505adb386e2dcaba1118",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-09",
+            "createdAt": "2026-09-07T05:49:14.565Z"
+          },
+          {
+            "_id": "6a9e5059db386e2dcaba1113",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-08",
+            "createdAt": "2026-09-07T05:49:13.357Z"
+          },
+          {
+            "_id": "6a9e5057db386e2dcaba110e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-07",
+            "createdAt": "2026-09-07T05:49:11.904Z"
+          },
+          {
+            "_id": "6a9e5056db386e2dcaba1109",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-06",
+            "createdAt": "2026-09-07T05:49:10.693Z"
+          },
+          {
+            "_id": "6a9e5055db386e2dcaba1104",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-05",
+            "createdAt": "2026-09-07T05:49:09.465Z"
+          },
+          {
+            "_id": "6a9e5054db386e2dcaba10ff",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-04",
+            "createdAt": "2026-09-07T05:49:08.270Z"
+          },
+          {
+            "_id": "6a9e5053db386e2dcaba10f8",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-03",
+            "createdAt": "2026-09-07T05:49:07.066Z"
+          },
+          {
+            "_id": "6a9e5051db386e2dcaba10f0",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-02",
+            "createdAt": "2026-09-07T05:49:05.865Z"
+          },
+          {
+            "_id": "6a9e5050db386e2dcaba10e8",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-01",
+            "createdAt": "2026-09-07T05:49:04.651Z"
+          },
+          {
+            "_id": "6a9e4fb9db386e2dcaba1062",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "<img src=x onerror=alert(1)>",
+            "createdAt": "2026-09-07T05:46:33.620Z"
+          },
+          {
+            "_id": "6a9e4fb8db386e2dcaba105d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "createdAt": "2026-09-07T05:46:32.390Z"
+          },
+          {
+            "_id": "6a9e4fb4db386e2dcaba1052",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "  padded  ",
+            "createdAt": "2026-09-07T05:46:28.718Z"
+          },
+          {
+            "_id": "6a9e4fb3db386e2dcaba104d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "     ",
+            "createdAt": "2026-09-07T05:46:27.514Z"
+          },
+          {
+            "_id": "6a9e4fb2db386e2dcaba1048",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "",
+            "createdAt": "2026-09-07T05:46:26.286Z"
+          },
+          {
+            "_id": "6a9e4fb1db386e2dcaba1042",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "Hi Ada, Grace here",
+            "createdAt": "2026-09-07T05:46:25.053Z"
+          },
+          {
+            "_id": "6a9e4fafdb386e2dcaba103b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "Hello from Ada",
+            "createdAt": "2026-09-07T05:46:23.837Z"
+          }
+        ],
+        "hasMore": false
+      }
+    },
+    {
+      "label": "lim limit=abc",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=abc",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          },
+          {
+            "_id": "6a9e506bdb386e2dcaba115e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-23",
+            "createdAt": "2026-09-07T05:49:31.957Z"
+          },
+          {
+            "_id": "6a9e506adb386e2dcaba1159",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-22",
+            "createdAt": "2026-09-07T05:49:30.734Z"
+          },
+          {
+            "_id": "6a9e5069db386e2dcaba1154",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-21",
+            "createdAt": "2026-09-07T05:49:29.538Z"
+          },
+          {
+            "_id": "6a9e5068db386e2dcaba114f",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-20",
+            "createdAt": "2026-09-07T05:49:28.290Z"
+          },
+          {
+            "_id": "6a9e5067db386e2dcaba114a",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-19",
+            "createdAt": "2026-09-07T05:49:27.087Z"
+          },
+          {
+            "_id": "6a9e5065db386e2dcaba1145",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-18",
+            "createdAt": "2026-09-07T05:49:25.838Z"
+          },
+          {
+            "_id": "6a9e5064db386e2dcaba1140",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-17",
+            "createdAt": "2026-09-07T05:49:24.657Z"
+          },
+          {
+            "_id": "6a9e5063db386e2dcaba113b",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-16",
+            "createdAt": "2026-09-07T05:49:23.439Z"
+          },
+          {
+            "_id": "6a9e5061db386e2dcaba1136",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-15",
+            "createdAt": "2026-09-07T05:49:21.732Z"
+          },
+          {
+            "_id": "6a9e5060db386e2dcaba1131",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-14",
+            "createdAt": "2026-09-07T05:49:20.534Z"
+          },
+          {
+            "_id": "6a9e505fdb386e2dcaba112c",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-13",
+            "createdAt": "2026-09-07T05:49:19.331Z"
+          },
+          {
+            "_id": "6a9e505edb386e2dcaba1127",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-12",
+            "createdAt": "2026-09-07T05:49:18.145Z"
+          },
+          {
+            "_id": "6a9e505cdb386e2dcaba1122",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-11",
+            "createdAt": "2026-09-07T05:49:16.952Z"
+          },
+          {
+            "_id": "6a9e505bdb386e2dcaba111d",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-10",
+            "createdAt": "2026-09-07T05:49:15.766Z"
+          },
+          {
+            "_id": "6a9e505adb386e2dcaba1118",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-09",
+            "createdAt": "2026-09-07T05:49:14.565Z"
+          },
+          {
+            "_id": "6a9e5059db386e2dcaba1113",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-08",
+            "createdAt": "2026-09-07T05:49:13.357Z"
+          },
+          {
+            "_id": "6a9e5057db386e2dcaba110e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-07",
+            "createdAt": "2026-09-07T05:49:11.904Z"
+          },
+          {
+            "_id": "6a9e5056db386e2dcaba1109",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-06",
+            "createdAt": "2026-09-07T05:49:10.693Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "lim limit=2.7",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=2.7",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "bef before=garbage",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=5&before=garbage",
+      "status": 500,
+      "body": {
+        "error": {
+          "message": "Cast to ObjectId failed for value \"garbage\" (type string) at path \"_id\" for model \"Message\"",
+          "code": "SERVER_ERROR"
+        }
+      }
+    },
+    {
+      "label": "bef before=6a9e4f4cdb386e2dcaba0000",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=5&before=6a9e4f4cdb386e2dcaba0000",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          },
+          {
+            "_id": "6a9e506bdb386e2dcaba115e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-23",
+            "createdAt": "2026-09-07T05:49:31.957Z"
+          },
+          {
+            "_id": "6a9e506adb386e2dcaba1159",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-22",
+            "createdAt": "2026-09-07T05:49:30.734Z"
+          },
+          {
+            "_id": "6a9e5069db386e2dcaba1154",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-21",
+            "createdAt": "2026-09-07T05:49:29.538Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "bef before=",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=5&before=",
+      "status": 200,
+      "body": {
+        "messages": [
+          {
+            "_id": "6a9e506edb386e2dcaba1168",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-25",
+            "createdAt": "2026-09-07T05:49:34.429Z"
+          },
+          {
+            "_id": "6a9e506ddb386e2dcaba1163",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-24",
+            "createdAt": "2026-09-07T05:49:33.138Z"
+          },
+          {
+            "_id": "6a9e506bdb386e2dcaba115e",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-23",
+            "createdAt": "2026-09-07T05:49:31.957Z"
+          },
+          {
+            "_id": "6a9e506adb386e2dcaba1159",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4ddb386e2dcaba0fca",
+            "text": "seq-22",
+            "createdAt": "2026-09-07T05:49:30.734Z"
+          },
+          {
+            "_id": "6a9e5069db386e2dcaba1154",
+            "conversation": "6a9e4fa8db386e2dcaba101f",
+            "sender": "6a9e4f4cdb386e2dcaba0fc5",
+            "text": "seq-21",
+            "createdAt": "2026-09-07T05:49:29.538Z"
+          }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "label": "bef before=1970-01-01T00:00:00.000Z",
+      "method": "GET",
+      "path": "/conversations/6a9e4fa8db386e2dcaba101f/messages?limit=5&before=1970-01-01T00:00:00.000Z",
+      "status": 500,
+      "body": {
+        "error": {
+          "message": "Cast to ObjectId failed for value \"1970-01-01T00:00:00.000Z\" (type string) at path \"_id\" for model \"Message\"",
+          "code": "SERVER_ERROR"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "gid": "6a9e510ddb386e2dcaba11cd",
+  "rec": [
+    {
+      "sock": "C",
+      "ev": "conversation:updated",
+      "a": [
+        {
+          "_id": "6a9e510ddb386e2dcaba11cd",
+          "type": "group",
+          "name": "PostConnect Group",
+          "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
+          "admins": [
+            "6a9e4f4cdb386e2dcaba0fc5"
+          ],
+          "participants": [
+            {
+              "_id": "6a9e4f4cdb386e2dcaba0fc5",
+              "name": "Ada RENAMED",
+              "phone": "+88017009884505"
+            },
+            {
+              "_id": "6a9e4f4ddb386e2dcaba0fca",
+              "name": "Grace Hopper",
+              "phone": "+88018009884505"
+            },
+            {
+              "_id": "6a9e4f4edb386e2dcaba0fce",
+              "name": "Alan Turing",
+              "phone": "+88019009884505"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sock": "C",
+      "ev": "message:new",
+      "a": [
+        {
+          "id": "6a9e5111db386e2dcaba11d2",
+          "conversation": "6a9e510ddb386e2dcaba11cd",
+          "sender": "6a9e4f4cdb386e2dcaba0fc5",
+          "text": "HELLO-POST-CONNECT-GROUP",
+          "createdAt": 1788760337064
+        }
+      ]
+    },
+    {
+      "sock": "C",
+      "ev": "message:new",
+      "a": [
+        {
+          "id": "6a9e511adb386e2dcaba11dc",
+          "conversation": "6a9e5116db386e2dcaba11d8",
+          "sender": "6a9e4f4ddb386e2dcaba0fca",
+          "text": "HELLO-NEW-DIRECT",
+          "createdAt": 1788760346156
+        }
+      ]
+    },
+    {
+      "sock": "C2",
+      "ev": "message:new",
+      "a": [
+        {
+          "id": "6a9e512bdb386e2dcaba11f6",
+          "conversation": "6a9e510ddb386e2dcaba11cd",
+          "sender": "6a9e4f4cdb386e2dcaba0fc5",
+          "text": "AFTER-RECONNECT",
+          "createdAt": 1788760363239
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,475 @@
+{
+  "users": [
+    {
+      "phone": "+88017009884505",
+      "name": "Ada Lovelace",
+      "id": "6a9e4f4cdb386e2dcaba0fc5",
+      "token": "<JWT-REDACTED>",
+      "loginResponse": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f4cdb386e2dcaba0fc5",
+          "name": "Ada Lovelace",
+          "phone": "+88017009884505",
+          "createdAt": "2026-09-07T05:44:44.952Z"
+        }
+      }
+    },
+    {
+      "phone": "+88018009884505",
+      "name": "Grace Hopper",
+      "id": "6a9e4f4ddb386e2dcaba0fca",
+      "token": "<JWT-REDACTED>",
+      "loginResponse": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f4ddb386e2dcaba0fca",
+          "name": "Grace Hopper",
+          "phone": "+88018009884505",
+          "createdAt": "2026-09-07T05:44:45.692Z"
+        }
+      }
+    },
+    {
+      "phone": "+88019009884505",
+      "name": "Alan Turing",
+      "id": "6a9e4f4edb386e2dcaba0fce",
+      "token": "<JWT-REDACTED>",
+      "loginResponse": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f4edb386e2dcaba0fce",
+          "name": "Alan Turing",
+          "phone": "+88019009884505",
+          "createdAt": "2026-09-07T05:44:46.524Z"
+        }
+      }
+    }
+  ],
+  "log": [
+    {
+      "label": "login (new phone +88017009884505)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "phone": "+88017009884505",
+        "name": "Ada Lovelace",
+        "res": {
+          "token": "<JWT-REDACTED>",
+          "user": {
+            "_id": "6a9e4f4cdb386e2dcaba0fc5",
+            "name": "Ada Lovelace",
+            "phone": "+88017009884505",
+            "createdAt": "2026-09-07T05:44:44.952Z"
+          }
+        },
+        "token": "<JWT-REDACTED>",
+        "id": "6a9e4f4cdb386e2dcaba0fc5"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f4cdb386e2dcaba0fc5",
+          "name": "Ada Lovelace",
+          "phone": "+88017009884505",
+          "createdAt": "2026-09-07T05:44:44.952Z"
+        }
+      },
+      "ms": 816
+    },
+    {
+      "label": "login (new phone +88018009884505)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "phone": "+88018009884505",
+        "name": "Grace Hopper",
+        "res": {
+          "token": "<JWT-REDACTED>",
+          "user": {
+            "_id": "6a9e4f4ddb386e2dcaba0fca",
+            "name": "Grace Hopper",
+            "phone": "+88018009884505",
+            "createdAt": "2026-09-07T05:44:45.692Z"
+          }
+        },
+        "token": "<JWT-REDACTED>",
+        "id": "6a9e4f4ddb386e2dcaba0fca"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f4ddb386e2dcaba0fca",
+          "name": "Grace Hopper",
+          "phone": "+88018009884505",
+          "createdAt": "2026-09-07T05:44:45.692Z"
+        }
+      },
+      "ms": 820
+    },
+    {
+      "label": "login (new phone +88019009884505)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "phone": "+88019009884505",
+        "name": "Alan Turing",
+        "res": {
+          "token": "<JWT-REDACTED>",
+          "user": {
+            "_id": "6a9e4f4edb386e2dcaba0fce",
+            "name": "Alan Turing",
+            "phone": "+88019009884505",
+            "createdAt": "2026-09-07T05:44:46.524Z"
+          }
+        },
+        "token": "<JWT-REDACTED>",
+        "id": "6a9e4f4edb386e2dcaba0fce"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f4edb386e2dcaba0fce",
+          "name": "Alan Turing",
+          "phone": "+88019009884505",
+          "createdAt": "2026-09-07T05:44:46.524Z"
+        }
+      },
+      "ms": 735
+    },
+    {
+      "label": "login (existing phone, DIFFERENT name)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "phone": "+88017009884505",
+        "name": "Ada RENAMED"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f4cdb386e2dcaba0fc5",
+          "name": "Ada RENAMED",
+          "phone": "+88017009884505",
+          "createdAt": "2026-09-07T05:44:44.952Z"
+        }
+      },
+      "ms": 727
+    },
+    {
+      "label": "me (valid token)",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "_id": "6a9e4f4cdb386e2dcaba0fc5",
+        "name": "Ada RENAMED",
+        "phone": "+88017009884505",
+        "createdAt": "2026-09-07T05:44:44.952Z"
+      },
+      "ms": 505
+    },
+    {
+      "label": "me (NO token)",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "No token provided",
+          "code": "NO_TOKEN"
+        }
+      },
+      "ms": 324
+    },
+    {
+      "label": "me (malformed token)",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Invalid token",
+          "code": "INVALID_TOKEN"
+        }
+      },
+      "ms": 241
+    },
+    {
+      "label": "me (well-formed but bogus-signature JWT)",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Invalid token",
+          "code": "INVALID_TOKEN"
+        }
+      },
+      "ms": 240
+    },
+    {
+      "label": "me (Bearer with empty value)",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "No token provided",
+          "code": "NO_TOKEN"
+        }
+      },
+      "ms": 247
+    },
+    {
+      "label": "me (wrong scheme: Token x)",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "No token provided",
+          "code": "NO_TOKEN"
+        }
+      },
+      "ms": 280
+    },
+    {
+      "label": "login (missing name)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "phone": "+8801711111111"
+      },
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "name",
+              "message": "Required"
+            }
+          ]
+        }
+      },
+      "ms": 248
+    },
+    {
+      "label": "login (missing phone)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "name": "Nobody"
+      },
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "phone",
+              "message": "Required"
+            }
+          ]
+        }
+      },
+      "ms": 243
+    },
+    {
+      "label": "login (empty strings)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "phone": "",
+        "name": ""
+      },
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "phone",
+              "message": "phone is required"
+            },
+            {
+              "path": "name",
+              "message": "name is required"
+            }
+          ]
+        }
+      },
+      "ms": 257
+    },
+    {
+      "label": "login (garbage phone format)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": {
+        "phone": "hello world",
+        "name": "Junk Phone"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "token": "<JWT-REDACTED>",
+        "user": {
+          "_id": "6a9e4f52db386e2dcaba0fd7",
+          "name": "Junk Phone",
+          "phone": "hello world",
+          "createdAt": "2026-09-07T05:44:50.554Z"
+        }
+      },
+      "ms": 931
+    },
+    {
+      "label": "login (no body at all)",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "phone",
+              "message": "Required"
+            },
+            {
+              "path": "name",
+              "message": "Required"
+            }
+          ]
+        }
+      },
+      "ms": 252
+    },
+    {
+      "label": "login (invalid JSON body)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": "{nope",
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)",
+          "code": "SERVER_ERROR"
+        }
+      },
+      "ms": 245
+    },
+    {
+      "label": "login (phone as number, not string)",
+      "method": "POST",
+      "path": "/auth/login",
+      "reqBody": "{\"phone\":8801722222222,\"name\":\"Numeric Phone\"}",
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express",
+        "access-control-allow-origin": "*"
+      },
+      "body": {
+        "error": {
+          "message": "Validation failed",
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "path": "phone",
+              "message": "Expected string, received number"
+            }
+          ]
+        }
+      },
+      "ms": 273
+    }
+  ]
+}
