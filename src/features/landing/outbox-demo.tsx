@@ -153,7 +153,7 @@ export function OutboxDemo() {
             SM
           </span>
           <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm font-semibold text-ink">Sam Mercer</span>
+            <span className="truncate text-sm font-semibold text-ink">Tanvir Ahmed</span>
             <span
               className={cx(
                 'flex items-center gap-1.5 text-[11px] font-medium',

@@ -57,7 +57,7 @@ export function ProductPreview() {
               unread={3}
             />
             <PreviewRow name="Imran Hossain" preview="You: On the train now" time="12:32" />
-            <PreviewRow name="Sam Mercer" preview="Try me when you hit the tunnel" time="09:13" />
+            <PreviewRow name="Tanvir Ahmed" preview="Try me when you hit the tunnel" time="09:13" />
           </ul>
         </aside>
 

@@ -110,7 +110,7 @@ export function LoginForm() {
       <Field
         label="Display name"
         autoComplete="name"
-        placeholder="Ada Lovelace"
+        placeholder="Nusrat Jahan"
         hint="How other people see you. Remembered on this device, so you only type it once."
         value={name}
         error={touched.name ? errors.name : null}
