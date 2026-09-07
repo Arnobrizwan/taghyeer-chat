@@ -1,44 +1,34 @@
 # Relay
 
-A real-time chat app for one-to-one and group conversations, built against the Chat API
-provided with the brief. Take-home submission for the Senior Frontend Engineer role at
-Taghyeer Technologies.
+A real-time chat client for direct and group conversations, built against the provided Chat
+API. Take-home submission for the Senior Frontend Engineer role at Taghyeer
+Technologies.
 
-You sign in with your phone number, find someone, and message them. Messages arrive
-instantly, without refreshing. What makes it different is what happens when your connection
-drops: anything you type is saved on your device first, shown as clearly waiting, and sent
-in order the moment you're back. Nothing is lost, and nothing pretends to have been
-delivered when it wasn't.
+## Live
 
-## Try it
-
-| | Where |
+| | URL |
 |---|---|
 | **Part 2 — landing page** | **https://taghyeer-chat-rust.vercel.app/** |
 | **Part 1 — chat app** | **https://taghyeer-chat-rust.vercel.app/app** |
 | **Part 3 — write-up** | [`docs/WRITEUP.md`](./docs/WRITEUP.md) |
 
-There's nothing to set up and no credentials to ask me for. Sign in with any phone number
-and a name — an unknown number just registers itself. The phone number is the entire
-credential, with no password, because that's how the provided API works.
+No credentials needed. Sign in with any phone number and a display name — an unknown number
+registers automatically. The phone number is the whole credential; that is how the provided
+API works.
 
-To see the offline behaviour without actually going offline, press **Cut the connection** on
-the landing page, keep typing, then **Reconnect**.
+> **The API sleeps.** Render's free tier spins down after ~15 minutes idle, so the first
+> request after a quiet period can take up to a minute. The landing page starts waking the
+> server while you read it, and a slow request shows a "waking the server up" banner with a
+> live counter rather than an unexplained spinner.
 
-> **The API falls asleep.** It's on a free hosting tier that shuts down after about fifteen
-> minutes of no traffic, so the first request after a quiet spell can take up to a minute.
-> The landing page quietly starts waking it while you read, and if a request is still slow
-> you get an honest "waking the server up" message with a counter rather than a spinner that
-> explains nothing.
-
-## Running it yourself
+## Running locally
 
 ```bash
 npm install
 npm run dev          # http://localhost:3000
 ```
 
-Node 20 or newer. No API keys, no database, no backend to run locally.
+Node 20+. No API keys, no database, no local backend.
 
 ```bash
 npm run build        # production build
@@ -46,44 +36,29 @@ npm test             # 91 unit tests (vitest), ~0.4s, no network
 npm run lint         # eslint — 0 problems
 npx tsc --noEmit     # type check
 
-# Re-check every claim in docs/API.md against the live API (~1 min, 57 checks).
-# It registers throwaway accounts on timestamped numbers, so re-running is safe.
+# Re-verify every claim in docs/API.md against the live API (~1 min, 57 checks).
+# Registers throwaway accounts on timestamped numbers, so it is safe to re-run.
 node docs/recon/verify-api.mjs
 ```
 
-That last script is there so the documentation can't quietly drift out of date. If the API
-changes, it will say so.
+Same-origin tabs share `localStorage` and therefore the session. To run a genuinely separate
+second login, `next.config.ts` allows `127.0.0.1` as a dev origin — use
+`http://127.0.0.1:3000`. That setting is dev-only.
 
-One note if you want to test two accounts at once: two tabs on the same address share their
-storage, and therefore share a signed-in session, so they won't behave as two different
-people. To get a genuinely separate second login, `next.config.ts` also allows
-`127.0.0.1` during development — use `http://127.0.0.1:3000` for the second one. That
-setting is development-only and doesn't affect what ships.
+### Environment variables
 
-### Settings
+Both **optional** — the app falls back to these if unset. See [`.env.example`](./.env.example).
 
-Both are **optional** — the app falls back to these if you set nothing. See
-[`.env.example`](./.env.example).
-
-| Variable | Default | Note |
+| Variable | Default | Notes |
 |---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | `https://frontend-task-chatapp.onrender.com/api` | Normal requests, **with** `/api` |
-| `NEXT_PUBLIC_SOCKET_ORIGIN` | `https://frontend-task-chatapp.onrender.com` | The live connection, **without** `/api` |
+| `NEXT_PUBLIC_API_BASE_URL` | `https://frontend-task-chatapp.onrender.com/api` | REST base, **with** `/api` |
+| `NEXT_PUBLIC_SOCKET_ORIGIN` | `https://frontend-task-chatapp.onrender.com` | Socket.io origin, **without** `/api` |
 
-## How it's put together
+## Architecture
 
-Two things shape the whole structure, and both come from testing the API before building
-anything.
-
-**Everything arriving from the network is checked and reshaped at a single point**, so no
-part of the interface ever sees the raw format. The same message arrives in two different
-shapes depending on whether it came through the live connection or an ordinary request, and
-that difference is resolved once rather than in every component.
-
-**Messages are sent as ordinary requests, not down the live connection.** The live
-connection confirms a send but doesn't tell you what it saved, so there'd be nothing to
-match against the temporary copy on screen. An ordinary request returns the saved message,
-which is what makes that swap possible.
+Everything crossing the network is normalised at one boundary, so no component ever sees a
+wire shape. Sends go over REST rather than the socket, because the socket ack carries no body
+to reconcile against.
 
 ```mermaid
 flowchart TD
@@ -116,10 +91,8 @@ flowchart TD
     ZOD --> ZS
 ```
 
-The outbox is the extra feature. A message is saved on your device before anything touches
-the network, and only one browser tab is allowed to do the transmitting — because the API
-has no protection against the same message being submitted twice, so two tabs draining the
-same queue would deliver everything twice for real.
+The outbox is the original feature: a message is durable before it is ever transmitted, and a
+single elected tab does the transmitting, because `POST /messages` is not idempotent.
 
 ```mermaid
 stateDiagram-v2
@@ -132,9 +105,9 @@ stateDiagram-v2
     Sent --> [*]: placeholder replaced by the server copy
 ```
 
-## Where things live
+## Project structure
 
-Organised by feature, with a hard boundary at `src/lib` where network shapes stop.
+Organised by feature, with a hard normalisation boundary at `src/lib`.
 
 ```
 src/
@@ -149,54 +122,49 @@ src/
     api/               client, typed endpoints, ApiError, warm-up
     socket/            socket provider (inbound only)
     cross-tab.ts       BroadcastChannel bus + Web Locks leader election
-    domain.ts          the app's own vocabulary — no network types
-    schemas.ts         Zod: two network shapes -> one internal type
+    domain.ts          the app's vocabulary — no wire types
+    schemas.ts         Zod: two wire shapes -> one domain type
   components/ui/       Button, Field, Avatar, Modal, Logo, states
 ```
 
-**The rule:** nothing outside `lib/api` and `lib/schemas` ever sees an `_id`, a raw date
-string, or a `{ data }` wrapper. One shape in, one shape out.
+**The rule:** nothing outside `lib/api` and `lib/schemas` ever sees `_id`, an ISO date string,
+or a `{ data }` wrapper. One shape in, one shape out.
 
-## What it's built with
+## Tech stack
 
-**Next.js 16 (App Router) and TypeScript** in strict mode, with no `any` anywhere in the
-application code · **Tailwind CSS v4**, with the colours declared once as roles rather than
-fixed values · **TanStack Query** for state that's really a request · **Zustand** for the
-message timeline and the outbox · **Zod** to check what comes back from the network, which
-matters here because the API returns a success code with an empty body for a failed write,
-so a failed check is a genuine signal rather than paranoia · **socket.io-client** ·
-**Vitest**.
+**Next.js 16 (App Router) + TypeScript** (strict, `noUncheckedIndexedAccess`, no `any` in
+application code) · **Tailwind CSS v4** (tokens declared once in `@theme`) · **TanStack Query**
+(request-shaped server state) · **Zustand** (message timeline and outbox) · **Zod** (runtime
+validation at the boundary — the API returns `200` with a `null` body for a failed write, so
+schema failure is a real signal) · **socket.io-client** · **Vitest**.
 
-There are seven runtime dependencies and three of those are the framework, so four were
-actually chosen. No component library, no form library, no state-machine library, no date
-library. Three things that would usually be a dependency are browser features instead:
+Seven runtime dependencies, three of which are the framework itself, so four chosen libraries.
+No component library, no form library, no state-machine library, no date library. Three things
+that would usually be dependencies are platform APIs instead:
 
-| Instead of | I used | For |
+| Instead of | Used | For |
 |---|---|---|
-| a cross-tab state library | `BroadcastChannel` | keeping tabs of the same person in step |
-| a distributed-lock helper | `navigator.locks` | picking the one tab allowed to transmit. The browser releases it automatically if that tab closes or crashes, so there's no heartbeat to maintain and no timeout to tune |
-| a virtualisation library | plain DOM | not needed at this message volume, and noted as a limitation in the write-up rather than hidden |
+| a cross-tab state library | `BroadcastChannel` | mirroring sends between tabs of one user |
+| a distributed-lock helper | `navigator.locks` | electing the single tab allowed to transmit the outbox; the browser releases the lock on close or crash, so there is no heartbeat to maintain |
+| a virtualisation library | plain DOM | not needed at this message volume; noted as a limitation in the write-up |
 
-The reasoning behind each of these, and what I turned down, is in
-[`docs/WRITEUP.md`](./docs/WRITEUP.md) and [`docs/DECISIONS.md`](./docs/DECISIONS.md).
+Reasoning for each of these, and the trade-offs rejected, is in
+[`docs/WRITEUP.md`](./docs/WRITEUP.md).
 
-## The documents
-
-All written to be readable whether or not you write code for a living.
+## Documentation
 
 | Document | What it is |
 |---|---|
-| [`docs/WRITEUP.md`](./docs/WRITEUP.md) | **Part 3.** How I built it and why, the design reasoning, how I used AI, and what I'd do with more time. Opens with a 60-second summary |
-| [`docs/API.md`](./docs/API.md) | **Deliverable 1.** What the API actually does, as opposed to what its documentation says, plus how I'd redesign it |
-| [`docs/openapi.yaml`](./docs/openapi.yaml) | The same thing, machine-readable |
-| [`docs/api-findings.md`](./docs/api-findings.md) | Every fault I found while probing the live API, with the evidence for each |
-| [`docs/recon/verify-api.mjs`](./docs/recon/verify-api.mjs) | A re-runnable script that checks all 57 documented claims against the live API |
-| [`docs/DECISIONS.md`](./docs/DECISIONS.md) | Every non-obvious choice: what I decided, what I rejected, and why |
-| [`docs/ai-usage-log.md`](./docs/ai-usage-log.md) | A log of how AI was used, kept as I went rather than tidied up afterwards |
+| [`docs/WRITEUP.md`](./docs/WRITEUP.md) | **Part 3.** Approach, design reasoning, AI usage, API issues, what I'd improve. Opens with a 60-second summary |
+| [`docs/API.md`](./docs/API.md) | **Deliverable 1.** Full reference for the API as it actually behaves, plus a "how I'd redesign this" section |
+| [`docs/openapi.yaml`](./docs/openapi.yaml) | Machine-readable version of the same |
+| [`docs/api-findings.md`](./docs/api-findings.md) | Everything found probing the live API, with evidence |
+| [`docs/recon/verify-api.mjs`](./docs/recon/verify-api.mjs) | Re-runnable harness asserting every documented claim against the live API (57/57) |
+| [`docs/DECISIONS.md`](./docs/DECISIONS.md) | Every non-obvious decision: what I chose, what I rejected, why |
+| [`docs/ai-usage-log.md`](./docs/ai-usage-log.md) | Running log of AI use, kept as I went |
 
 ## Licence
 
-Copyright (c) 2026 Arnob Rizwan Ahmad. All rights reserved. This is a work sample submitted
-as part of a job application, not an open-source project — see [LICENSE](LICENSE) for the
-evaluation-only terms and [NOTICE](NOTICE) for authorship. The exact build is recorded on
-`<html data-build>`.
+Copyright (c) 2026 Arnob Rizwan Ahmad. All rights reserved. A candidacy work sample, not an
+open-source project: see [LICENSE](LICENSE) for the evaluation-only terms and [NOTICE](NOTICE)
+for authorship. The exact build is on `<html data-build>`.
