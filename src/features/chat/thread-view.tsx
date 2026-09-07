@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { conversationTitle, isGroup, type Conversation } from '@/lib/domain';
+import { conversationTitle, isGroup, type Conversation, conversationAvatarId } from '@/lib/domain';
 import { Avatar, ErrorState } from '@/components/ui';
 import { MembersPanel } from '@/features/groups/members-panel';
 import { bumpConversation } from '@/features/conversations/use-conversations';
@@ -13,6 +13,7 @@ import { MessageList } from './message-list';
 import { Composer } from './composer';
 import { orderedMessages, useChatStore } from './store';
 import { useThread } from './use-thread';
+import { formatPhone } from '@/lib/utils';
 
 export function ThreadView({
   conversationId,
@@ -72,14 +73,14 @@ export function ThreadView({
           </svg>
         </Link>
 
-        <Avatar name={title} id={conversation.id} isGroup={group} />
+        <Avatar name={title} id={conversationAvatarId(conversation)} isGroup={group} />
 
         <div className="flex min-w-0 flex-1 flex-col">
           <h2 className="truncate text-[15px] leading-tight font-semibold text-ink">{title}</h2>
           <p className="truncate text-xs text-ink-muted">
             {group
               ? `${conversation.participants.length} ${conversation.participants.length === 1 ? 'member' : 'members'}`
-              : conversation.peer.phone}
+              : formatPhone(conversation.peer.phone)}
           </p>
         </div>
 
@@ -104,7 +105,7 @@ export function ThreadView({
         </div>
       ) : messages.length === 0 && thread?.status === 'ready' ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-          <Avatar name={title} id={conversation.id} isGroup={group} size="lg" />
+          <Avatar name={title} id={conversationAvatarId(conversation)} isGroup={group} size="lg" />
           <h3 className="pt-2 font-display text-2xl text-ink">{title}</h3>
           <p className="max-w-sm text-sm leading-relaxed text-ink-muted">
             {group

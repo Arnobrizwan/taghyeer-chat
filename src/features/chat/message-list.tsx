@@ -4,7 +4,7 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { Conversation, Message } from '@/lib/domain';
-import { senderName } from '@/lib/domain';
+import { conversationAvatarId, conversationTitle, senderName } from '@/lib/domain';
 import { Avatar, Skeleton, Spinner } from '@/components/ui';
 import { cx } from '@/lib/utils';
 import { dayKey, formatDaySeparator, formatTime } from '@/lib/utils/time';
@@ -193,6 +193,34 @@ export function MessageList({
           messages sat marooned above a large empty panel and read as a loading failure.
         */}
         <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-end">
+        {/*
+          When there is nothing older to fetch, say so.
+          
+          The thread is bottom-pinned, which is right — but on a short conversation that
+          left a tall band of blank paper above the first bubble with nothing to explain
+          it, and blank space reads as something that failed to load. Naming the top of the
+          conversation turns the same gap into a boundary: you can see you are at the
+          beginning rather than guessing whether more is still coming.
+        */}
+        {!hasMore && messages.length > 0 && conversation && (
+          <div className="flex flex-col items-center gap-1 pb-6 text-center">
+            <Avatar
+              name={conversationTitle(conversation)}
+              id={conversationAvatarId(conversation)}
+              isGroup={conversation.type === 'group'}
+              size="lg"
+            />
+            <p className="mt-2 text-sm font-semibold text-ink">
+              {conversationTitle(conversation)}
+            </p>
+            <p className="max-w-xs text-xs text-ink-muted">
+              {conversation.type === 'group'
+                ? 'This is the beginning of the group.'
+                : 'This is the beginning of your conversation.'}
+            </p>
+          </div>
+        )}
+
         {hasMore && (
           <div className="flex justify-center pb-5">
             {loadingOlder ? (
@@ -309,9 +337,6 @@ function MessageRow({
       )}
 
       <div className={cx('flex max-w-[min(74%,32rem)] flex-col', own ? 'items-end' : 'items-start')}>
-        {showSender && !own && (
-          <span className="mb-1 px-1 text-xs font-semibold text-ink-muted">{name}</span>
-        )}
 
         <div
           className={cx(
@@ -337,6 +362,16 @@ function MessageRow({
             failed && 'border-vermilion-line bg-vermilion-soft text-ink shadow-none',
           )}
         >
+          {/*
+            The sender's name sits inside the bubble, on its own line above the text.
+            Outside it, the name sat at the top-left of the bubble column while the avatar
+            sat bottom-left beside it, so the two together drew an L around the message
+            instead of reading as one block. Inside, the name aligns with the text it
+            belongs to and the avatar has the bubble's whole height to align against.
+          */}
+          {showSender && !own && (
+            <span className="mb-0.5 block text-xs font-semibold text-ink-muted">{name}</span>
+          )}
           <span className="whitespace-pre-wrap">{message.text}</span>
 
           <span

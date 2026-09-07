@@ -71,6 +71,21 @@ export function conversationTitle(c: Conversation): string {
   return c.type === 'group' ? c.name : c.peer.name;
 }
 
+/**
+ * The id an avatar for this conversation should be tinted by.
+ *
+ * A direct conversation is drawn as the *other person*, so its avatar has to key off that
+ * person's user id. Keying off `c.id` instead gave the same human one colour in the sidebar
+ * and a different one in the thread header, which quietly broke the promise `Avatar` makes
+ * in its own docblock. A group is not a person, so a group keys off the conversation.
+ *
+ * Sits next to `conversationTitle` because it answers the same shape of question: what does
+ * this conversation look like from the outside.
+ */
+export function conversationAvatarId(c: Conversation): string {
+  return c.type === 'group' ? c.id : c.peer.id;
+}
+
 export function isAdmin(c: Conversation, userId: string): boolean {
   return c.type === 'group' && c.adminIds.includes(userId);
 }

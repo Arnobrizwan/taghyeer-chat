@@ -16,7 +16,7 @@ import type { Conversation, GroupConversation, UserRef } from '@/lib/domain';
 import { Avatar, Button, Field, Modal, Spinner } from '@/components/ui';
 import { conversationsKey } from '@/features/conversations/use-conversations';
 import { UserSearchPicker } from '@/features/conversations/user-search-picker';
-import { cx } from '@/lib/utils';
+import { cx, formatPhone } from '@/lib/utils';
 
 /**
  * Group administration.
@@ -45,6 +45,7 @@ export function MembersPanel({
   const [nameError, setNameError] = useState<string | null>(null);
   const [addingMembers, setAddingMembers] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
 
   function applyUpdate(updated: GroupConversation) {
     queryClient.setQueryData<Conversation[]>(conversationsKey, (prev) =>
@@ -214,9 +215,35 @@ export function MembersPanel({
 
         {/* Leave ------------------------------------------------------- */}
         <section className="border-t border-line pt-4">
-          <Button variant="danger" onClick={() => leave.mutate()} loading={leave.isPending} className="w-full">
-            Leave group
-          </Button>
+          {/* Also previously a single click, and this one cannot be undone from the client. */}
+          {confirmingLeave ? (
+            <div className="flex flex-col gap-2 rounded-xl border border-vermilion/30 bg-vermilion-soft p-3">
+              <p className="text-sm font-medium text-ink">
+                Leave {group.name}? You&apos;ll need an admin to add you back.
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="danger"
+                  onClick={() => leave.mutate()}
+                  loading={leave.isPending}
+                  className="flex-1"
+                >
+                  Leave group
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setConfirmingLeave(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button variant="danger" onClick={() => setConfirmingLeave(true)} className="w-full">
+              Leave group
+            </Button>
+          )}
           {isAdmin && group.adminIds.length === 1 && group.participants.length > 1 && (
             <p className="pt-2 text-center text-xs text-ink-muted">
               You&apos;re the only admin — another member will be promoted automatically.
@@ -245,15 +272,21 @@ function MemberRow({
   onRemove: () => void;
   busy: boolean;
 }) {
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
+
   return (
-    <li className="flex items-center gap-3 px-3 py-2.5">
+    /*
+      `flex-wrap` with the actions on their own full-width row below `sm`: at panel widths
+      a long name and two inline controls had nowhere to go but into each other.
+    */
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
       <Avatar name={user.name} id={user.id} size="sm" />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm font-medium text-ink">
           {user.name}
           {isSelf && <span className="ml-1 font-normal text-ink-faint">(you)</span>}
         </span>
-        <span className="truncate text-xs text-ink-muted">{user.phone}</span>
+        <span className="truncate text-xs text-ink-muted">{formatPhone(user.phone)}</span>
       </span>
 
       {isMemberAdmin && (
@@ -266,28 +299,62 @@ function MemberRow({
 
       {/* Admin-only actions are omitted entirely for non-admins. */}
       {viewerIsAdmin && !busy && (
-        <span className="flex shrink-0 items-center gap-1">
-          {!isMemberAdmin && (
-            <button
-              type="button"
-              onClick={onPromote}
-              className={cx(
-                'rounded-md px-2 py-1 text-xs font-medium text-ink-muted',
-                'transition-colors hover:bg-paper-sunken hover:text-ink',
+        <span className="ml-auto flex shrink-0 items-center gap-1.5">
+          {confirmingRemove ? (
+            /*
+              Removing someone was a single unguarded click. The confirm is inline rather
+              than a second modal on top of this one: it keeps the name you are acting on
+              visible, which a stacked "Are you sure?" dialog does not.
+            */
+            <>
+              <span className="text-xs text-ink-muted">Remove?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmingRemove(false);
+                  onRemove();
+                }}
+                className="rounded-md border border-vermilion/40 bg-vermilion-soft px-2.5 py-1 text-xs font-semibold text-vermilion-on-soft transition-colors hover:bg-vermilion hover:text-white"
+              >
+                Remove
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingRemove(false)}
+                className="rounded-md border border-line-strong px-2.5 py-1 text-xs font-medium text-ink-soft transition-colors hover:border-ink-muted"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              {!isMemberAdmin && (
+                /*
+                  Bordered, not bare text. As plain grey type this was indistinguishable
+                  from the phone number two lines up and gave no sign it could be clicked.
+                */
+                <button
+                  type="button"
+                  onClick={onPromote}
+                  className={cx(
+                    'rounded-md border border-line-strong px-2.5 py-1 text-xs font-medium text-ink-soft',
+                    'transition-colors hover:border-ink-muted hover:text-ink',
+                  )}
+                >
+                  Make admin
+                </button>
               )}
-            >
-              Make admin
-            </button>
-          )}
-          {!isSelf && (
-            <button
-              type="button"
-              onClick={onRemove}
-              aria-label={`Remove ${user.name}`}
-              className="rounded-md px-2 py-1 text-xs font-medium text-vermilion transition-colors hover:bg-vermilion-soft"
-            >
-              Remove
-            </button>
+              {!isSelf && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmingRemove(true)}
+                  aria-label={`Remove ${user.name}`}
+                  className="rounded-md border border-vermilion/30 px-2.5 py-1 text-xs font-medium text-vermilion transition-colors hover:bg-vermilion-soft"
+                >
+                  Remove
+                </button>
+              )}
+            </>
           )}
         </span>
       )}

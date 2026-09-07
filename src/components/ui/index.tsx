@@ -2,7 +2,7 @@
 
 // Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
 
-import { forwardRef, useId } from 'react';
+import { forwardRef, useEffect, useId, useRef } from 'react';
 import { cx } from '@/lib/utils';
 
 // --- Button -----------------------------------------------------------------
@@ -30,8 +30,13 @@ const BUTTON_VARIANTS: Record<NonNullable<ButtonProps['variant']>, string> = {
   ghost:
     'text-ink-soft hover:bg-paper-sunken active:translate-y-px ' +
     'disabled:text-ink-faint disabled:hover:bg-transparent',
+  /*
+   * `bg-white` was a literal, not a token, so it stayed pure white in dark mode and turned a
+   * destructive *secondary* action into the brightest element on the screen. `paper-raised`
+   * is the same surface in light and the correct raised surface in dark.
+   */
   danger:
-    'bg-white text-vermilion border border-vermilion/40 hover:bg-vermilion-soft ' +
+    'bg-paper-raised text-vermilion border border-vermilion/40 hover:bg-vermilion-soft ' +
     'disabled:bg-paper-sunken disabled:text-ink-faint disabled:border-line',
 };
 
@@ -134,20 +139,50 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
 
 // --- Avatar -----------------------------------------------------------------
 
-/** Deterministic tint from the user id, so a person looks the same everywhere. */
-const AVATAR_TINTS = [
-  'bg-vermilion-soft text-vermilion-on-soft',
-  'bg-teal-soft text-teal',
-  'bg-amber-soft text-amber',
-  'bg-[#e6e9f5] text-[#3d4a7a]',
-  'bg-[#e8f0e3] text-[#4a6b38]',
-  'bg-[#f3e6f0] text-[#7a3d6b]',
-];
+/**
+ * Deterministic tint from the user id, so a person looks the same everywhere.
+ *
+ * `id` must be the id of the *person* being drawn. Passing a conversation id gives the same
+ * human two different colours depending on which screen you are looking at — which is what
+ * the sidebar and the thread header used to do. For a direct conversation that means the
+ * other participant's user id, not `conversation.id`; only a group avatar is keyed by the
+ * conversation, because a group is not a person.
+ */
+const TINT_COUNT = 12;
 
+/**
+ * FNV-1a with a MurmurHash3 finalizer.
+ *
+ * Two separate bugs got fixed here, and the second is the one that actually mattered.
+ *
+ * The original was the textbook `h * 31 + c`. Taken mod a palette size of 6 or 12 that is
+ * worthless: 31 ≡ 1 (mod 12), so `h * 31 ≡ h` and the whole hash degenerates into a plain
+ * sum of character codes. Ids that are near-permutations of each other — which sequential
+ * ObjectIds are — landed on the same tint.
+ *
+ * Swapping in FNV-1a was not enough on its own, which is worth spelling out because it
+ * looks like it should be. Selecting a bucket with `% 12` reads the *low* bits, and low
+ * bits are exactly where a multiplicative hash avalanches worst: they depend only on the
+ * low bits of the input, so ids sharing a tail keep sharing a bucket. Measured on this
+ * app's real data, four group members produced only two distinct tints. The finalizer
+ * below is MurmurHash3's `fmix32`, whose entire job is to fold high-order entropy down into
+ * the low bits; with it the same four ids produce four distinct tints.
+ *
+ * `>>> 0` keeps the result unsigned — `Math.abs` on an overflowed int32 would fold two
+ * distinct hashes onto one value.
+ */
 function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  h ^= h >>> 16;
+  h = Math.imul(h, 2246822507);
+  h ^= h >>> 13;
+  h = Math.imul(h, 3266489909);
+  h ^= h >>> 16;
+  return h >>> 0;
 }
 
 export function initials(name: string): string {
@@ -168,7 +203,7 @@ export function Avatar({
   size?: 'sm' | 'md' | 'lg';
   isGroup?: boolean;
 }) {
-  const tint = AVATAR_TINTS[hashCode(id) % AVATAR_TINTS.length] ?? AVATAR_TINTS[0];
+  const tint = `tint-${(hashCode(id) % TINT_COUNT) + 1}`;
   return (
     <span
       aria-hidden="true"
@@ -270,6 +305,73 @@ export function Modal({
 }) {
   const generated = useId();
   const titleId = labelledBy ?? generated;
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  /*
+   * Escape is bound to the document, not to the panel.
+   *
+   * It used to sit in `onKeyDown` on the dialog element, which only fires when focus is
+   * already inside it. The new-conversation dialog autofocuses its search field so it
+   * happened to work; the group-details panel autofocuses nothing, so focus stayed on
+   * `<body>`, the event never reached the handler, and the same app had two different
+   * Escape behaviours. Binding at the document makes it a property of the dialog being
+   * open rather than of where the caret happens to be.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  /*
+   * Make `aria-modal` true rather than aspirational.
+   *
+   * Declaring `aria-modal` on a plain div promises assistive technology that everything
+   * behind it is unavailable, and nothing here enforced that: the sidebar stayed reachable
+   * by Tab and by a screen reader's virtual cursor. Rather than a hand-rolled focus trap
+   * with its own edge cases, the background is marked `inert`, which is the platform
+   * feature for exactly this and takes the elements out of the tab order, out of the
+   * accessibility tree and out of hit-testing in one go.
+   *
+   * Applied to the body's other children so the portal-less markup keeps working, and
+   * guarded on support because `inert` is only in browsers from 2023 onwards — where it is
+   * missing the dialog degrades to what it did before, which is what it did before.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    const root = panel?.closest('body > *');
+    if (!root || !('inert' in HTMLElement.prototype)) return;
+
+    const siblings = Array.from(document.body.children).filter(
+      (el) => el !== root && !el.hasAttribute('inert'),
+    );
+    for (const el of siblings) el.setAttribute('inert', '');
+    return () => {
+      for (const el of siblings) el.removeAttribute('inert');
+    };
+  }, [open]);
+
+  /* Focus moves into the dialog on open and returns where it came from on close. */
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+    if (panel && !panel.contains(document.activeElement)) {
+      const first = panel.querySelector<HTMLElement>(
+        'input, textarea, select, button, [href], [tabindex]:not([tabindex="-1"])',
+      );
+      (first ?? panel).focus({ preventScroll: true });
+    }
+    return () => previous?.focus?.({ preventScroll: true });
+  }, [open]);
+
   if (!open) return null;
 
   return (
@@ -280,23 +382,23 @@ export function Modal({
       }}
     >
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') onClose();
-        }}
-        className="animate-slide-up-fade flex max-h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-paper-raised shadow-2xl sm:rounded-2xl"
+        tabIndex={-1}
+        className="animate-slide-up-fade flex max-h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-paper-raised shadow-2xl outline-none sm:rounded-2xl"
       >
-        <header className="flex items-center justify-between border-b border-line px-5 py-4">
+        <header className="flex items-center justify-between gap-3 border-b border-line py-3 pr-3 pl-5">
           <h2 id={titleId} className="font-display text-xl text-ink">
             {title}
           </h2>
+          {/* 44px: the close control was 32 and is the one thing you reach for in a hurry. */}
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-md p-1.5 text-ink-muted transition-colors hover:bg-paper-sunken hover:text-ink"
+            className="-mr-1 flex size-11 shrink-0 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-paper-sunken hover:text-ink"
           >
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />

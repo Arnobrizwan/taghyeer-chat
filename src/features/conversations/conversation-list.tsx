@@ -3,7 +3,7 @@
 // Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
 
 import Link from 'next/link';
-import { conversationTitle, isGroup, type Conversation } from '@/lib/domain';
+import { conversationTitle, isGroup, type Conversation, conversationAvatarId } from '@/lib/domain';
 import { Avatar, EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { formatListTimestamp } from '@/lib/utils/time';
 import { cx } from '@/lib/utils';
@@ -92,7 +92,7 @@ function ConversationRow({
           : 'hover:bg-paper-sunken',
       )}
     >
-      <Avatar name={title} id={conversation.id} isGroup={group} />
+      <Avatar name={title} id={conversationAvatarId(conversation)} isGroup={group} />
       <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
         <span className="flex items-baseline justify-between gap-2">
           <span

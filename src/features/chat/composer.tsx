@@ -11,7 +11,8 @@ const MAX_ROWS_PX = 160;
 export function Composer({
   onSend,
   disabled = false,
-  placeholder = 'Write a message…',
+  // Matches the landing demo verbatim; the two used to differ ('Write' vs 'Type').
+  placeholder = 'Type a message…',
   offline = false,
 }: {
   onSend: (text: string) => SendVerdict;

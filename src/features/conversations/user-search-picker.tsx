@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import type { UserRef } from '@/lib/domain';
 import { Avatar, Button, Spinner } from '@/components/ui';
-import { cx } from '@/lib/utils';
+import { cx, formatPhone } from '@/lib/utils';
 import { MIN_QUERY_LENGTH, useUserSearch } from './use-user-search';
 
 /**
@@ -73,7 +73,7 @@ export function UserSearchPicker({
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name…"
+          placeholder="Search by name or phone…"
           className="w-full rounded-lg border border-line-strong bg-paper py-2.5 pr-9 pl-10 text-[15px] transition-colors placeholder:text-ink-faint hover:border-ink-faint"
         />
         {isSearching && (
@@ -99,11 +99,44 @@ export function UserSearchPicker({
         </ul>
       )}
 
-      <div className="max-h-56 min-h-[3rem] overflow-y-auto scroll-quiet">
+      {/*
+        No `min-h`. The list used to reserve ~92px whether or not it had anything to put
+        there, so an untouched dialog opened on a band of empty paper between the hint and
+        the footer rule. It now sizes to its content and only becomes a scroller once there
+        is something to scroll, with `mask-fade-b` softening the last few pixels so a cut-off
+        row reads as "more below" instead of as a rendering fault.
+      */}
+      <div
+        className={cx(
+          'overflow-y-auto scroll-quiet',
+          available.length > 0 ? 'mask-fade-b max-h-56' : 'max-h-56',
+        )}
+      >
         {!hasQuery && (
-          <p className="px-2 py-6 text-center text-sm text-ink-muted">
-            Type at least {MIN_QUERY_LENGTH} characters to search.
-          </p>
+          /*
+            A composed empty state rather than a sentence floating in a gap.
+            
+            Removing the reserved height alone was not enough: the hint's own padding still
+            left ~92px between the field and the footer rule, and 92px holding one line of
+            grey text reads as a layout that failed rather than as a step you have not taken
+            yet. Same vertical space, now clearly on purpose — mark, instruction, and the
+            reason the threshold exists.
+          */
+          <div className="flex flex-col items-center gap-2 px-4 py-6 text-center">
+            <span className="flex size-9 items-center justify-center rounded-full bg-paper-sunken text-ink-faint">
+              <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <circle cx="9" cy="9" r="5.5" />
+                <path d="M13.5 13.5 17.5 17.5" strokeLinecap="round" />
+              </svg>
+            </span>
+            <p className="text-sm text-ink-muted">
+              Type at least {MIN_QUERY_LENGTH} characters to search.
+            </p>
+            <p className="max-w-[16rem] text-xs text-ink-faint">
+              Searching for nothing would return every account on the server, so we wait for
+              a couple of letters.
+            </p>
+          </div>
         )}
 
         {hasQuery && !isSearching && available.length === 0 && (
@@ -136,7 +169,7 @@ export function UserSearchPicker({
                   <Avatar name={u.name} id={u.id} size="sm" />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate text-sm font-medium text-ink">{u.name}</span>
-                    <span className="truncate text-xs text-ink-muted">{u.phone}</span>
+                    <span className="truncate text-xs text-ink-muted">{formatPhone(u.phone)}</span>
                   </span>
                   {isSelected && (
                     <svg viewBox="0 0 16 16" className="size-4 shrink-0 text-vermilion" fill="none" stroke="currentColor" strokeWidth="2">
@@ -158,13 +191,13 @@ export function UserSearchPicker({
       */}
       <div className="flex items-center justify-end gap-2 border-t border-line pt-3">
         {onCancel && (
-          <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
+          <Button type="button" variant="ghost" onClick={onCancel}>
             Cancel
           </Button>
         )}
+        {/* Full-size, not `sm`: 32px tall made the primary action read as a secondary one. */}
         <Button
           type="button"
-          size="sm"
           disabled={selected.length === 0}
           loading={busy}
           onClick={() => onConfirm(selected)}

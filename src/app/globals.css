@@ -89,12 +89,37 @@
    * same hue carried down to 5.8:1 against that tint.
    */
   --vermilion-on-soft: #a82f10;
+
+  /* Focus is ink, not the accent — see the :focus-visible rule. */
+  --focus-ring: #14171f;
+  --clear-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='%23000' stroke-width='2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
   --vermilion-line: #f3cabd;
 
   --teal: #0a6f66; /* 5.1:1 on teal-soft — #0d7f74 was 4.09:1 and failed AA */
   --teal-soft: #d8f0ec;
   --amber: #9a4a08;
   --amber-soft: #fdf0d5;
+
+  /*
+   * Avatar tints.
+   *
+   * Twelve, not six: with six, a four-person group had a ~72% chance of a collision by the
+   * birthday bound alone, which is the exact case these exist to disambiguate. Every pair
+   * was solved for at least 4.6:1 so 10px initials clear AA, and both themes are defined —
+   * the previous set hardcoded light pastels that stayed light in dark mode.
+   */
+  --tint-1-bg: #f4ddd7; --tint-1-fg: #b23819;
+  --tint-2-bg: #f4ebd7; --tint-2-fg: #866313;
+  --tint-3-bg: #eef4d7; --tint-3-fg: #607411;
+  --tint-4-bg: #e0f4d7; --tint-4-fg: #307811;
+  --tint-5-bg: #d7f4dd; --tint-5-fg: #117826;
+  --tint-6-bg: #d7f4eb; --tint-6-fg: #11785a;
+  --tint-7-bg: #d7eef4; --tint-7-fg: #136f86;
+  --tint-8-bg: #d7e0f4; --tint-8-fg: #1d50c9;
+  --tint-9-bg: #ddd7f4; --tint-9-fg: #3f1dc9;
+  --tint-10-bg: #ebd7f4; --tint-10-fg: #951dc9;
+  --tint-11-bg: #f4d7ee; --tint-11-fg: #ae1990;
+  --tint-12-bg: #f4d7e0; --tint-12-fg: #bb1b4b;
 
   --line: #e5ded3;
   --line-strong: #d4cabb;
@@ -128,12 +153,26 @@
   --vermilion-accent: #ff6b45; /* 6.3:1 as text on surface */
   --vermilion-soft: #2e1a15;
   --vermilion-on-soft: #ff8a68; /* 7.2:1 on the dark soft tint */
+  --focus-ring: #f3f0ea;
   --vermilion-line: #5c2a1c;
 
   --teal: #35c4b1;
   --teal-soft: #14312e;
   --amber: #f0c485;
   --amber-soft: #2c2318;
+
+  --tint-1-bg: #38241e; --tint-1-fg: #e17256;
+  --tint-2-bg: #38311e; --tint-2-fg: #ddac3c;
+  --tint-3-bg: #33381e; --tint-3-fg: #bcdd3c;
+  --tint-4-bg: #26381e; --tint-4-fg: #6cdd3c;
+  --tint-5-bg: #1e3824; --tint-5-fg: #3cdd5c;
+  --tint-6-bg: #1e3831; --tint-6-fg: #3cddac;
+  --tint-7-bg: #1e3338; --tint-7-fg: #3cbcdd;
+  --tint-8-bg: #1e2638; --tint-8-fg: #678de4;
+  --tint-9-bg: #241e38; --tint-9-fg: #927de8;
+  --tint-10-bg: #311e38; --tint-10-fg: #c16ce5;
+  --tint-11-bg: #381e33; --tint-11-fg: #e25ac7;
+  --tint-12-bg: #381e26; --tint-12-fg: #e36389;
 
   --line: #2d323e;
   --line-strong: #3d4453;
@@ -157,12 +196,26 @@
     --vermilion-accent: #ff6b45;
     --vermilion-soft: #2e1a15;
     --vermilion-on-soft: #ff8a68;
+    --focus-ring: #f3f0ea;
     --vermilion-line: #5c2a1c;
 
     --teal: #35c4b1;
     --teal-soft: #14312e;
     --amber: #f0c485;
     --amber-soft: #2c2318;
+
+    --tint-1-bg: #38241e; --tint-1-fg: #e17256;
+    --tint-2-bg: #38311e; --tint-2-fg: #ddac3c;
+    --tint-3-bg: #33381e; --tint-3-fg: #bcdd3c;
+    --tint-4-bg: #26381e; --tint-4-fg: #6cdd3c;
+    --tint-5-bg: #1e3824; --tint-5-fg: #3cdd5c;
+    --tint-6-bg: #1e3831; --tint-6-fg: #3cddac;
+    --tint-7-bg: #1e3338; --tint-7-fg: #3cbcdd;
+    --tint-8-bg: #1e2638; --tint-8-fg: #678de4;
+    --tint-9-bg: #241e38; --tint-9-fg: #927de8;
+    --tint-10-bg: #311e38; --tint-10-fg: #c16ce5;
+    --tint-11-bg: #381e33; --tint-11-fg: #e25ac7;
+    --tint-12-bg: #381e26; --tint-12-fg: #e36389;
 
     --line: #2d323e;
     --line-strong: #3d4453;
@@ -182,11 +235,22 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Focus: one visible, high-contrast ring everywhere. Never removed. */
+/*
+ * Focus: one visible, high-contrast ring everywhere. Never removed.
+ *
+ * Deliberately NOT the accent. Vermilion is the error colour on every form in this app, so
+ * an accent-coloured ring made a focused field and a field in error the same visual — you
+ * could not tell "you are typing here" from "you got this wrong" without reading the text.
+ * Focus is now ink: attention rather than alarm, and vermilion is left meaning one thing.
+ *
+ * No `border-radius` here either. Setting one restyled the corners of every element that
+ * took focus, and because an outline follows the element's own radius it forced a near-
+ * square ring onto controls that are `rounded-lg` — the ring looked boxy because the
+ * element had genuinely been squared off underneath it.
+ */
 :focus-visible {
-  outline: 2px solid var(--vermilion-accent);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-  border-radius: 3px;
 }
 
 /* Motion vocabulary -------------------------------------------------------- */
@@ -278,3 +342,51 @@ body {
   }
   .skeleton { animation: none; background: var(--paper-sunken); }
 }
+
+
+/*
+ * The native search clear button.
+ *
+ * `input[type=search]` ships a `::-webkit-search-cancel-button` that Chrome paints in
+ * system blue — the one saturated cool colour in an otherwise entirely warm palette, and a
+ * colour that appears nowhere else in this product. Redrawn in `currentColor` so it
+ * inherits the field's own text colour. `appearance: none` on its own would delete the
+ * affordance, so it is replaced rather than hidden.
+ */
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 0.875rem;
+  width: 0.875rem;
+  cursor: pointer;
+  opacity: 0.45;
+  background-color: currentColor;
+  -webkit-mask: var(--clear-glyph) center / contain no-repeat;
+  mask: var(--clear-glyph) center / contain no-repeat;
+}
+
+input[type='search']::-webkit-search-cancel-button:hover { opacity: 0.9; }
+
+/*
+ * Scroll affordance for a list taller than its container. A hard cut at a rule reads as a
+ * rendering fault rather than as "there is more below"; fading the last few pixels says the
+ * list continues without adding a scrollbar or a shadow that fights the dialog's own edge.
+ */
+.mask-fade-b {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+}
+
+/* Avatar tint pairs; see the token block above for how they were derived. */
+.tint-1 { background-color: var(--tint-1-bg); color: var(--tint-1-fg); }
+.tint-2 { background-color: var(--tint-2-bg); color: var(--tint-2-fg); }
+.tint-3 { background-color: var(--tint-3-bg); color: var(--tint-3-fg); }
+.tint-4 { background-color: var(--tint-4-bg); color: var(--tint-4-fg); }
+.tint-5 { background-color: var(--tint-5-bg); color: var(--tint-5-fg); }
+.tint-6 { background-color: var(--tint-6-bg); color: var(--tint-6-fg); }
+.tint-7 { background-color: var(--tint-7-bg); color: var(--tint-7-fg); }
+.tint-8 { background-color: var(--tint-8-bg); color: var(--tint-8-fg); }
+.tint-9 { background-color: var(--tint-9-bg); color: var(--tint-9-fg); }
+.tint-10 { background-color: var(--tint-10-bg); color: var(--tint-10-fg); }
+.tint-11 { background-color: var(--tint-11-bg); color: var(--tint-11-fg); }
+.tint-12 { background-color: var(--tint-12-bg); color: var(--tint-12-fg); }
