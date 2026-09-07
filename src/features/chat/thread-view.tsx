@@ -66,7 +66,7 @@ export function ThreadView({
         <Link
           href="/app"
           aria-label="Back to conversations"
-          className="-ml-1 rounded-md p-1.5 text-ink-muted transition-colors hover:bg-paper-sunken md:hidden"
+          className="-ml-1 flex items-center justify-center rounded-md p-1.5 text-ink-muted transition-colors hover:bg-paper-sunken pointer-coarse:size-11 md:hidden"
         >
           <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15 5l-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />

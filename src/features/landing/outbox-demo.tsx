@@ -3,6 +3,7 @@
 // Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { initials } from '@/lib/avatar';
 import { cx, isSendableText } from '@/lib/utils';
 import { formatTime } from '@/lib/utils/time';
 
@@ -43,6 +44,9 @@ const SCRIPTED_REPLIES = [
  * roughly 230px of empty panel above the first bubble on desktop and the demo read as
  * something that had failed to load rather than as a conversation in progress.
  */
+/** One source of truth: the initials are derived, never typed twice. */
+const PEER = 'Tanvir Ahmed';
+
 const SEED: DemoMessage[] = [
   { id: 's1', text: 'Are you heading in today?', own: false, status: 'sent', at: '09:08' },
   { id: 's2', text: 'Yeah, on the 09:15. Should be at the office by ten', own: true, status: 'sent', at: '09:09' },
@@ -150,10 +154,10 @@ export function OutboxDemo() {
       <div className="flex items-center justify-between gap-3 border-b border-line bg-paper px-4 py-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-soft text-xs font-semibold text-teal">
-            SM
+            {initials(PEER)}
           </span>
           <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm font-semibold text-ink">Tanvir Ahmed</span>
+            <span className="truncate text-sm font-semibold text-ink">{PEER}</span>
             <span
               className={cx(
                 'flex items-center gap-1.5 text-[11px] font-medium',
@@ -173,6 +177,7 @@ export function OutboxDemo() {
           aria-pressed={!online}
           className={cx(
             'flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors duration-200',
+            'pointer-coarse:min-h-11 pointer-coarse:px-4',
             online
               ? 'border-line-strong text-ink-soft hover:border-vermilion hover:text-vermilion'
               : 'border-amber bg-amber-soft text-amber',
@@ -271,6 +276,7 @@ export function OutboxDemo() {
           aria-label="Send demo message"
           className={cx(
             'flex size-9 shrink-0 items-center justify-center rounded-xl transition-colors',
+            'pointer-coarse:size-11',
             isSendableText(draft)
               ? 'bg-vermilion text-white hover:bg-vermilion-bright'
               : 'cursor-not-allowed bg-paper-sunken text-ink-faint',

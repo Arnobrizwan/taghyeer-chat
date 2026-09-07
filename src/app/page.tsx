@@ -20,11 +20,13 @@ const REPO = 'https://github.com/Arnobrizwan/taghyeer-chat';
  * A take-home is read as much as it is used, so the reading material is linked rather than
  * left for someone to go hunting through the repo for.
  */
-const FOOTER_LINKS = [
-  { label: 'Source', href: REPO },
-  { label: 'Architecture write-up', href: `${REPO}/blob/main/docs/WRITEUP.md` },
-  { label: 'API findings', href: `${REPO}/blob/main/docs/API.md` },
-];
+/*
+ * One link, not three. The brief frames this page as an introduction for real users, and a
+ * real user does not want an API findings document — those two links were reviewer plumbing
+ * on a page that is meant to be in character. Both are the first rows of the README's
+ * documentation table, which is where a reviewer actually arrives.
+ */
+const FOOTER_LINKS = [{ label: 'Source', href: REPO }];
 
 const CAPABILITIES = [
   {
