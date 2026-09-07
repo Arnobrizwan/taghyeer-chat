@@ -78,6 +78,13 @@ export default function LandingPage() {
         */}
         <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
           <div className="contents lg:block">
+            <Reveal className="order-1 lg:order-none">
+              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1 text-xs font-medium tracking-wide text-ink-muted uppercase">
+                <span className="size-1.5 rounded-full bg-vermilion-bright" />
+                Real-time messaging
+              </p>
+            </Reveal>
+
             <Reveal delay={60} className="order-1 lg:order-none">
               {/*
                 Broken by hand rather than left to the browser: "…on a / dead connection"
