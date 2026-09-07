@@ -1,7 +1,8 @@
 # Relay
 
 A real-time chat client for direct and group conversations, built against the provided Chat
-API. Take-home submission for the Frontend Developer role at Taghyeer Technologies.
+API. Take-home submission for the Senior Frontend Engineer role at Taghyeer
+Technologies.
 
 ## Live
 
