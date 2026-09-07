@@ -14,14 +14,29 @@ Both deliverables are served from one domain:
 | **Part 1 — chat app** | **https://taghyeer-chat-rust.vercel.app/app** |
 
 No credentials needed. Sign in with any phone number and a display name — an unknown
-number registers automatically. To see real-time delivery, open `/app` in two different
-browsers (or a normal and a private window), sign in as two different numbers, and search
-for the other by **name**.
+number registers automatically. There is no password: the phone number is the whole
+credential, which is how the provided API works.
+
+### Worth trying, in about three minutes
+
+1. **Real-time.** Open `/app` in two different browsers (or a normal and a private
+   window), sign in as two different numbers, and find the other by **name** — not by
+   phone. The search endpoint can't match a `+`-prefixed number at all, for reasons
+   explained under [Issues with the given API](#issues-with-the-given-api).
+2. **The offline outbox.** On the landing page, hit **Cut the connection**, keep typing,
+   then **Reconnect**. Messages queue and flush in order. The real app behaves the same
+   way — switch your machine to airplane mode mid-conversation and nothing is lost.
+3. **Scroll behaviour.** Scroll up in a long thread while the other window sends. You
+   won't be yanked down; a "new messages" pill appears instead.
+4. **Two tabs, one account.** Open `/app` twice in the *same* browser and send from one.
+   The other updates instantly — which the API alone does not make possible, because it
+   sends the author no echo of their own message.
 
 > **The API sleeps.** It's on Render's free tier and spins down after ~15 minutes idle, so
-> the first request after a quiet period can take up to a minute. The app detects this and
-> shows a "waking the server up" banner with a live counter rather than an unexplained
-> spinner. If the first load feels slow, that's what's happening.
+> the first request after a quiet period can take up to a minute. Two things address that:
+> the landing page starts waking the server while you read it, and if a request is still
+> slow the app shows a "waking the server up" banner with a live counter rather than an
+> unexplained spinner.
 
 ## Running locally
 
@@ -32,11 +47,22 @@ npm run dev          # http://localhost:3000
 
 ```bash
 npm run build        # production build
-npm run lint         # eslint
+npm run lint         # eslint — currently 0 problems, not just 0 errors
 npx tsc --noEmit     # type check
 ```
 
+```bash
+# Re-verify every claim in docs/API.md against the live API (~1 min, 57 checks).
+# Registers three throwaway accounts on timestamped numbers, so it is safe to re-run.
+node docs/recon/verify-api.mjs
+```
+
 Node 20+. No API keys, no database, no local backend.
+
+To exercise the two-session and cross-tab behaviour on `localhost`, note that same-origin
+tabs share `localStorage` and therefore the session. `next.config.ts` allows `127.0.0.1`
+as a dev origin so you can run a genuinely separate second login at
+`http://127.0.0.1:3000` — that setting is dev-only and has no effect on a production build.
 
 ### Environment variables
 
@@ -71,7 +97,17 @@ Both are **optional** — the app falls back to the values below if unset. See
 | **Zod** | Runtime validation at the API boundary. Not decoration: the API returns the same entity in two different shapes and returns `200 null` for a failed write, so schema failure is a real signal. |
 | **socket.io-client** | Required by the API. |
 
-Six runtime dependencies. No component library, no form library, no state-machine library.
+Seven runtime dependencies, three of which are the framework itself (`next`, `react`,
+`react-dom`) — so four chosen libraries. No component library, no form library, no
+state-machine library, no date library.
+
+Three things that would usually be dependencies are platform APIs here instead:
+
+| Instead of | Used | For |
+|---|---|---|
+| a cross-tab state library | **`BroadcastChannel`** | mirroring sends between tabs of the same user |
+| a distributed-lock helper | **`navigator.locks`** | electing the single tab allowed to transmit the outbox — the browser releases the lock on close or crash, so there is no heartbeat or stale-lock timeout to maintain |
+| a virtualisation library | plain DOM | not needed at this message volume; noted as a limitation under [What I'd improve](#what-id-improve-with-more-time) |
 
 ## Project structure
 
@@ -83,9 +119,9 @@ src/
   features/
     auth/                    session store, login form
     conversations/           list, search, new-chat dialog
-    chat/                    message list, composer, thread, store, outbox
+    chat/                    message list, composer, thread, store, outbox, cross-tab sync
     groups/                  members + admin panel
-    landing/                 interactive outbox demo, scroll reveal
+    landing/                 interactive outbox demo, scroll reveal, API pre-warm
   lib/
     api/                     client, typed endpoints, ApiError, server status, warm-up
     socket/                  socket provider (inbound only)
@@ -296,6 +332,16 @@ findings, first drafts of components, and turning captured JSON into documentati
   equality* — which together mean an E.164 number is unfindable. I corrected the findings
   doc, `API.md`, the client's query strategy and the UI copy rather than leaving a confident
   and wrong claim in a graded artifact.
+- **A wrong assumption about `BroadcastChannel`**, in the bonus work. I had taken it that a
+  channel never delivers to the sending tab — true only of the exact posting *object*, not
+  of other instances in the same tab. My publisher is a module singleton and my listener is
+  a hook, so the sending tab received its own events and **queued every optimistic message
+  twice**. Found by watching the persisted queue in a real browser, not by reading the code.
+- **A test that looked like a pass but proved nothing.** My API verification harness
+  asserted that `limit=abc` falls back to 20, but ran against a 15-message conversation, so
+  returning 15 was *consistent* with the claim without demonstrating it. I seeded the
+  fixture past the default page size and expanded it into the full matrix rather than
+  leaving a check that couldn't fail for the right reason.
 - **Refused to invent a cold-start measurement.** The API stayed warm throughout my session,
   so the findings say I didn't observe one instead of quoting Render's published figure as
   though I had.
@@ -336,13 +382,53 @@ idempotent, group creation de-duplicates and ignores self, removed members immed
 history access, and when the last admin leaves another member is auto-promoted. `hasMore` was
 accurate in every case I tested. I'd change none of it.
 
+## How this was verified
+
+There are no automated tests — that's the honest gap, and it's first on the list below.
+What I did instead was drive the real thing and assert against it, which caught four bugs
+that were invisible in review.
+
+**Two live browser sessions**, signed in as different users, on different origins so the
+sessions were genuinely independent:
+
+| Check | Result |
+|---|---|
+| Real-time delivery, direct **and** group | Arrives with no refresh; sender name shown in groups |
+| Pagination across the inclusive cursor | 25 → **41 messages, 0 duplicates**, order intact |
+| Scrolled up + incoming message | Viewport unmoved (300 → 300); pill appears; click lands at bottom (distance **0**) |
+| Empty / whitespace send | Blocked at the button **and** on direct form submit — 0 messages created |
+| Offline → queue → reconnect | 3 queued, persisted, flushed FIFO, all "Sent", received **in order**, 0 duplicates |
+| Two tabs, one queued message | **Server history contains exactly one copy** |
+| Leader tab closed | Survivor acquires the freed lock and sends; production build shows 1 held / 0 pending |
+| Cold start (8s stall injected) | Banner at ~3.5s, counter ticks 1s → 2s → 3s, clears on completion |
+| Pre-warm | 1 `GET /health` on landing; 6 intent events → **0 extra requests** (60s cooldown) |
+| 375px viewport | **0 overflowing elements**, composer usable, list ⇄ thread navigation works |
+| Deployed URLs, clean session | Both `200`, no auth, no deployment protection |
+
+**The API documentation is machine-checked**, not a snapshot I hope still holds:
+
+```
+$ node docs/recon/verify-api.mjs
+================ 57/57 checks match documentation ================
+```
+
+Where a result was surprising I re-measured before believing it. Several apparent app bugs
+turned out to be faults in my own test scripts — a selector that only matched run-ending
+bubbles, an assertion racing a smooth scroll animation, and a `limit` check that couldn't
+fail for the right reason. Those were fixed in the tests, not papered over in the app.
+
+**Gates:** `npm run build`, `npx tsc --noEmit` and `npm run lint` are all clean — lint
+reports **0 problems**, including the React Compiler rules Next 16 enables, none of which
+are disabled anywhere in the codebase.
+
 ## What I'd improve with more time
 
-- **Tests.** There are none, and that's the biggest gap. The reconciliation logic
-  (`store.ts`, `use-outbox.ts`, `schemas.ts`) is pure and would take unit tests cleanly;
-  the pill and pagination behaviours want Playwright. I verified them by driving two live
-  browser sessions and scripting assertions, which caught real bugs — but that's a
-  one-off, not a regression net.
+- **Tests.** The biggest gap. [How this was verified](#how-this-was-verified) describes
+  what I did instead, and it caught four real bugs — but a scripted browser session is a
+  one-off, not a regression net. The reconciliation logic (`store.ts`, `use-outbox.ts`,
+  `schemas.ts`) is pure and would take unit tests cleanly; the pill, pagination and
+  cross-tab behaviours want Playwright, which can drive two contexts properly rather than
+  the two-origin workaround I used by hand.
 - **Virtualised message list.** Currently every loaded message stays in the DOM. Fine for
   hundreds, not for tens of thousands.
 - **A real gap-fill on reconnect.** Today reconnect refetches the newest page, which covers
