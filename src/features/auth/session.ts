@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { create } from 'zustand';
 import type { UserRef } from '@/lib/domain';
 /*

@@ -1,7 +1,10 @@
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import type { Metadata } from 'next';
 import { Inter, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 import { themeScript } from '@/features/theme';
+import { BUILD_ID } from '@/lib/build-info';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -29,6 +32,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
+      // Lets a bug report name the exact revision without asking the reporter to dig.
+      data-build={BUILD_ID}
       className={`${inter.variable} ${instrumentSerif.variable} h-full`}
     >
       <head>

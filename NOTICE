@@ -1,0 +1,25 @@
+Relay - real-time chat client
+=============================
+
+Author      Arnob Rizwan Ahmad
+Repository  https://github.com/Arnobrizwan/taghyeer-chat
+Submitted   7 September 2026
+Purpose     Take-home work sample for the Senior Frontend Engineer role at
+            Taghyeer Technologies.
+
+Copyright (c) 2026 Arnob Rizwan Ahmad. All rights reserved.
+
+This work is distributed under the evaluation-only licence in LICENSE. It is a
+candidacy work sample, not an open-source project: there is no grant to
+redistribute it, to create derivative works from it, or to use it in production.
+
+Authorship of this repository is evidenced by its public commit history and by a
+signed annotated Git tag on the submitted revision. The tag signature and the
+commit timestamps together establish that this revision existed, in this form,
+under this author's key, on the date recorded above.
+
+Submitted revision: 6486079267f8dcd114f2cbf7667cd39cc9266d59
+
+Third-party components (Next.js, React, Zustand, TanStack Query, Zod,
+socket.io-client, Tailwind CSS and their transitive dependencies) remain under
+their own licences and are not covered by LICENSE.

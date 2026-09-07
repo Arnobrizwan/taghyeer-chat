@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { warmUp } from '@/lib/api/client';

@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useCallback, useEffect, useRef } from 'react';
 import { sendMessage } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/errors';

@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listConversations } from '@/lib/api/endpoints';

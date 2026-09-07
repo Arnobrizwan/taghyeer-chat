@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { errorEnvelopeSchema } from '../schemas';
 
 export type FieldError = { path: string; message: string };

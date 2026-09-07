@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 /**
  * The application's internal vocabulary.
  *

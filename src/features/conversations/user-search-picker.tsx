@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useState } from 'react';
 import type { UserRef } from '@/lib/domain';
 import { Avatar, Button, Spinner } from '@/components/ui';

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 /**
  * Client-side flood and duplicate protection for sending.
  *

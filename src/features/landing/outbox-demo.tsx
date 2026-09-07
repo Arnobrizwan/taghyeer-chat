@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cx, isSendableText } from '@/lib/utils';
 import { formatTime } from '@/lib/utils/time';

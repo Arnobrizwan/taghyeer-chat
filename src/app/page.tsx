@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import type { Metadata } from 'next';
 import { OutboxDemo } from '@/features/landing/outbox-demo';
 import { PrewarmApi, WarmLink } from '@/features/landing/warm-link';

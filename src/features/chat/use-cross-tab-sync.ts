@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useQueryClient } from '@tanstack/react-query';
 import { useCrossTab, type CrossTabEvent } from '@/lib/cross-tab';
 import { conversationsKey } from '@/features/conversations/use-conversations';

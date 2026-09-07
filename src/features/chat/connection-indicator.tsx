@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useEffect, useState } from 'react';
 import type { ConnectionState } from '@/lib/socket/provider';
 import { cx } from '@/lib/utils';

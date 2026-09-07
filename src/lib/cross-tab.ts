@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Message } from './domain';
 import type { OutboxEntry } from '@/features/chat/store';

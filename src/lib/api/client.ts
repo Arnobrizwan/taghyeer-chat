@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import type { ZodType } from 'zod';
 import { ApiError, toApiError } from './errors';
 import { serverStatus } from './server-status';

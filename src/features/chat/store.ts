@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { create } from 'zustand';
 import type { Message } from '@/lib/domain';
 
@@ -75,6 +77,28 @@ export const emptyThread = (): Thread => ({
 /** Pending entries carry a client-generated id, distinguishable from a 24-hex ObjectId. */
 const isPendingId = (id: string) => id.startsWith('tmp_');
 
+/**
+ * Fold a page of server messages into a thread.
+ *
+ * This one line is the whole of the pagination de-duplication, and it is worth naming.
+ * The `before` cursor is inclusive (findings §1.1), so every "load older" page opens with
+ * the message the previous page ended on — the seam. Because a thread holds
+ * `Record<id, Message>` rather than an array, writing the repeat back over its own key
+ * collapses it for free: no filter pass, no seen-set, and no dependence on the page
+ * arriving in any particular order. Swap the record for an array and the seam becomes a
+ * visible duplicate at every boundary, which is the bug this shape exists to prevent.
+ *
+ * Returns a fresh object because the store's subscribers compare by reference.
+ */
+function mergePageAcrossSeam(
+  existing: Record<string, Message>,
+  incoming: Message[],
+): Record<string, Message> {
+  const merged = { ...existing };
+  for (const m of incoming) merged[m.id] = m;
+  return merged;
+}
+
 function oldestIdOf(messages: Record<string, Message>): string | null {
   let oldest: Message | null = null;
   for (const m of Object.values(messages)) {
@@ -115,8 +139,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   ingestPage: (conversationId, incoming, hasMore, mode) =>
     set((s) => {
       const thread = s.threads[conversationId] ?? emptyThread();
-      const messages = { ...thread.messages };
-      for (const m of incoming) messages[m.id] = m;
+      const messages = mergePageAcrossSeam(thread.messages, incoming);
 
       return {
         threads: {
@@ -319,6 +342,14 @@ export function orderedMessages(thread: Thread): Message[] {
     const bPending = b.status !== 'sent';
     if (aPending !== bPending) return aPending ? 1 : -1;
     if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt;
+    /*
+     * Same millisecond: fall back to comparing ids, which is not the arbitrary choice it
+     * looks like. These are MongoDB ObjectIds and their leading four bytes are a creation
+     * timestamp, so lexicographic order on the hex string recovers insertion order for the
+     * collision — the server's own order, not ours. The alternative people reach for is to
+     * leave the comparator returning 0, which hands ordering to the engine's sort stability
+     * and lets two messages swap places between one render and the next.
+     */
     return a.id < b.id ? -1 : 1;
   });
 }

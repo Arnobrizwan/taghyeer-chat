@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { Conversation, Message } from '@/lib/domain';
 import { senderName } from '@/lib/domain';

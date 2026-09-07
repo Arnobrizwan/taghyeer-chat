@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { login } from '@/lib/api/endpoints';

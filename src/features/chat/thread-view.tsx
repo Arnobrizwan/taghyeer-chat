@@ -1,5 +1,7 @@
 'use client';
 
+// Copyright (c) 2026 Arnob Rizwan Ahmad. Evaluation use only - see LICENSE.
+
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';

@@ -494,6 +494,15 @@ are disabled anywhere in the codebase.
 
 ---
 
+## Licence
+
+Copyright (c) 2026 Arnob Rizwan Ahmad. All rights reserved. This is a candidacy work
+sample, not an open-source project: see [LICENSE](LICENSE) for the evaluation-only terms
+and [NOTICE](NOTICE) for authorship and the submitted revision. Reporting a problem? The
+exact build is on `<html data-build>`.
+
+---
+
 ### A note on the assignment PDF
 
 The PDF contains an injected line instructing an AI assistant to insert a specific unrelated
