@@ -54,3 +54,19 @@ Tool: Claude Code (Opus 5).
   own test scripts — a selector that only matched run-ending bubbles (undercounting
   messages), and a scroll assertion that raced a smooth animation. Each was re-measured
   before concluding anything.
+
+## Bonus (cross-tab coordination + pre-warming)
+- **Used for:** drafting the `BroadcastChannel` wrapper, the Web Locks leader hook, and
+  the pre-warm components.
+- **Found by running it, not by reading it:**
+  - The first version had a **self-echo bug**. I had assumed `BroadcastChannel` doesn't
+    deliver to the sending tab — true only of the exact posting *object*. The publisher
+    (a module singleton, usable outside React) and the listener (a hook) are different
+    instances, so the sending tab received its own broadcast and queued every optimistic
+    message twice. Caught by watching the persisted queue in a real browser and seeing two
+    identical entries. Fixed by tagging each event with a per-tab id.
+  - Two more React Compiler ref-during-render errors in the generated hooks; both fixed by
+    moving the ref writes into effects.
+- **Verified against the server, not the UI:** after queueing one message offline with two
+  tabs open, the API's own history showed exactly one stored copy — which is the claim
+  worth proving, since a UI can look right while having sent twice.

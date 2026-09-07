@@ -9,6 +9,7 @@ import { ConversationList } from './conversations/conversation-list';
 import { NewChatDialog } from './conversations/new-chat-dialog';
 import { ConnectionIndicator } from './chat/connection-indicator';
 import { useOutbox } from './chat/use-outbox';
+import { useCrossTabSync } from './chat/use-cross-tab-sync';
 import { useChatStore } from './chat/store';
 import { useSocket } from '@/lib/socket/provider';
 import { ServerStatusBanner } from '@/components/ui/server-status-banner';
@@ -34,7 +35,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { connection } = useSocket();
   const outboxCount = useChatStore((s) => s.outbox.length);
 
-  useOutbox();
+  // Keeps every open tab of this user showing the same timeline, and elects the single
+  // tab allowed to transmit the outbox.
+  useCrossTabSync();
+  const { isLeader } = useOutbox();
 
   const [newChatOpen, setNewChatOpen] = useState(false);
 
@@ -104,7 +108,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Avatar name={user.name} id={user.id} size="sm" />
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-sm font-semibold text-ink">{user.name}</span>
-              <ConnectionIndicator connection={connection} queued={outboxCount} />
+              <ConnectionIndicator
+                connection={connection}
+                queued={outboxCount}
+                sendingHere={isLeader}
+              />
             </div>
             <button
               type="button"

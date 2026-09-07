@@ -86,8 +86,9 @@ src/
     groups/                  members + admin panel
     landing/                 interactive outbox demo, scroll reveal
   lib/
-    api/                     client, typed endpoints, ApiError, server status
+    api/                     client, typed endpoints, ApiError, server status, warm-up
     socket/                  socket provider (inbound only)
+    cross-tab.ts             BroadcastChannel bus + Web Locks leader election
     domain.ts                the app's vocabulary — no wire types
     schemas.ts               Zod: two wire shapes -> one domain type
   components/ui/             Button, Field, Avatar, Modal, states
@@ -185,6 +186,43 @@ client key, so a retry racing a slow success would post the message twice.
 
 You can play with the mechanism on the landing page — cut the connection, keep typing,
 reconnect — without signing in.
+
+### Bonus: the two states nobody tests
+
+Two additions beyond the brief, both aimed at states that only show up once the app is in
+real use.
+
+**1. Cross-tab coordination.** Finding #3 above — the sender gets no echo — has a
+consequence I didn't chase at first: **open the app in two tabs and send from one, and the
+other's thread silently goes stale.** Each tab holds its own socket, so other people's
+messages arrive everywhere, but your own arrive nowhere.
+
+Worse, my own outbox made it dangerous. The queue is persisted to `localStorage`, so **two
+tabs that hydrate it both flush it** — and since `POST /messages` is not idempotent and
+accepts no client key, every queued message gets sent twice.
+
+Both are fixed by electing a single sender. Leadership uses the **Web Locks API**: the lock
+is held for the lifetime of the tab and released by the browser automatically when it
+closes or crashes, so a successor is promoted with no heartbeat and no stale-lock timeout.
+A `BroadcastChannel` mirrors optimistic sends, deliveries and failures to every other tab,
+so followers show the queue and see delivery immediately without being allowed to transmit.
+
+Verified end to end: with two tabs open and one message queued offline, **the server's own
+history contains exactly one copy** — which is the claim worth proving, because a UI can
+look correct while having sent twice.
+
+Building it surfaced a bug in my own assumption. `BroadcastChannel` withholds a message
+only from the exact object that posted it, not from other channel instances in the same
+tab — and my publisher (a module singleton, callable outside React) and listener (a hook)
+are separate instances. So the sending tab received its own events and queued every message
+twice. Events now carry an originating tab id.
+
+**2. Pre-warming the sleeping API.** The cold-start banner handles the symptom. This
+handles the cause: a health probe fires on landing-page mount, and again when the visitor
+aims at a call to action, so the container boots **while they read** rather than while they
+wait. It's fire-and-forget on an idle callback with a 60-second cooldown, so it never
+competes with first paint and six intent events cost one request. The banner stays for the
+cases this doesn't cover.
 
 ### What I deliberately didn't do
 
@@ -284,6 +322,8 @@ Full detail with evidence in [`docs/api-findings.md`](./docs/api-findings.md). C
 | Groups can drop below their own 3-member minimum after creation | no length assumption anywhere |
 | No `GET /conversations/{id}` | list fetched eagerly; deep links resolve from it |
 | New direct conversations emit **no** socket event | list invalidated when a message arrives for an unknown conversation |
+| No echo to the sender ⇒ a second tab of the same user goes stale | `BroadcastChannel` mirrors sends across tabs |
+| `POST /messages` not idempotent ⇒ two tabs flushing one queue send twice | Web Locks elects a single sending tab |
 
 **In fairness:** the group and authorization layer is genuinely well built. Every admin
 action correctly rejects non-admins with distinct messages, `POST /conversations` is
@@ -305,6 +345,10 @@ accurate in every case I tested. I'd change none of it.
   already held.
 - **Optimistic group admin actions.** Rename, promote and remove currently wait on a ~1s
   round trip. The message path is optimistic; these should be too.
+- **A leader-tab fallback for browsers without Web Locks.** Support is broad (Chrome,
+  Firefox, Safari 15.4+), and where it's missing every tab sends as before rather than not
+  sending at all — but a `localStorage` lease with a heartbeat would close the gap
+  properly.
 - **Accessibility beyond the basics.** ARIA, focus management, keyboard operation and the
   message log's live region are in place, but I haven't tested with a real screen reader.
 - **`GET /conversations/{id}` on the server side.** Its absence forces the whole list to

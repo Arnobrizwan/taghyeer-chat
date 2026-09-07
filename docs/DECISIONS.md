@@ -49,3 +49,13 @@ Newest at the bottom of each phase. Feeds the Part 3 write-up.
 ## Phase 7 — Verification
 
 - **`allowedDevOrigins` for `127.0.0.1` and the LAN IP** — testing both sessions on one origin — same-origin tabs share `localStorage` and therefore the session; two origins give two genuinely independent logins. Dev-only, no effect on the production build.
+
+## Bonus — cross-tab coordination + API pre-warming
+
+- **One elected leader transmits the outbox, via the Web Locks API** — every tab flushing its own copy — the queue is shared through `localStorage`, so two tabs that hydrate it both send every entry, and `POST /messages` is not idempotent. Web Locks releases automatically when a tab closes or crashes, so a successor is promoted with no heartbeat and no stale-lock timeout to tune.
+- **Cross-tab events carry an originating tab id** — relying on `BroadcastChannel` not echoing to the sender — it only withholds a message from the exact posting *object*, not from other channel instances in the same tab; the publisher here is a module singleton and the listener is a hook, so a tab did receive its own events and enqueued every optimistic message twice. Caught in the browser, not in review.
+- **Followers mirror the queue but never transmit** — leaving pending messages visible only in the tab they were typed in — the mirrored copy is what makes a second tab truthful, and the leader check happens at send time.
+- **Leadership is re-checked inside the flush loop, via a ref** — checking once on entry — a tab demoted mid-drain must stop immediately, and putting `isLeader` in `flush`'s dependencies would re-create it and lose the in-flight guard.
+- **Pre-warm the API on landing-page mount and on CTA intent** — only handling the cold start once it happens — the boot can run while the visitor reads instead of while they wait; the banner stays for the cases this misses.
+- **`warmUp()` is fire-and-forget with a 60s cooldown** — pinging on every hover — six intent events across three CTAs must cost one request, not six, and a warm-up failure is not worth reporting because the real request will report it properly.
+- **Probe scheduled via `requestIdleCallback`** — firing it during mount — waking a server must never compete with first paint.

@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import { OutboxDemo } from '@/features/landing/outbox-demo';
+import { PrewarmApi, WarmLink } from '@/features/landing/warm-link';
 import { Reveal } from '@/features/landing/reveal';
 
 export const metadata: Metadata = {
@@ -31,6 +31,9 @@ const CAPABILITIES = [
 export default function LandingPage() {
   return (
     <div className="bg-ink text-paper">
+      {/* Begins waking the sleeping API while the visitor reads. Renders nothing. */}
+      <PrewarmApi />
+
       {/* ---------------------------------------------------------------- Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
         <span className="flex items-center gap-2.5">
@@ -39,12 +42,12 @@ export default function LandingPage() {
           </span>
           <span className="text-[15px] font-semibold tracking-tight">Relay</span>
         </span>
-        <Link
+        <WarmLink
           href="/app"
           className="rounded-lg bg-paper px-4 py-2 text-sm font-semibold text-ink transition-transform duration-200 hover:-translate-y-0.5"
         >
           Open the app
-        </Link>
+        </WarmLink>
       </header>
 
       {/* --------------------------------------------------------------- Hero */}
@@ -76,7 +79,7 @@ export default function LandingPage() {
 
             <Reveal delay={180}>
               <div className="mt-9 flex flex-wrap items-center gap-3">
-                <Link
+                <WarmLink
                   href="/app"
                   className="group inline-flex items-center gap-2 rounded-xl bg-vermilion px-6 py-3.5 text-[15px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-vermilion-bright"
                 >
@@ -84,7 +87,7 @@ export default function LandingPage() {
                   <svg viewBox="0 0 20 20" className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                </Link>
+                </WarmLink>
                 <span className="text-sm text-paper/45">
                   No password — your phone number signs you in.
                 </span>
@@ -188,7 +191,7 @@ export default function LandingPage() {
             </h2>
           </Reveal>
           <Reveal delay={90}>
-            <Link
+            <WarmLink
               href="/app"
               className="mt-10 inline-flex items-center gap-2 rounded-xl bg-vermilion px-7 py-4 text-base font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-vermilion-bright"
             >
@@ -196,7 +199,7 @@ export default function LandingPage() {
               <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </Link>
+            </WarmLink>
           </Reveal>
         </div>
 

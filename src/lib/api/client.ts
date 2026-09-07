@@ -147,6 +147,28 @@ export async function request<T>(path: string, options: RequestOptions<T>): Prom
   throw lastError ?? new ApiError({ kind: 'unknown', message: 'Request failed' });
 }
 
+let lastWarmAt = 0;
+const WARM_COOLDOWN_MS = 60_000;
+
+/**
+ * Wake the API in the background, before the user needs it.
+ *
+ * The API sleeps after ~15 minutes idle and takes up to a minute to boot, so the first
+ * request of a session is the one that pays. Firing a health probe while someone is still
+ * reading the landing page — and again when they aim at the call to action — means the
+ * container is usually already up by the time they sign in. The cold-start banner remains
+ * for the cases this doesn't cover; this just makes those cases rarer.
+ *
+ * Deliberately fire-and-forget: it must never delay or block a render, and a failure here
+ * is not worth reporting, because the real request will report it properly.
+ */
+export function warmUp(): void {
+  const now = Date.now();
+  if (now - lastWarmAt < WARM_COOLDOWN_MS) return;
+  lastWarmAt = now;
+  void ping();
+}
+
 /**
  * Root-origin health probe, used to warm the service before the first real call.
  *

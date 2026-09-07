@@ -14,9 +14,12 @@ import { cx } from '@/lib/utils';
 export function ConnectionIndicator({
   connection,
   queued,
+  sendingHere = true,
 }: {
   connection: ConnectionState;
   queued: number;
+  /** False when another tab holds the outbox lock and is doing the sending. */
+  sendingHere?: boolean;
 }) {
   const [offline, setOffline] = useState(false);
 
@@ -57,7 +60,7 @@ export function ConnectionIndicator({
       {config.label}
       {queued > 0 && (
         <span className="text-amber">
-          · {queued} queued
+          · {queued} queued{!sendingHere && ' in another tab'}
         </span>
       )}
     </span>

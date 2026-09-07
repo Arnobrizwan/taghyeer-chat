@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { fetchMessages } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/errors';
-import { useChatStore, newTempId } from './store';
+import { useChatStore, newTempId, type OutboxEntry } from './store';
+import { publishCrossTab } from '@/lib/cross-tab';
 import { useSocket } from '@/lib/socket/provider';
 import { isSendableText } from '@/lib/utils';
 
@@ -93,13 +94,16 @@ export function useThread(conversationId: string | null, selfId: string | null) 
       // Guarded here as well as on the button: the server accepts empty and
       // whitespace-only text and broadcasts it (findings §5.1).
       if (!isSendableText(text)) return;
-      useChatStore.getState().enqueue({
+      const entry: Omit<OutboxEntry, 'attempts'> = {
         tempId: newTempId(),
         conversationId,
         text: text.trim(),
         createdAt: Date.now(),
         senderId: selfId,
-      });
+      };
+      useChatStore.getState().enqueue(entry);
+      // Show the pending message in every open tab, not only the one it was typed in.
+      publishCrossTab({ type: 'outbox:enqueued', entry: { ...entry, attempts: 0 } });
     },
     [conversationId, selfId],
   );
@@ -111,13 +115,17 @@ export function useThread(conversationId: string | null, selfId: string | null) 
       const failed = thread?.messages[tempId];
       if (!failed || !conversationId || !selfId) return;
       store.discard(conversationId, tempId);
-      store.enqueue({
+      publishCrossTab({ type: 'outbox:discarded', conversationId, tempId });
+
+      const entry: Omit<OutboxEntry, 'attempts'> = {
         tempId: newTempId(),
         conversationId,
         text: failed.text,
         createdAt: Date.now(),
         senderId: selfId,
-      });
+      };
+      store.enqueue(entry);
+      publishCrossTab({ type: 'outbox:enqueued', entry: { ...entry, attempts: 0 } });
     },
     [conversationId, selfId],
   );

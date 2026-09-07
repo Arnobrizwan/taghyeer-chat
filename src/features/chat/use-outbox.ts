@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { sendMessage } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/errors';
+import { publishCrossTab, useIsOutboxLeader } from '@/lib/cross-tab';
 import { useChatStore } from './store';
 import { useSocket } from '@/lib/socket/provider';
 
@@ -21,14 +22,31 @@ import { useSocket } from '@/lib/socket/provider';
  * Sends are never retried automatically after an ambiguous failure. `POST /messages` is
  * not idempotent and has no client-supplied key, so a retry that races a slow success
  * would post the message twice.
+ *
+ * For the same reason only the **leader tab** transmits. The queue is shared through
+ * localStorage, so without an election every open tab would flush the same entries and
+ * every queued message would be sent once per tab. Results are broadcast so the follower
+ * tabs still show delivery immediately.
  */
-export function useOutbox(): { flush: () => void } {
+export function useOutbox(): { flush: () => void; isLeader: boolean } {
   const { connection } = useSocket();
   const outbox = useChatStore((s) => s.outbox);
+  const isLeader = useIsOutboxLeader();
   const flushing = useRef(false);
+  /*
+   * Leadership is mirrored into a ref so the long-running flush loop can re-check it on
+   * every iteration and stop immediately if this tab is demoted mid-drain, without
+   * `flush` itself being re-created and losing its in-flight guard.
+   */
+  const leaderRef = useRef(isLeader);
+  useEffect(() => {
+    leaderRef.current = isLeader;
+  }, [isLeader]);
 
   const flush = useCallback(async () => {
     if (flushing.current) return;
+    // Followers hold the same queue but must never transmit it.
+    if (!leaderRef.current) return;
     if (typeof navigator !== 'undefined' && !navigator.onLine) return;
 
     flushing.current = true;
@@ -40,11 +58,15 @@ export function useOutbox(): { flush: () => void } {
         const next = useChatStore.getState().outbox[0];
         if (!next) break;
         if (typeof navigator !== 'undefined' && !navigator.onLine) break;
+        if (!leaderRef.current) break;
 
         store.markSending(next.tempId);
         try {
           const sent = await sendMessage(next.conversationId, next.text);
           useChatStore.getState().resolveSent(next.tempId, sent);
+          // The sender gets no socket echo, so sibling tabs would never learn about this.
+          publishCrossTab({ type: 'outbox:sent', tempId: next.tempId, message: sent });
+          publishCrossTab({ type: 'conversations:stale' });
         } catch (err) {
           const apiErr = err instanceof ApiError ? err : null;
 
@@ -58,6 +80,7 @@ export function useOutbox(): { flush: () => void } {
           // with a retry affordance rather than silently dropping the user's text.
           useChatStore.getState().markFailed(next.tempId);
           useChatStore.getState().dequeue(next.tempId);
+          publishCrossTab({ type: 'outbox:failed', tempId: next.tempId });
         }
       }
     } finally {
@@ -65,11 +88,12 @@ export function useOutbox(): { flush: () => void } {
     }
   }, []);
 
-  // Flush whenever a route back to the server opens, or new work arrives.
+  // Flush whenever a route back to the server opens, new work arrives, or this tab is
+  // promoted to leader because the previous one closed.
   useEffect(() => {
     if (outbox.length === 0) return;
-    if (connection === 'connected') void flush();
-  }, [outbox, connection, flush]);
+    if (isLeader && connection === 'connected') void flush();
+  }, [outbox, connection, isLeader, flush]);
 
   useEffect(() => {
     const onOnline = () => void flush();
@@ -77,5 +101,5 @@ export function useOutbox(): { flush: () => void } {
     return () => window.removeEventListener('online', onOnline);
   }, [flush]);
 
-  return { flush: () => void flush() };
+  return { flush: () => void flush(), isLeader };
 }
