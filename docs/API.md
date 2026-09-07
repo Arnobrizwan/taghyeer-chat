@@ -1,119 +1,141 @@
-# Chat API — reference documentation
+# The API, as it actually behaves
 
-**Deliverable 1.** The published spec at `/docs/` is request-only: it declares
-`responses: { default: Unspecified }` for every operation and documents no status codes.
-Everything below — every envelope, field type, status code and error shape — was observed
-against the live API on 7 September 2026. Evidence: [`docs/recon/`](./recon).
-Behavioural quirks are catalogued in [`api-findings.md`](./api-findings.md); this document
-is the contract, and cross-references findings where the contract is surprising.
+**Deliverable 1.** This is the reference documentation for the chat service the app talks
+to. I've written it so it makes sense whether or not you write code for a living. Where I
+have to use a technical word, I explain it the first time.
 
-Machine-readable version: [`openapi.yaml`](./openapi.yaml).
+An API is the service an app sends its orders to, like a kitchen. The published
+documentation for this one told you where to send an order but almost nothing about what
+comes back: for every single operation it says the response is "unspecified", and it lists
+no status codes at all. So none of what follows was copied from a document. I called every
+endpoint by hand against the live service on 7 September 2026, including deliberately wrong
+calls, and wrote down exactly what came back. The raw captures are in
+[`docs/recon/`](./recon) so you can check any claim here yourself.
 
-- **REST base URL:** `https://frontend-task-chatapp.onrender.com/api`
-- **Socket.io origin:** `https://frontend-task-chatapp.onrender.com` (root, **not** `/api`)
-- **Health:** `https://frontend-task-chatapp.onrender.com/health` — at the **root**.
-  The spec places it under the `/api` server, but `/api/health` returns **404**.
+Two companion documents: [`api-findings.md`](./api-findings.md) catalogues the faults I
+found and why they matter, and [`openapi.yaml`](./openapi.yaml) is the machine-readable
+version of this page. **This document is the contract** — what you can rely on. Where the
+contract is surprising, it points at the finding that explains why.
+
+- **Normal requests go to:** `https://frontend-task-chatapp.onrender.com/api`
+- **The live connection goes to:** `https://frontend-task-chatapp.onrender.com` — the root
+  address, *not* `/api`. This is easy to get wrong and fails silently-ish if you do.
+- **Health check:** `https://frontend-task-chatapp.onrender.com/health`, also at the root.
+  The published spec files it under `/api`, but `/api/health` returns "not found".
 
 ---
 
-## Conventions
+## The ground rules
 
-### Authentication
+### Proving who you are
 
-`Authorization: Bearer <jwt>` on every endpoint except `POST /auth/login` and `GET /health`.
+Every call except logging in and the health check needs an `Authorization: Bearer <token>`
+header. A token here is a signed string the server hands you at login that proves you are
+who you say you are, so you don't send a password with every request.
 
-The JWT is `HS256` with claims `{ sub, iat, exp }`, where `sub` is the user id and the
-lifetime is **7 days**. There is no refresh endpoint and no revocation; re-authenticating
-means calling `POST /auth/login` again.
+The token lasts **seven days**. There is no way to refresh it and no way to revoke it. When
+it expires you log in again, and that's the whole story.
 
 ### Identifiers
 
-All ids are 24-character hex MongoDB ObjectIds. A malformed id is **not** rejected as a
-client error — it produces a **500** with a leaked driver message (see
-[Error handling](#error-handling)). Validate ids before putting them in a URL.
+Every id in this API is a 24-character string of hexadecimal (the digits `0`–`9` plus the
+letters `a`–`f`). If you send an id that isn't in that format, the server does **not** tell
+you politely that it's wrong — it crashes with a 500 and leaks its own internal database
+message. So validate ids before you put them in a URL rather than after. Details under
+[When things go wrong](#when-things-go-wrong).
 
-### Response envelopes ⚠️
+### There is no single response shape
 
-There is no single envelope. Four conventions are in use:
+This is the thing that costs a client the most work, so it's worth stating plainly up
+front. Different endpoints wrap their answers differently, for no reason I could find:
 
-| Shape | Endpoints |
+| What you get back | Which endpoints do this |
 |---|---|
 | `{ "data": [...] }` | `GET /conversations` |
 | `{ "messages": [...], "hasMore": bool }` | `GET /conversations/{id}/messages` |
-| bare array | `GET /users/search` |
-| bare object | `GET /auth/me`, `POST /conversations`, `POST /messages`, all group writes |
+| A bare array, no wrapper | `GET /users/search` |
+| A bare object, no wrapper | `GET /auth/me`, `POST /conversations`, `POST /messages`, all group writes |
 | `{ "token", "user" }` | `POST /auth/login` |
 
-### Status codes actually used
+Four conventions across seven read endpoints. My client normalises all of them at a single
+point so nothing above that line has to know.
 
-`200` (all successful reads and writes except one), `201` (**only** `POST
-/conversations/group`), `400`, `401`, `403`, `404`, `500`.
+### Which status codes are actually used
 
-Note `400` carries two distinct meanings: request validation failure *and* a missing
-credential. See [Error handling](#error-handling).
+A status code is the short number a server returns to say how it went — 200 means fine, 404
+means not found, and so on. This API uses `200` for almost everything that succeeds, `201`
+for exactly one endpoint (group creation), and `400`, `401`, `403`, `404` and `500` for
+failures.
+
+One trap: **`400` means two different things here.** It's used both for "your request was
+malformed" and for "you didn't send a token at all". Most APIs use `401` for the second.
+More on that below.
 
 ---
 
-## Data models
+## What the things look like
 
-Observed field-for-field. `?` marks a field that is absent in some responses.
+Observed field by field. A `?` means the field is missing from some responses.
 
-### User
+### A user
 
 ```jsonc
 {
   "_id": "6a9e4f4cdb386e2dcaba0fc5",
   "name": "Ada Lovelace",
   "phone": "+8801700988450",
-  "createdAt": "2026-09-07T05:44:44.952Z"   // present on /auth/login and /auth/me only
+  "createdAt": "2026-09-07T05:44:44.952Z"   // only on /auth/login and /auth/me
 }
 ```
 
-`createdAt` is **omitted** from users embedded in search results and in
-`conversation.participants[]`.
+`createdAt` is dropped from users that appear inside search results and inside a
+conversation's participant list. Don't rely on it being there.
 
-### Message (REST)
+### A message, over a normal request
 
 ```jsonc
 {
   "_id": "6a9e4fafdb386e2dcaba103b",
   "conversation": "6a9e4fa8db386e2dcaba101f",
-  "sender": "6a9e4f4cdb386e2dcaba0fc5",     // bare id — NEVER populated
+  "sender": "6a9e4f4cdb386e2dcaba0fc5",     // just an id, never the full user
   "text": "Hello",
-  "createdAt": "2026-09-07T05:46:23.837Z"   // ISO 8601 string
+  "createdAt": "2026-09-07T05:46:23.837Z"   // a date written out as text
 }
 ```
 
-### Message (Socket `message:new`) ⚠️
+### The same message, over the live connection
 
-The **same entity** over the socket, with two fields that differ from REST:
+The live connection is the always-open pipe that lets the server push new messages to you
+without you asking. It describes the **same message** differently:
 
 ```jsonc
 {
   "id": "6a9e50badb386e2dcaba119d",         // "id", not "_id"
   "conversation": "6a9e4fa8db386e2dcaba101f",
   "sender": "6a9e4f4cdb386e2dcaba0fc5",
-  "text": "Hello",                           // may be ABSENT entirely
-  "createdAt": 1788760250346                 // epoch milliseconds NUMBER, not ISO string
+  "text": "Hello",                           // may be missing entirely
+  "createdAt": 1788760250346                 // a number of milliseconds, not text
 }
 ```
 
-Any client consuming both transports must normalise. See
-[findings §1.2](./api-findings.md#12-messagenew-renames-the-id-field-and-changes-the-timestamp-type).
+So the identifier is under a different key, and the timestamp is a different *type*, for
+one entity depending only on how it reached you. Any client reading both has to convert
+them into one shape, and mine does that once at the boundary rather than at every point of
+use. See [findings §1.2](./api-findings.md#12-messagenew-renames-the-id-field-and-changes-the-timestamp-type).
 
-### Conversation — direct
+### A one-to-one conversation
 
 ```jsonc
 {
   "_id": "6a9e4fa8db386e2dcaba101f",
   "type": "direct",
-  "participant": { "_id": "…", "name": "Grace Hopper", "phone": "+880…" },  // SINGULAR, the other user
-  "lastMessage": { "text": "…", "sender": "…", "createdAt": "…" },          // {} when none
+  "participant": { "_id": "…", "name": "Grace Hopper", "phone": "+880…" },  // singular: the other person
+  "lastMessage": { "text": "…", "sender": "…", "createdAt": "…" },          // {} if there are none
   "updatedAt": "2026-09-07T05:46:33.857Z"
 }
 ```
 
-### Conversation — group
+### A group conversation
 
 ```jsonc
 {
@@ -121,119 +143,132 @@ Any client consuming both transports must normalise. See
   "type": "group",
   "name": "Recon Squad",
   "createdBy": "6a9e4f4cdb386e2dcaba0fc5",
-  "admins": ["6a9e4f4cdb386e2dcaba0fc5"],                    // array of ids
-  "participants": [{ "_id": "…", "name": "…", "phone": "…" }],// populated objects
+  "admins": ["6a9e4f4cdb386e2dcaba0fc5"],                     // ids only
+  "participants": [{ "_id": "…", "name": "…", "phone": "…" }], // full objects
   "lastMessage": { … } | {},
   "updatedAt": "…",
-  "createdAt": "…"                                            // on write responses only
+  "createdAt": "…"                                             // only when you create or change it
 }
 ```
 
-⚠️ `participants` takes **three different shapes** across the API — bare ids from
-`POST /conversations`, populated objects on groups, and a singular `participant` on
-directs. Model conversations as a discriminated union on `type`.
+Two things to watch here.
 
-⚠️ `lastMessage` is `{}` — an empty object, not `null` — when a conversation has no
-messages, so a truthiness check on it always passes.
+**The list of people in a conversation arrives in three different shapes.** Bare ids from
+`POST /conversations`, full objects on groups, and a *singular* `participant` on one-to-one
+chats. There's no way to write one piece of code that reads all three, so treat direct and
+group as two distinct kinds of thing that happen to share an endpoint.
+
+**`lastMessage` is an empty object `{}` when there are no messages, not an empty value.**
+This matters more than it looks: in JavaScript an empty object counts as "yes, there's
+something here", so the obvious check for "does this conversation have a last message"
+silently passes and you end up reading fields off nothing.
 
 ---
 
-## Auth
+## Signing in
 
 ### `POST /auth/login`
 
-Log in or register. **No auth required.** There is no separate signup: an unknown phone
-creates an account, a known phone logs in.
+Logs you in, or registers you if you're new. No token needed, obviously. There is no
+separate signup call: an unknown phone number creates an account, a known one signs in.
 
 ```jsonc
-// request
+// what you send
 { "phone": "+8801700988450", "name": "Ada Lovelace" }
 ```
 
-**`200`**
+A `200` gives you back:
 
 ```jsonc
 { "token": "eyJhbGciOiJIUzI1NiIs…", "user": { "_id", "name", "phone", "createdAt" } }
 ```
 
-⚠️ **Logging in with an existing phone and a different `name` renames the account.** The
-phone number alone is the credential; this call doubles as an unauthenticated profile
-rename. There is no password.
+**Signing in with an existing phone number but a different name renames that account.** The
+phone number on its own is the entire credential — there is no password and nothing to
+verify it's yours — so this call doubles as an unauthenticated rename of anyone's profile.
+Display names on this platform are not trustworthy identity.
 
-⚠️ **`phone` is not validated.** `{"phone": "hello world"}` returns `200` and creates an
-account. Format enforcement is entirely client-side.
+**The phone number isn't checked at all.** Sending `{"phone": "hello world"}` returns `200`
+and creates an account. If you want phone numbers to look like phone numbers, your client
+has to enforce that itself.
 
-| Status | Condition |
+| Status | When |
 |---|---|
-| `200` | Logged in or registered |
-| `400` | `VALIDATION_ERROR` — `phone` or `name` missing, empty, or not a string |
-| `400` | `SERVER_ERROR` — body is not valid JSON (mislabelled; it is a client error) |
+| `200` | Signed in, or registered |
+| `400` | `VALIDATION_ERROR` — `phone` or `name` missing, empty, or not text |
+| `400` | `SERVER_ERROR` — the body isn't valid JSON. Mislabelled: that's a client error |
 
 ### `GET /auth/me`
 
-Current user. Returns a **bare User object**, not wrapped.
+Who am I. Returns a bare user object with no wrapper around it.
 
 ```jsonc
 { "_id": "…", "name": "…", "phone": "…", "createdAt": "…" }
 ```
 
-| Status | Condition |
+| Status | When |
 |---|---|
-| `200` | — |
-| `400` | `NO_TOKEN` — header absent, empty, or a non-`Bearer` scheme ⚠️ *not 401* |
-| `401` | `INVALID_TOKEN` — malformed, tampered, or bad signature |
+| `200` | Fine |
+| `400` | `NO_TOKEN` — header missing, empty, or not `Bearer`. Note: **not** 401 |
+| `401` | `INVALID_TOKEN` — malformed, tampered with, or badly signed |
 
 ---
 
-## Users
+## Finding people
 
 ### `GET /users/search?q=`
 
-Search by name **or** phone. Returns a **bare array** of `{_id, name, phone}`, capped at
-**50** results, with no pagination.
+Searches by name or phone number. Returns a bare array of `{_id, name, phone}`, capped at
+**50 results**, with no way to ask for the next page.
 
-⚠️ **This endpoint has the most serious defects in the API.**
+**This endpoint has the most serious problems in the API.** Here is what actually happens,
+which is not what you'd guess:
 
-| Input | Result |
+| What you search for | What you get |
 |---|---|
 | `q=Grace` | 46 matches |
-| `q=grace` | **0** — name matching is case-**sensitive** |
-| `q=Hossain` (2nd word of "Imran Hossain") | 5 — anchored to any **word** start, not the string start |
-| `q=mran` (mid-word) | **0** — not a substring match |
-| `q=01672589498` (exact phone, stored without `+`) | 1 — phone is **exact equality** |
-| `q=0167258` (a prefix of that same phone) | **0** — not a prefix match |
-| `q=%2B8801711000902` (E.164, raw) | **`500`** ⚠️ |
-| `q=%5C%2B8801711000902` (E.164, escaped) | **0** — escaping breaks the equality test |
-| `q=` or `q` omitted | **50 users returned** — the whole directory, despite `q` being `required` |
-| `q=.*` | matches everything — `q` is an unescaped regex |
+| `q=grace` | **Nothing.** Name matching is case-sensitive |
+| `q=Hossain` (second word of "Imran Hossain") | 5 — it matches the start of any *word*, not just the start of the name |
+| `q=mran` (from the middle of a word) | **Nothing.** It is not a "contains" search |
+| `q=01672589498` (a phone stored without a `+`) | 1 — phone numbers must match *exactly* |
+| `q=0167258` (the start of that same number) | **Nothing** |
+| `q=%2B8801711000902` (a phone with `+`, sent as-is) | **Server crash, 500** |
+| `q=%5C%2B8801711000902` (the same, escaped) | **Nothing** — escaping breaks the exact match |
+| `q=` or no `q` at all | **50 users** — the whole directory, even though `q` is marked required |
+| `q=.*` | Matches everything, because `q` is used as a search pattern without cleaning |
 
-⚠️ **Name and phone are matched by two different rules.** Name goes through a
-case-sensitive regex anchored at a word start; phone through exact string equality.
+**Names and phone numbers are matched by two completely different rules.** A name goes
+through a case-sensitive pattern anchored to the start of a word. A phone goes through
+plain string equality. Nothing in the published documentation hints at either.
 
-The `500` on `+`:
+Here's the crash when the query starts with a `+`:
 
 ```jsonc
 { "error": { "message": "Regular expression is invalid: quantifier does not follow a repeatable item",
-             "code": 51091 } }   // note: NUMERIC code, unlike every other error
+             "code": 51091 } }   // note: a NUMBER, unlike every other error code in the API
 ```
 
-`q` is interpolated into a MongoDB regex without escaping, so a leading `+` is a dangling
-quantifier. **Searching by phone in the documented format crashes the endpoint.** Clients
-must escape regex metacharacters before sending.
+Your search text is being dropped straight into a pattern-matching engine without being
+escaped first, and in that language a leading `+` is meaningless on its own, so the whole
+thing falls over. **Searching for a phone number in the internationally standard format
+crashes the endpoint** — and the API's own documentation gives `+15551234567` as its
+example phone number. Clients have to escape special characters before sending.
 
-⚠️ **A phone stored in E.164 form cannot be found by any client.** Sent raw, the `+`
-returns `500`. Escaped, the query no longer equals the stored value, so the exact-equality
-phone test fails. There is no third option — this is unfixable from the client, and the
-API's own example phone is `+15551234567`.
+That leads to a problem with no client-side fix at all: **a phone number stored with a `+`
+in front of it cannot be found by anybody.** Send it raw and you get a crash. Escape it and
+the text no longer equals what's stored, so the exact-match test fails. There is no third
+option. My client sends several safe variations of a query and merges the results, which
+recovers most real cases, and the interface tells people to search by name.
 
-⚠️ Results **include the calling user**. Combined with the bug in `POST /conversations`
-below, selecting yourself from search opens someone else's conversation.
+One more: **the results include you.** Combined with the bug in `POST /conversations`
+below, picking yourself out of your own search results opens a stranger's conversation. So
+filter yourself out.
 
-| Status | Condition |
+| Status | When |
 |---|---|
-| `200` | Array of matches (possibly empty) |
+| `200` | An array of matches, possibly empty |
 | `400` | `NO_TOKEN` |
-| `500` | `q` contains regex metacharacters such as `+`, `(`, `*` |
+| `500` | `q` contains a special character such as `+`, `(` or `*` |
 
 ---
 
@@ -241,72 +276,79 @@ below, selecting yourself from search opens someone else's conversation.
 
 ### `GET /conversations`
 
-Every conversation the caller participates in, **sorted by `updatedAt` descending**.
-Wrapped in `{ "data": [...] }`. Mixed direct and group items — discriminate on `type`.
+Every conversation you're part of, newest activity first, wrapped in `{ "data": [...] }`.
+One-to-one and group chats come back mixed together, so check the `type` field to tell them
+apart. A brand new user gets `{"data": []}`.
 
-Returns `{"data": []}` for a new user. `200` / `400 NO_TOKEN`.
+`200`, or `400 NO_TOKEN`.
 
 ### `POST /conversations`
 
-Start (or find) a direct conversation.
+Start a one-to-one conversation, or find the existing one.
 
 ```jsonc
 { "userId": "6a9e4f4ddb386e2dcaba0fca" }
 ```
 
-**`200`** — a bare Conversation whose `participants` is an array of **bare id strings**
-(unlike everywhere else).
+A `200` returns a bare conversation whose participant list is an array of **plain id
+strings** — unlike everywhere else in the API, where they're full objects.
 
-✅ **Idempotent.** Calling it twice for the same pair returns the identical conversation,
-so "already have a conversation with this user" is handled server-side. Note it returns
-`200` in both cases and gives no signal as to which happened.
+**Calling it twice is safe.** The same pair of people always gets the same conversation
+back, so "do I already have a chat with this person" is handled for you by the server. It
+returns `200` either way and gives you no way to tell whether it created something or found
+it.
 
-⚠️ **Passing your own `userId` returns an arbitrary existing conversation** — not an
-error and not a self-chat. Consistent with a `participants: { $all: [me, userId] }` lookup
-degenerating to "any conversation containing me". Filter yourself out of search results.
+**Passing your own id returns an arbitrary conversation belonging to someone else.** Not an
+error, and not a note-to-self chat. It behaves exactly like a lookup for "a conversation
+containing me and me" collapsing into "any conversation containing me". This is why
+filtering yourself out of search results isn't cosmetic.
 
-| Status | Condition |
+| Status | When |
 |---|---|
-| `200` | Created, or existing returned |
-| `400` | `VALIDATION_ERROR` (missing `userId`) · `UNKNOWN_USER` (well-formed id, no such user) |
-| `500` | ⚠️ `userId` is not a valid ObjectId — leaks `Cast to ObjectId failed … for model "User"` |
+| `200` | Created, or the existing one returned |
+| `400` | `VALIDATION_ERROR` (no `userId`) or `UNKNOWN_USER` (well-formed id, no such person) |
+| `500` | `userId` isn't a valid id — and it leaks `Cast to ObjectId failed … for model "User"` |
 
 ### `GET /conversations/{id}/messages?limit=&before=`
 
-Message history, **newest-first (descending)**. Reverse for display.
+The history of a conversation, **newest first**. Reverse it before you display it.
 
 ```jsonc
 { "messages": [ Message, … ], "hasMore": true }
 ```
 
-**Pagination contract, as observed:**
+How paging works here, as observed rather than as documented:
 
-- `before` is a **message `_id`**. An ISO timestamp returns **`500`**.
-- ⚠️ **`before` is INCLUSIVE.** The message identified by the cursor is returned **again**
-  as the first item of the next page. Paging 25 messages at `limit=10` yields 30 rows
-  across 3 pages, of which **28 are unique**. Merge by id; never concatenate.
-- Default `limit` is **20**. `limit=0`, `limit=-5` and `limit=abc` all **silently fall back
-  to 20** instead of erroring. `limit=2.7` returns 2.
-- **No maximum `limit`** — `limit=9999` returned the entire history.
-- ⚠️ An unknown-but-well-formed `before` is **silently ignored** and page 1 is returned, so
-  a stale cursor quietly re-serves the newest messages instead of erroring.
-- ✅ `hasMore` was accurate in every case tested, including at the exact boundary. It is
-  the reliable signal for stopping infinite scroll.
+- **`before` is a message id**, not a date. Sending a date returns `500`.
+- **`before` includes the message you named.** The message you used as your marker comes
+  back *again* as the first item of the next page. Paging through 25 messages ten at a time
+  gives you 30 rows across three pages, of which only 28 are distinct. Merge pages by id;
+  never just stick them end to end. This single behaviour is the reason my client files
+  every message by its id rather than keeping a list.
+- **The default page size is 20.** `limit=0`, `limit=-5` and `limit=abc` all quietly fall
+  back to 20 rather than complaining. `limit=2.7` returns 2.
+- **There is no maximum page size.** `limit=9999` returned the entire history in one go.
+- **An unknown marker is silently ignored** and you get page one instead. So a stale marker
+  turns "load older messages" into "here are the newest messages again", with no error to
+  tell you why.
+- **`hasMore` is reliable.** It was correct in every case I tested, including at the exact
+  boundary where the last page is full. It's the signal to trust for "stop loading".
 
-| Status | Condition |
+| Status | When |
 |---|---|
-| `200` | — |
+| `200` | Fine |
 | `400` | `NO_TOKEN` |
-| `403` | `FORBIDDEN` — not a participant (also returned to **removed** members) |
+| `403` | `FORBIDDEN` — you're not in this conversation, including if you were removed |
 | `404` | `NOT_FOUND` — no such conversation |
-| `500` | ⚠️ malformed `id` or malformed `before` |
+| `500` | A malformed `id`, or a malformed `before` |
 
-There is **no `GET /conversations/{id}`**; it returns `404 Route not found`. A single
-conversation cannot be fetched by id — deep-links must load the list and find it.
+**There is no way to fetch one conversation by id.** `GET /conversations/{id}` returns
+"route not found". So a link straight to a thread can't be resolved directly — you have to
+load the whole list and find it, which is what my client does.
 
 ---
 
-## Messages
+## Sending a message
 
 ### `POST /messages`
 
@@ -314,31 +356,36 @@ conversation cannot be fetched by id — deep-links must load the list and find 
 { "conversationId": "…", "text": "Hello" }
 ```
 
-**`200`** — the created Message (REST shape). This is the **only** send path that returns
-the created entity; the socket equivalent does not (see below).
+A `200` returns the created message. **This is the only send path that tells you what it
+saved**, which is precisely why my client sends this way rather than over the live
+connection.
 
-⚠️ **`200` with body `null` when the conversation does not exist.** A success status for a
-write that did not happen — and the socket path returns a proper error for the same input.
-Treat a `2xx` whose body fails schema validation as a failure.
+**A send to a conversation that doesn't exist returns `200` with a body of `null`.** A
+success code for a write that did not happen. Worse, the live-connection version of the
+same call gets this right and returns a proper error. The defence is to check the *shape*
+of what comes back, not just the status code, and treat a well-statused response with the
+wrong body as the failure it is.
 
-⚠️ **Empty and whitespace-only text is accepted** — `{"text": ""}` and `{"text": "   "}`
-both return `200` and create a message that is broadcast to other participants. There is
-no trimming and **no length cap** (10,000 characters accepted). All of this must be
-enforced client-side.
+**Empty messages are accepted.** `{"text": ""}` and `{"text": "   "}` both return `200`,
+create a real message and broadcast it to everyone else in the conversation. Nothing is
+trimmed and there is no length limit either — 10,000 characters went through fine. All of
+that has to be enforced by the client, which means any client that doesn't enforce it
+degrades the shared history for everybody.
 
-| Status | Condition |
+| Status | When |
 |---|---|
-| `200` | Message created — **or** conversation missing, with body `null` ⚠️ |
-| `400` | `VALIDATION_ERROR` — `text` or `conversationId` missing |
-| `403` | `FORBIDDEN` — not a participant |
-| `500` | ⚠️ malformed `conversationId` |
+| `200` | Message created — **or** the conversation was missing, with `null` as the body |
+| `400` | `VALIDATION_ERROR` — no `text` or no `conversationId` |
+| `403` | `FORBIDDEN` — you're not in this conversation |
+| `500` | A malformed `conversationId` |
 
 ---
 
 ## Groups
 
-This is the best-built part of the API. Authorization is enforced correctly and
-consistently across all four admin actions, each with a distinct message.
+This is the best-built part of the API and I want to say so clearly, because most of this
+document is criticism. Permissions are enforced correctly and consistently across all four
+admin actions, each with its own distinct message.
 
 ### `POST /conversations/group`
 
@@ -346,75 +393,79 @@ consistently across all four admin actions, each with a distinct message.
 { "name": "Project Team", "participantIds": ["<id>", "<id>"] }
 ```
 
-**`201`** — the created group. ⚠️ The **only** `201` in the API.
+Returns `201` and the new group. This is the only `201` in the entire API.
 
-- `participantIds` excludes the caller, who is added automatically as the sole **admin**.
-- Requires **≥ 2** entries (3 members including you). ✅ Duplicates are de-duplicated and
-  the caller's own id is ignored if included.
-- ⚠️ The 3-member minimum is enforced **only at creation** — removals may take a group
-  below it and it stays a fully functional `type: "group"`. Do not assume
-  `participants.length >= 3`.
+- Your own id doesn't go in the list — you're added automatically as the only admin.
+- You need at least two other people, so three members including you. Duplicates in the
+  list are removed for you, and your own id is ignored if you include it anyway. Both are
+  the right call.
+- **The three-member minimum is only enforced when the group is created.** Removing people
+  can take a group below it, and it carries on working as a normal group. So don't write
+  any code that assumes a group has at least three members.
 
-| Status | Condition |
+| Status | When |
 |---|---|
 | `201` | Created |
-| `400` | `VALIDATION_ERROR` (`name` missing/empty, fewer than 2 participants) · `INVALID_NAME` (whitespace-only name — ⚠️ *different code and shape*, no `details[]`) · `UNKNOWN_USER` |
-| `500` | ⚠️ malformed id in `participantIds` |
+| `400` | `VALIDATION_ERROR` (missing name, fewer than two people) · `INVALID_NAME` (a name of only spaces — a different code *and* a different shape, with no `details`) · `UNKNOWN_USER` |
+| `500` | A malformed id in the list |
 
-### `PATCH /conversations/{id}` — rename
+### `PATCH /conversations/{id}` — rename a group
 
-`{ "name": "New name" }` → **`200`**, full updated group. Admin only.
+`{ "name": "New name" }` returns `200` and the full updated group. Admins only.
 
-| Status | Condition |
+| Status | When |
 |---|---|
 | `200` | Renamed |
-| `400` | `VALIDATION_ERROR` (empty) · `INVALID_NAME` (whitespace-only) · `NOT_A_GROUP` (target is a direct) |
+| `400` | `VALIDATION_ERROR` (empty) · `INVALID_NAME` (only spaces) · `NOT_A_GROUP` (it's a one-to-one chat) |
 | `403` | `FORBIDDEN` — "Only admins can rename the group" |
 
-### `POST /conversations/{id}/participants` — add members
+### `POST /conversations/{id}/participants` — add people
 
-`{ "userIds": ["<id>"] }` → **`200`**, full updated group. Admin only.
-Re-adding an existing member is a silent no-op returning `200`.
+`{ "userIds": ["<id>"] }` returns `200` and the full updated group. Admins only. Adding
+somebody who's already in does nothing and still returns `200`.
 
-`400 VALIDATION_ERROR` for an empty array · `403` for non-admins.
+`400 VALIDATION_ERROR` for an empty list, `403` for non-admins.
 
-### `DELETE /conversations/{id}/participants/{userId}` — remove or leave
+### `DELETE /conversations/{id}/participants/{userId}` — remove somebody, or leave
 
-**`200`**, full updated group. Admins may remove anyone; **any member may remove
-themselves** (leave). A removed member immediately gets `403` on history.
+Returns `200` and the full updated group. Admins can remove anyone; anyone can remove
+themselves, which is how leaving works. A removed member loses access to the history
+immediately and starts getting `403`.
 
-✅ **When the last admin leaves, another member is auto-promoted** — groups are never
-orphaned.
+**When the last admin leaves, someone else is promoted automatically**, so a group can
+never end up with nobody in charge. That's a genuinely thoughtful detail.
 
-⚠️ Removing someone who is not a member returns **`200`** and silently no-ops.
+Removing somebody who isn't in the group returns `200` and quietly does nothing.
 
 `403 FORBIDDEN` — "Only admins can remove other members".
 
-### `POST /conversations/{id}/admins` — promote
+### `POST /conversations/{id}/admins` — promote somebody
 
-`{ "userId": "<id>" }` → **`200`**, full updated group. Admin only. Idempotent.
+`{ "userId": "<id>" }` returns `200` and the full updated group. Admins only, and calling
+it twice is harmless.
 
-`400 NOT_A_MEMBER` if the target is not in the group · `403` for non-admins.
+`400 NOT_A_MEMBER` if they aren't in the group, `403` for non-admins.
 
-There is **no demote endpoint** and no way to remove admin status.
+**There is no way to demote anyone.** Admin status, once given, is permanent.
 
 ---
 
-## System
+## Health
 
 ### `GET /health`
 
-⚠️ At the **root origin**, not under `/api`. `/api/health` → **404**.
+At the root address, not under `/api`. `/api/health` returns `404`.
 
-`200` → `{ "status": "ok" }`. No auth.
+`200` and `{ "status": "ok" }`. No token needed.
 
 ---
 
-## Error handling
+## When things go wrong
 
-### Envelope
+### The shape of an error
 
-REST errors share one envelope, and `details[]` maps cleanly onto per-field form errors:
+Normal requests share one error format, and the `details` list maps neatly onto
+field-by-field form errors, which is genuinely useful:
 
 ```jsonc
 { "error": { "message": "Validation failed",
@@ -422,203 +473,219 @@ REST errors share one envelope, and `details[]` maps cleanly onto per-field form
              "details": [ { "path": "phone", "message": "Required" } ] } }
 ```
 
-### Codes observed
+### Every code I saw
 
-| Code | Status | Meaning |
+| Code | Status | What it means |
 |---|---|---|
-| `NO_TOKEN` | **400** ⚠️ | Authorization header absent, empty, or non-Bearer |
-| `INVALID_TOKEN` | 401 | Malformed, tampered or bad-signature JWT |
-| `VALIDATION_ERROR` | 400 | Body validation failed; carries `details[]` |
-| `INVALID_NAME` | 400 | Whitespace-only group name; ⚠️ **no** `details[]` |
-| `UNKNOWN_USER` | 400 | Referenced user does not exist |
-| `NOT_A_MEMBER` | 400 | Promotion target is not in the group |
-| `NOT_A_GROUP` | 400 | Group operation on a direct conversation |
+| `NO_TOKEN` | **400** | No `Authorization` header, an empty one, or not `Bearer` |
+| `INVALID_TOKEN` | 401 | Malformed, tampered with, or badly signed token |
+| `VALIDATION_ERROR` | 400 | The body failed validation; comes with `details` |
+| `INVALID_NAME` | 400 | A group name of only spaces; comes **without** `details` |
+| `UNKNOWN_USER` | 400 | You referenced a user who doesn't exist |
+| `NOT_A_MEMBER` | 400 | You tried to promote somebody who isn't in the group |
+| `NOT_A_GROUP` | 400 | A group operation aimed at a one-to-one chat |
 | `FORBIDDEN` | 403 | Not a participant, or not an admin |
-| `NOT_FOUND` | 404 | No such conversation, or unknown route/verb |
-| `SERVER_ERROR` | 400 / 500 | Invalid JSON body (400) **or** ObjectId cast failure (500) |
-| `51091` | 500 | ⚠️ **Numeric** code — MongoDB invalid-regex, from `/users/search` |
+| `NOT_FOUND` | 404 | No such conversation, or an unknown route |
+| `SERVER_ERROR` | 400 / 500 | Invalid JSON body (400), or a malformed id (500) |
+| `51091` | 500 | A **number**, not text. The invalid-pattern crash from user search |
 
-### Three inconsistencies worth coding around
+### Three things worth writing code around
 
-1. **Auth failures split across `400` and `401`.** A *missing* credential is `400
-   NO_TOKEN`; an *invalid* one is `401`. Session-expiry detection must check
-   `401 || code === 'NO_TOKEN'`, not status alone.
-2. **`code` is usually a string but sometimes a number** (`51091`).
-3. **Socket errors use a third shape entirely** — `{ ok: false, error: "plain string" }`.
+1. **Authentication failures are split across two status codes.** A *missing* credential is
+   `400 NO_TOKEN`; an *invalid* one is `401`. The usual client rule of "on a 401, sign the
+   user out" therefore misses half of them. Check for `401` or the `NO_TOKEN` code, not
+   status alone.
+2. **The error code is usually text but occasionally a number.** Any generic error handling
+   has to survive `51091`.
+3. **Errors over the live connection use a third format entirely** — `{ ok: false, error:
+   "some plain text" }`, with no code and no details.
 
-### Internal detail leakage
+### It leaks its own internals
 
-Any malformed ObjectId produces a `500` containing the raw driver message and the internal
-model name:
+Any malformed id produces a `500` carrying the raw database driver message and the internal
+name of the data model:
 
 ```
 Cast to ObjectId failed for value "nope" (type string) at path "_id" for model "Conversation"
 ```
 
-This is a client error being reported as a server fault, and it exposes schema internals.
+Two problems in one line: a mistake in *my* request is being reported as a fault on *their*
+side, and the response tells a stranger how the database is structured. My client remaps
+these to a plain "not found" so none of it reaches a user.
 
 ---
 
-## WebSocket contract
+## The live connection
 
-Outside the OpenAPI document, so specified here in full.
+None of this appears in the published documentation, so it's specified here in full.
 
-### Connection
+### Connecting
 
 ```js
 import { io } from 'socket.io-client';
 const socket = io('https://frontend-task-chatapp.onrender.com', { auth: { token } });
 ```
 
-**Root origin, not `/api`.** Socket.io serves itself at `/socket.io/`.
+Again: the **root address**, not `/api`.
 
-Handshake auth is clean and fails loudly — no silent half-connected state:
+Authentication on connect is clean and fails loudly, with no half-connected state to guess
+at, which I appreciated:
 
-| Condition | Result |
+| What you send | What happens |
 |---|---|
-| Valid token | `connect` |
-| Invalid token | `connect_error`, `message: "Invalid token"` |
-| No token | `connect_error`, `message: "No token provided"` |
+| A valid token | It connects |
+| An invalid token | `connect_error`, "Invalid token" |
+| No token | `connect_error`, "No token provided" |
 
-### Rooms and delivery
+### Who receives what
 
-✅ The server broadcasts to **per-user** rooms, not per-conversation ones. A socket
-connected *before* a conversation existed still receives its messages — verified for both
-a group created after connect and a brand-new direct conversation. No reconnect is needed
-when conversations are created.
+**The server broadcasts to each person, not to each conversation.** That sounds like a
+detail and isn't: it means a connection opened *before* a conversation existed still
+receives that conversation's messages. I verified this both for a group created after
+connecting and for a brand new one-to-one chat. So there's no need to reconnect or
+re-subscribe when a conversation is created.
 
-⚠️ **Nothing is replayed on reconnect.** Messages sent while a socket was down are gone
-from the live stream permanently and are only recoverable via
-`GET /conversations/{id}/messages`. Re-syncing on reconnect is mandatory, not optional.
+**Nothing is replayed when you reconnect.** Anything sent while your connection was down is
+gone from the live stream permanently, and the only way to get it is to re-fetch the
+history. Re-syncing after a reconnect isn't an optimisation here, it's mandatory.
 
-### `server → client` — `message:new`
+### `message:new` — the server telling you about a message
 
-Fires for every message in any conversation the user belongs to.
+Fires for every message in any conversation you belong to.
 
 ```jsonc
 { "id": "…", "conversation": "…", "sender": "…", "text": "…", "createdAt": 1788760250346 }
 ```
 
-⚠️ `id` (not `_id`), `createdAt` as epoch **number** (not ISO string), and `text` may be
-**absent** if the message was created without one.
+Note `id` rather than `_id`, the timestamp as a number rather than text, and that `text`
+may be **missing entirely** if the message was created without any.
 
-⚠️ **The sender does NOT receive their own message.** Verified for both REST and socket
-sends. Optimistic UI will therefore not be double-rendered by an echo — but keying inserts
-by id keeps a client correct if an echo is ever added.
+**You are never told about your own messages.** I verified this for sends over both routes.
+On the one hand that means an app showing your message immediately won't see it appear
+twice. On the other, it's why two browser tabs signed in as the same person can't stay in
+step on their own, and it's the root of the two-tab problem the client solves with a
+send-lock. Filing messages by id means the client stays correct either way, if this is ever
+changed.
 
-### `server → client` — `conversation:updated`
+### `conversation:updated` — the server telling you a conversation changed
 
-Full Conversation object (group shape) to **every** member, on group creation, rename, and
-membership or admin changes.
+Sends the full group object to every member when a group is created, renamed, or has its
+membership or admins changed.
 
-⚠️ **Not emitted when a direct conversation is created.** The other party is told nothing
-and only learns of the chat when a message arrives. An asymmetry with no obvious reason.
+**It is not sent when a one-to-one conversation is created.** The other person is told
+nothing at all and only finds out a chat exists when a message arrives in it. I can't see a
+reason for the asymmetry. My client works around it by refreshing the conversation list
+whenever a message arrives for a conversation it doesn't recognise.
 
-### `client → server` — `message:send`
+### `message:send` — sending over the live connection
 
 ```js
 socket.emit('message:send', { conversationId, text }, (ack) => { … });
 ```
 
-Ack shapes:
+The confirmations look like this:
 
 ```jsonc
-{ "ok": true }                                              // success
-{ "ok": false, "error": "Conversation not found" }          // failure — plain string
+{ "ok": true }                                              // it worked
+{ "ok": false, "error": "Conversation not found" }          // plain text, no code
 { "ok": false, "error": "Not a participant of this conversation" }
-{ "ok": false, "error": "Cast to ObjectId failed for value \"nope\" …" }   // ⚠️ leaked
+{ "ok": false, "error": "Cast to ObjectId failed for value \"nope\" …" }   // leaked again
 ```
 
-⚠️ **The ack contains no message** — no id, no timestamp. A socket-sent message can never
-be reconciled against an optimistic placeholder, which is why this client **sends over
-REST and receives over the socket**.
+**The confirmation contains no message** — no id, no timestamp, nothing. So a message sent
+this way can never be matched up with the temporary copy an app shows you while it's in
+flight. That's the single reason my client **sends over normal requests and listens over
+the live connection**, rather than doing both over the live connection as you might expect.
 
-⚠️ Empty, whitespace-only and **missing** `text` all ack `{ok:true}` and broadcast. Sending
-with no `text` field creates a message whose `message:new` payload has no `text` key.
+Empty text, whitespace-only text and a **completely missing** `text` field all confirm
+`{ok: true}` and broadcast. Sending with no `text` at all creates a message whose
+notification has no `text` key, which is where the missing field above comes from.
 
-Interestingly, the socket path validates the conversation **correctly** where REST does
-not: the same bad `conversationId` that returns `200 null` over REST returns
-`{ok:false, error:"Conversation not found"}` here.
+One genuine oddity in the API's favour: **this route validates the conversation correctly
+where the normal request does not.** The same bad conversation id that returns `200 null`
+over a normal request returns a proper `{ok: false, error: "Conversation not found"}` here.
+The correct behaviour exists in the codebase; it just isn't on the path most clients use.
 
 ---
 
-## How I'd redesign this
+## How I'd redesign it
 
-Only changes that fix a problem I actually hit are listed. Each names the defect it fixes.
+Only changes that fix something I actually hit. Each one names the problem it solves.
 
 ### Correctness — these are bugs, not preferences
 
-1. **Make `before` exclusive.** Fixes the duplicate message at every page boundary
-   (§1.1) — today every correct client must dedupe.
-2. **Return `404` from `POST /messages` for a missing conversation.** Fixes `200 null`
-   reporting a failed write as a success, and aligns REST with the socket, which already
-   does this correctly.
-3. **Reject empty and whitespace-only `text` with `400`.** Today the "no empty messages"
-   rule is unenforceable server-side; every client must reimplement it, and any client
-   that doesn't corrupts shared history for everyone.
-4. **Escape the regex in `/users/search`.** Fixes the `500` on `+`-prefixed phones —
-   the endpoint's own documented use case — and closes an unsanitised-regex injection.
-5. **Require a non-empty `q`, returning `400`.** Fixes an empty query dumping every user's
-   name and phone number to any caller.
-6. **Case-insensitive, substring phone matching.** `grace` finding nothing and a phone's
-   last six digits finding nothing both fail the only two ways people actually search.
-7. **Exclude the caller from search results**, and reject `POST /conversations` with your
-   own id. Together these close the path where selecting yourself opens a stranger's
-   conversation.
-8. **Map ObjectId cast failures to `400`** with a generic message. Fixes client errors
-   reported as `500`s and stops leaking driver internals and model names.
-9. **Return `401` for a missing token.** `400 NO_TOKEN` puts authentication failure in the
-   wrong status class and breaks the standard "on 401, log out" client rule.
-10. **Enforce the 3-member minimum on removal, or drop it at creation.** Enforcing an
-    invariant only at creation means it isn't an invariant.
+1. **Stop including the message you paged from.** Fixes the duplicate at every page
+   boundary. Today every correct client has to de-duplicate to work around it.
+2. **Return `404` when sending to a conversation that doesn't exist.** Fixes a failed write
+   reporting itself as a success, and brings the normal route in line with the live
+   connection, which already gets this right.
+3. **Reject empty and whitespace-only messages.** Today "no empty messages" is a rule no
+   server enforces, so every client has to reimplement it, and one that doesn't spoils the
+   history for everyone else.
+4. **Escape the search text before using it as a pattern.** Fixes the crash on
+   `+`-prefixed phone numbers — the endpoint's own documented use case — and closes an
+   injection hole while you're there.
+5. **Require a non-empty search term.** An empty query currently hands any caller the name
+   and phone number of every user on the platform.
+6. **Match names case-insensitively and phone numbers on partial input.** `grace` finding
+   nothing and the last six digits of a number finding nothing are the only two ways people
+   actually search.
+7. **Leave the caller out of search results, and refuse to open a conversation with
+   yourself.** Together these close the path where picking yourself opens a stranger's chat.
+8. **Turn malformed ids into a `400` with a generic message.** Fixes client mistakes being
+   reported as server faults, and stops leaking driver internals and model names.
+9. **Return `401` when a token is missing.** `400 NO_TOKEN` puts an authentication failure
+   in the wrong category and breaks the standard "on a 401, sign out" rule every client
+   uses.
+10. **Enforce the three-member group minimum on removal too, or drop it entirely.** A rule
+    enforced only at creation is not a rule.
 
-### Contract consistency
+### Consistency
 
-11. **One envelope everywhere:** `{ data: T }` for success, `{ error: {...} }` for failure.
-    Fixes four different shapes across seven read endpoints — the single biggest source of
-    per-endpoint special-casing in the client.
-12. **One user-reference shape.** `participants` should always be an array of populated
-    user objects, including on `POST /conversations`, and directs should use the same
-    `participants` key rather than a singular `participant`. Three shapes for one concept
-    forces a discriminated union purely to describe serialisation differences.
-13. **`_id` → `id` everywhere, and always ISO-8601 timestamps** — including on the socket.
-    Fixes the same entity arriving with a different key and a different timestamp *type*
-    depending on transport, which is the failure mode most likely to reach production
-    silently.
-14. **`lastMessage: null`, not `{}`,** when a conversation is empty. `{}` is truthy, so
-    the natural guard is always wrong.
-15. **`201` for all creates,** or `200` for all of them. Currently exactly one endpoint
-    differs from the rest.
-16. **Always `{code, message, details[]}`, with `code` always a string.** Fixes the numeric
-    `51091` and the `INVALID_NAME` variant that omits `details[]`, both of which break
-    generic error handling.
+11. **One response wrapper everywhere:** `{ data }` when it works, `{ error }` when it
+    doesn't. Fixes four different shapes across seven endpoints, which is the single
+    biggest source of per-endpoint special-casing in my client.
+12. **One shape for a reference to a person.** Participants should always be full user
+    objects, including from `POST /conversations`, and one-to-one chats should use the same
+    `participants` key rather than a singular `participant`. Three shapes for one idea
+    forces clients to model a difference that's really just serialisation.
+13. **Pick `id` or `_id` and use it everywhere, and always write timestamps as text** —
+    including over the live connection. The same entity arriving with a different key and a
+    different timestamp type depending on how it reached you is the kind of fault most
+    likely to reach production unnoticed.
+14. **`lastMessage` should be empty, not an empty object,** when there are no messages. As
+    it stands, the natural check for it is always wrong.
+15. **Use `201` for every create, or `200` for every create.** Right now exactly one
+    endpoint disagrees with the rest.
+16. **Always return a code, a message and a details list, with the code always text.**
+    Fixes the numeric `51091` and the `INVALID_NAME` variant that omits its details, both
+    of which break any generic error handling.
 
-### Pagination
+### Paging
 
-17. **Return an explicit `nextCursor`** alongside `hasMore`, instead of requiring clients
-    to reach into the last element for its `_id`. Cursor construction becomes the server's
-    business, which is what lets you change the ordering key later.
-18. **Validate `limit`** — `400` on non-numeric or negative — and **cap it** (say 100).
-    Today `limit=abc` silently becomes 20 and `limit=9999` returns everything.
-19. **`400` for an unknown `before` cursor.** Silently returning page 1 turns a stale
-    cursor into "load older" mysteriously re-serving the newest messages.
+17. **Return the next marker explicitly** rather than making clients dig it out of the last
+    item. It also makes the ordering the server's business, which is what lets you change
+    it later without breaking every client.
+18. **Validate the page size and cap it** (say 100). Today `limit=abc` silently becomes 20
+    and `limit=9999` returns the entire history.
+19. **Reject an unknown paging marker.** Silently returning page one turns a stale marker
+    into "load older" mysteriously re-serving the newest messages.
 
-### Resources worth adding
+### Things worth adding
 
-20. **`GET /conversations/{id}`.** Its absence means a deep-link to a thread must fetch the
+20. **`GET /conversations/{id}`.** Without it, a link to a single thread has to load the
     entire conversation list to resolve one id.
-21. **`GET /messages/{id}` or a socket `message:sent` ack carrying the created message.**
-    Would make socket sending viable; today the ack returns nothing usable, forcing
-    all sends onto REST.
-22. **Emit `conversation:updated` when a direct conversation is created.** Closes the
-    asymmetry where group changes notify everyone but a new direct chat notifies nobody.
-23. **A real auth story** — `POST /auth/register` separate from `POST /auth/login`, and an
-    OTP or password. Today the phone number is the entire credential and the login call
-    silently renames any existing account, so display names are not trustworthy identity.
+21. **Either `GET /messages/{id}`, or make the live-connection confirmation carry the
+    message it created.** Either one would make sending over the live connection viable.
+    Today it returns nothing usable, which forces every send onto the normal route.
+22. **Announce new one-to-one conversations** the way group changes are announced. Closes
+    the gap where group changes notify everyone and a new chat notifies nobody.
+23. **A real sign-in story** — registration separate from login, and a one-time code or a
+    password. Today a phone number is the whole credential and signing in silently renames
+    whatever account already has it.
 
-### Resources worth removing
+### One thing worth removing
 
-24. **Drop `DELETE /conversations/{id}/participants/{userId}` as the leave mechanism** in
-    favour of an explicit `DELETE /conversations/{id}/me`. Overloading one route with
-    "admin removes member" and "member leaves" is why it needs two different permission
-    branches and why removing a non-member silently returns `200`.
+24. **Split "leave a group" out of "remove a member".** One route doing both is why it
+    needs two separate permission branches, and why removing somebody who isn't a member
+    quietly returns success.
