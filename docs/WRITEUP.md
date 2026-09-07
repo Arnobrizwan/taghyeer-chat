@@ -8,14 +8,14 @@ word, I explain it the first time.
 
 ## The short version
 
-**Relay is a chat app.** You sign in with your phone number, find someone, and message them
-one-to-one or in a group. Messages arrive instantly, without refreshing the page.
+Relay is a chat app. You sign in with your phone number, find someone, and message them one
+to one or in a group. Messages arrive instantly, without refreshing the page.
 
-**The one thing that makes it different:** most chat apps quietly lose whatever you typed
-while your signal was gone. Relay doesn't. If you type on a dead connection, your message is
-saved on your device first, shown to you as clearly waiting, and sent the moment you're back
-online — in the order you wrote it. Nothing disappears, and nothing pretends it was
-delivered when it wasn't.
+What makes it different is what happens when your connection drops. Most chat apps quietly
+lose whatever you typed while the signal was gone. Relay doesn't. If you type on a dead
+connection, your message is saved on your device first, shown to you as clearly waiting, and
+sent the moment you're back online, in the order you wrote it. Nothing disappears, and
+nothing pretends it was delivered when it wasn't.
 
 **Before I wrote any of it, I spent the first phase testing the API I'd been given.** An API
 is the service the app talks to, like a kitchen an app sends orders to. The documentation
@@ -131,40 +131,40 @@ what someone typed would be worse than the problem being prevented.
 
 ## Part 2 — how I designed the landing page, and why
 
-**Chat products all look the same:** cool grey, navy, a blue accent. Landing on that reads as
-a default rather than a decision, so I went the other way.
+Chat products nearly all look the same: cool grey, navy, a blue accent. Landing on that
+palette would have read as a default rather than a decision, so I went the other way.
 
-**Colour.** Warm paper and deep ink, with a single orange-red accent. One accent, used with
-discipline: if something is that colour, it's something you can do. Green and amber appear
-only as status — green for delivered and connected, amber for waiting — so state never
-competes with action for your attention. Colours are defined by *role* rather than as fixed
-values, which is why the light and dark themes reach every screen instead of just the ones I
+The colours are warm paper and deep ink with a single orange-red accent. I used that accent
+with discipline: if something is that colour, it's something you can do. Green and amber
+appear only as status, green for delivered and connected, amber for waiting, so state never
+competes with action for your attention. Colours are defined by role rather than as fixed
+values, which is why the light and dark themes reach every screen instead of only the ones I
 remembered to style.
 
-**Type.** A serif for headings, a clean sans-serif for everything else. The serif is doing
-real work: it's unexpected on a messaging product and gives the page a voice, and used
-sparingly inside the app it makes empty screens feel considered rather than unfinished.
+For type I paired a serif for headings with a clean sans-serif for everything else. The
+serif is doing real work. It's unexpected on a messaging product and gives the page a voice,
+and used sparingly inside the app it makes empty screens feel considered rather than
+unfinished.
 
-**The chat panel got a second pass**, because the brief says that's where you'd look closest
-and my first attempt didn't survive it. Timestamps sat on their own row under every message,
+The chat panel got a second pass, because the brief says that's where you'd look closest and
+my first attempt didn't survive it. Timestamps sat on their own row under every message,
 which pushed messages apart and made the thread read as a stack of cards rather than a
-conversation — the time now sits inside the bubble. The thread also ran the full width of a
-desktop screen, so your eye had to cross the whole window to connect a message to its time;
-it's now capped to a comfortable reading width. And the accent colour didn't have enough
-contrast against white text to meet accessibility standards, so it was deepened until it did.
+conversation; the time now sits inside the bubble. The thread also ran the full width of a
+desktop screen, so your eye had to cross the whole window to connect a message to its time,
+and it's now capped to a comfortable reading width. The accent colour didn't have enough
+contrast behind white text to meet accessibility standards either, so it was deepened until
+it did.
 
-**Movement.** One easing curve everywhere, so motion feels like one system rather than
-several. Movement is only ever used to explain something — a message appears so you notice
-it, the "new messages" pill slides up because it just arrived. Nothing loops or decorates. If
-your device is set to reduce motion, the animation goes and the app still works.
+Movement uses one easing curve everywhere, so it feels like one system rather than several,
+and it's only ever there to explain something. A message appears so you notice it. The "new
+messages" pill slides up because it just arrived. Nothing loops or decorates. If your device
+is set to reduce motion, the animation goes and the app still works.
 
-**The original idea here is that the demo is the product.** The claim being made is about
-behaviour — "your message survives a dropped connection" — and the only honest way to show
+The idea I'm proudest of here is that the demo is the product. The claim being made is about
+behaviour, that your message survives a dropped connection, and the only honest way to show
 behaviour is to let you cause it. So the hero image is a working chat you can break. It runs
 the same logic as the real app. No invented testimonials, no FAQ accordion, no screenshot
 pretending to be a product.
-
----
 
 ## How I used AI
 
