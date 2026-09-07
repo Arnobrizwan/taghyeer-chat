@@ -13,6 +13,7 @@ import { useCrossTabSync } from './chat/use-cross-tab-sync';
 import { useChatStore } from './chat/store';
 import { useSocket } from '@/lib/socket/provider';
 import { ServerStatusBanner } from '@/components/ui/server-status-banner';
+import { ThemeToggle } from './theme';
 import { Avatar, Button, Spinner } from '@/components/ui';
 import { ApiError } from '@/lib/api/errors';
 import { me } from '@/lib/api/endpoints';
@@ -155,7 +156,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             />
           </nav>
 
-          <footer className="shrink-0 border-t border-line px-4 py-3">
+          <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-line px-4 py-3">
             <Link
               href="/"
               className="group inline-flex items-center gap-1.5 text-xs font-medium text-ink-faint transition-colors hover:text-ink"
@@ -165,6 +166,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </svg>
               About Relay
             </Link>
+            <ThemeToggle />
           </footer>
         </aside>
 

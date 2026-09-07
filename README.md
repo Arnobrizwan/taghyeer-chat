@@ -96,6 +96,7 @@ Both are **optional** — the app falls back to the values below if unset. See
 | **Zustand** | Owns the message timeline and the outbox. See the trade-off below — this split is deliberate. |
 | **Zod** | Runtime validation at the API boundary. Not decoration: the API returns the same entity in two different shapes and returns `200 null` for a failed write, so schema failure is a real signal. |
 | **socket.io-client** | Required by the API. |
+| **Theming** | Light, dark and follow-the-system, applied before first paint by a small inline script so there's no flash. Tokens are named by *role* (`paper` = surface, `ink` = foreground), so components keep one set of class names across both themes. |
 
 Seven runtime dependencies, three of which are the framework itself (`next`, `react`,
 `react-dom`) — so four chosen libraries. No component library, no form library, no
@@ -265,11 +266,28 @@ wait. It's fire-and-forget on an idle callback with a 60-second cooldown, so it 
 competes with first paint and six intent events cost one request. The banner stays for the
 cases this doesn't cover.
 
+### Flood and duplicate protection
+
+Recon established that the API applies **no rate limiting at all** — 30 concurrent
+requests all returned `200` — and that `POST /messages` is not idempotent, accepts empty
+text and has no length cap. On a shared demo backend, one person holding Enter can fill
+everyone's history and nothing server-side stops them.
+
+So sending passes two independent guards, because they catch different mistakes. A **token
+bucket** allows a burst of 5 and then sustains ~40 messages a minute, which catches a held
+key. A **4-second duplicate window** catches the accidental double-send — a double click,
+or Enter pressed twice while the ~1s round trip is still in flight.
+
+Both are advisory rather than silent: a refused send says why, and **keeps the text in the
+box**. Discarding what someone typed would be a worse outcome than the spam being
+prevented.
+
 ### What I deliberately didn't do
 
-No typing indicators, read receipts, emoji picker or dark-mode toggle. The brief says
-common additions earn nothing even when well executed, and each of those would have cost
-time the chat panel needed.
+No typing indicators, read receipts or emoji picker. The brief says common additions earn
+nothing even when well executed, and each would have cost time the chat panel needed.
+Light/dark theming is present because it's expected of a product like this, but I'm not
+claiming it as the originality bonus — that's the outbox and the cross-tab work.
 
 ## Part 2 reasoning: design
 
@@ -416,6 +434,9 @@ sessions were genuinely independent:
 | Cold start (8s stall injected) | Banner at ~3.5s, counter ticks 1s → 2s → 3s, clears on completion |
 | Pre-warm | 1 `GET /health` on landing; 6 intent events → **0 extra requests** (60s cooldown) |
 | 375px viewport | **0 overflowing elements**, composer usable, list ⇄ thread navigation works |
+| Duplicate send within the window | Blocked, explained, text kept in the composer |
+| XSS payloads stored via the API | Render as inert text — 0 injected elements |
+| Light / dark / system | Applied before first paint, persists, follows the OS, syncs across tabs |
 | Deployed URLs, clean session | Both `200`, no auth, no deployment protection |
 
 **The API documentation is machine-checked**, not a snapshot I hope still holds:
@@ -429,6 +450,16 @@ Where a result was surprising I re-measured before believing it. Several apparen
 turned out to be faults in my own test scripts — a selector that only matched run-ending
 bubbles, an assertion racing a smooth scroll animation, and a `limit` check that couldn't
 fail for the right reason. Those were fixed in the tests, not papered over in the app.
+
+**Untrusted input.** The app calls no language model, so there is no prompt-injection
+surface in the product itself — but it does render text written by other people, and the
+API stores it raw. I posted `<img src=x onerror=…>`, `<script>` and `"><svg onload=…>`
+through the API and confirmed all three render as inert text: **0 injected elements, 0
+handlers, no alert**. React's escaping does the work; there is no `innerHTML`, no `eval`,
+and the one `dangerouslySetInnerHTML` in the codebase is the theme script, a static
+self-authored string with no interpolated input. Socket payloads, cross-tab events and the
+persisted outbox are all shape-validated before use, and ids are checked against an
+ObjectId pattern before they reach a URL.
 
 **Gates:** `npm run build`, `npx tsc --noEmit` and `npm run lint` are all clean — lint
 reports **0 problems**, including the React Compiler rules Next 16 enables, none of which

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { OutboxDemo } from '@/features/landing/outbox-demo';
 import { PrewarmApi, WarmLink } from '@/features/landing/warm-link';
+import { ThemeToggle } from '@/features/theme';
 import { Reveal } from '@/features/landing/reveal';
 
 export const metadata: Metadata = {
@@ -30,7 +31,7 @@ const CAPABILITIES = [
 
 export default function LandingPage() {
   return (
-    <div className="bg-ink text-paper">
+    <div className="bg-canvas text-on-canvas">
       {/* Begins waking the sleeping API while the visitor reads. Renders nothing. */}
       <PrewarmApi />
 
@@ -42,12 +43,16 @@ export default function LandingPage() {
           </span>
           <span className="text-[15px] font-semibold tracking-tight">Relay</span>
         </span>
-        <WarmLink
-          href="/app"
-          className="rounded-lg bg-paper px-4 py-2 text-sm font-semibold text-ink transition-transform duration-200 hover:-translate-y-0.5"
-        >
-          Open the app
-        </WarmLink>
+        <span className="flex items-center gap-3">
+          {/* The hero is always dark, so the control sits on a fixed dark ground here. */}
+          <ThemeToggle tone="canvas" />
+          <WarmLink
+            href="/app"
+            className="rounded-lg bg-on-canvas px-4 py-2 text-sm font-semibold text-canvas transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            Open the app
+          </WarmLink>
+        </span>
       </header>
 
       {/* --------------------------------------------------------------- Hero */}
@@ -55,22 +60,29 @@ export default function LandingPage() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
           <div>
             <Reveal>
-              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-paper/15 px-3 py-1 text-xs font-medium tracking-wide text-paper/70 uppercase">
+              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-on-canvas/15 px-3 py-1 text-xs font-medium tracking-wide text-on-canvas/70 uppercase">
                 <span className="size-1.5 rounded-full bg-vermilion-bright" />
                 Real-time messaging
               </p>
             </Reveal>
 
             <Reveal delay={60}>
-              <h1 className="font-display text-[clamp(2.75rem,7vw,4.75rem)] leading-[1.02] tracking-tight text-balance">
-                Every message you send,
-                <span className="text-vermilion-bright italic"> even the ones you sent </span>
-                on a dead connection.
+              {/*
+                Broken by hand rather than left to the browser: "…on a / dead connection"
+                stranded a two-word orphan, and `text-balance` can't fix a break inside a
+                styled span. Each line is a clause, so the emphasis lands where it reads.
+              */}
+              <h1 className="font-display max-w-[13ch] text-[clamp(2.6rem,5.9vw,4.15rem)] leading-[1.03] tracking-tight sm:max-w-none">
+                <span className="block text-balance">Every message you send.</span>
+                <span className="text-vermilion-accent block italic">
+                  Even the ones you sent
+                </span>
+                <span className="text-vermilion-accent block italic">on a dead connection.</span>
               </h1>
             </Reveal>
 
             <Reveal delay={120}>
-              <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-paper/70">
+              <p className="mt-6 max-w-md text-[17px] leading-relaxed text-on-canvas/70">
                 Most chat apps quietly drop what you typed while the signal was gone. Relay
                 queues it, keeps the order, and sends it the moment you&apos;re back — so
                 the thread reads the way you actually wrote it.
@@ -88,7 +100,7 @@ export default function LandingPage() {
                     <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </WarmLink>
-                <span className="text-sm text-paper/45">
+                <span className="text-sm text-on-canvas/45">
                   No password — your phone number signs you in.
                 </span>
               </div>
@@ -100,11 +112,11 @@ export default function LandingPage() {
             <div className="relative">
               <div
                 aria-hidden="true"
-                className="absolute -inset-6 rounded-[2rem] bg-vermilion/12 blur-3xl"
+                className="absolute -inset-6 rounded-[2rem] bg-vermilion/15 blur-3xl"
               />
               <div className="relative">
                 <OutboxDemo />
-                <p className="mt-3 text-center text-xs text-paper/45">
+                <p className="mt-3 text-center text-xs text-on-canvas/45">
                   Interactive demo — cut the connection, keep typing, then reconnect.
                 </p>
               </div>
@@ -114,7 +126,7 @@ export default function LandingPage() {
       </section>
 
       {/* ------------------------------------------------------- The argument */}
-      <section className="border-t border-paper/10 bg-paper text-ink">
+      <section className="border-t border-on-canvas/10 bg-paper text-ink">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
           <Reveal>
             <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3rem)] leading-tight text-balance">
@@ -183,7 +195,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------------------------------------------------------------- CTA */}
-      <section className="bg-ink">
+      <section className="bg-canvas">
         <div className="mx-auto max-w-6xl px-5 py-24 text-center sm:px-8">
           <Reveal>
             <h2 className="mx-auto max-w-3xl font-display text-[clamp(2.25rem,5.5vw,3.75rem)] leading-[1.05] text-balance">
@@ -203,8 +215,8 @@ export default function LandingPage() {
           </Reveal>
         </div>
 
-        <footer className="border-t border-paper/10">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-7 text-sm text-paper/45 sm:flex-row sm:px-8">
+        <footer className="border-t border-on-canvas/10">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-7 text-sm text-on-canvas/45 sm:flex-row sm:px-8">
             <span className="flex items-center gap-2">
               <span className="flex size-5 items-center justify-center rounded bg-vermilion text-[10px] font-bold text-white">
                 R

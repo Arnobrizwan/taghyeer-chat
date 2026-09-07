@@ -177,9 +177,17 @@ export function OutboxDemo() {
       </div>
 
       {/* Thread */}
-      <div ref={scrollRef} className="scroll-quiet h-72 space-y-2 overflow-y-auto bg-paper px-4 py-4">
+      {/*
+        Bottom-anchored and only as tall as it needs to be. Top-aligned in a fixed 288px
+        panel, the three opening messages sat above a large empty area and the whole demo
+        read as something that had failed to load.
+      */}
+      <div
+        ref={scrollRef}
+        className="scroll-quiet flex h-[248px] flex-col justify-end gap-2 overflow-y-auto bg-paper px-4 py-4 sm:h-[276px]"
+      >
         {messages.map((m) => (
-          <div key={m.id} className={cx('flex', m.own ? 'justify-end' : 'justify-start')}>
+          <div key={m.id} className={cx('flex shrink-0', m.own ? 'justify-end' : 'justify-start')}>
             <div className={cx('flex max-w-[82%] flex-col', m.own ? 'items-end' : 'items-start')}>
               <div
                 className={cx(

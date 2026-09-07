@@ -185,7 +185,12 @@ export function MessageList({
           A chat column that fills a 1400px window is unreadable — the eye has to travel
           the full width to pair a message with its timestamp. Capped and centred.
         */}
-        <div className="mx-auto w-full max-w-3xl">
+        {/*
+          `min-h-full` + `justify-end` keeps a short conversation pinned to the bottom of
+          the viewport, the way every messaging app does it. Left top-aligned, three
+          messages sat marooned above a large empty panel and read as a loading failure.
+        */}
+        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-end">
         {hasMore && (
           <div className="flex justify-center pb-5">
             {loadingOlder ? (
@@ -392,7 +397,7 @@ function NewMessagesPill({ count, onClick }: { count: number; onClick: () => voi
       <button
         type="button"
         onClick={onClick}
-        className="animate-slide-up-fade pointer-events-auto flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-medium text-white shadow-lg transition-transform hover:-translate-y-0.5"
+        className="animate-slide-up-fade pointer-events-auto flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper shadow-lg transition-transform hover:-translate-y-0.5"
       >
         <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M8 3v10M4 9.5l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />

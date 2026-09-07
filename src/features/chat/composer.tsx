@@ -1,7 +1,8 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cx, isSendableText, MAX_MESSAGE_LENGTH } from '@/lib/utils';
+import type { SendVerdict } from './send-guard';
 
 const MAX_ROWS_PX = 160;
 
@@ -11,13 +12,23 @@ export function Composer({
   placeholder = 'Write a message…',
   offline = false,
 }: {
-  onSend: (text: string) => void;
+  onSend: (text: string) => SendVerdict;
   disabled?: boolean;
   placeholder?: string;
   offline?: boolean;
 }) {
   const [value, setValue] = useState('');
+  const [throttle, setThrottle] = useState<{ reason: 'flood' | 'duplicate'; until: number } | null>(
+    null,
+  );
   const ref = useRef<HTMLTextAreaElement>(null);
+
+  // Clear the notice once the cooldown has actually elapsed.
+  useEffect(() => {
+    if (!throttle) return;
+    const id = setTimeout(() => setThrottle(null), Math.max(0, throttle.until - Date.now()));
+    return () => clearTimeout(id);
+  }, [throttle]);
 
   // Grow with content up to a cap, then scroll internally.
   useLayoutEffect(() => {
@@ -39,12 +50,22 @@ export function Composer({
 
   function submit() {
     if (!canSend) return;
-    onSend(value);
+    const verdict = onSend(value);
+    if (!verdict.ok) {
+      // The text is deliberately kept in the box — the send was refused, not delivered,
+      // and silently clearing what someone typed is worse than the spam being prevented.
+      setThrottle({ reason: verdict.reason, until: Date.now() + verdict.retryInMs });
+      return;
+    }
+    setThrottle(null);
     setValue('');
     ref.current?.focus();
   }
 
   const overLimit = value.length > MAX_MESSAGE_LENGTH;
+  // The effect below clears this the moment the cooldown ends, so the presence of the
+  // state is the whole answer — no clock read during render, which would be impure.
+  const throttled = throttle !== null;
 
   return (
     <form
@@ -66,7 +87,9 @@ export function Composer({
           value={value}
           disabled={disabled}
           placeholder={offline ? 'Offline — messages will send when you reconnect' : placeholder}
-          aria-describedby={overLimit ? 'composer-limit' : undefined}
+          aria-describedby={
+            overLimit ? 'composer-limit' : throttled ? 'composer-throttle' : undefined
+          }
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
             // Enter sends; Shift+Enter makes a newline.
@@ -86,6 +109,13 @@ export function Composer({
         {overLimit && (
           <p id="composer-limit" role="alert" className="px-1 pt-1 text-xs text-vermilion">
             {value.length.toLocaleString()} / {MAX_MESSAGE_LENGTH.toLocaleString()} characters
+          </p>
+        )}
+        {throttled && !overLimit && (
+          <p id="composer-throttle" role="status" className="px-1 pt-1 text-xs text-amber">
+            {throttle.reason === 'duplicate'
+              ? 'You just sent that. Give it a second before sending it again.'
+              : 'Slow down a moment — sending too quickly.'}
           </p>
         )}
       </div>

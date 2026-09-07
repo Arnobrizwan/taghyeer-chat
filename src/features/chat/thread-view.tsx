@@ -128,13 +128,15 @@ export function ThreadView({
       <Composer
         offline={offline && outboxCount > 0}
         onSend={(text) => {
-          send(text);
+          const verdict = send(text);
+          if (!verdict.ok) return verdict;
           // Reorder the sidebar immediately rather than waiting on the round trip.
           bumpConversation(queryClient, conversationId, {
             text: text.trim(),
             senderId: selfId,
             createdAt: Date.now(),
           });
+          return verdict;
         }}
       />
 

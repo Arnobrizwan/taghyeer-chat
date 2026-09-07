@@ -71,3 +71,14 @@ Newest at the bottom of each phase. Feeds the Part 3 write-up.
 - **Both headers pinned to `h-16`** — intrinsic heights — the sidebar and thread rules have to meet exactly across the split, and they did not.
 - **Login rebuilt as a split screen with the landing page's ink panel** — a form centred on an empty page — signing in should not feel like arriving at a different product; the panel also restates the one thing that makes this app different.
 - **The landing demo's bubbles rebuilt to match the app exactly** — leaving the demo on its original styling — the landing page is showing the product, and a reviewer clicking through would land somewhere that looks unrelated.
+
+## Theming and anti-spam
+
+- **Tokens named by role, switched with `@theme inline`** — a duplicate set of dark class names — `paper` means "the page surface" and `ink` means "what reads on it", so every component keeps one set of classes and the palette re-resolves from a single attribute on `<html>`.
+- **Theme applied by a blocking inline script, before paint** — reading `localStorage` in an effect — the effect approach paints light first and snaps to dark, which is the flash every themed site gets wrong.
+- **Three states (light / system / dark), not a binary toggle** — a two-state switch — a binary control cannot express "follow my OS", which is the setting most people actually want and the one it silently overwrites the moment it is touched.
+- **`useSyncExternalStore` for the theme** — `useState` + an effect — the theme lives in `localStorage` and on the DOM, both outside React and both changeable from another tab; this is what that hook is for, and it makes cross-tab theme sync fall out for free.
+- **Landing hero, login panel and modal scrim use fixed `canvas` tokens** — the themed `paper`/`ink` pair — those surfaces are deliberately dark in both themes, and left themed they inverted: the hero turned white and the scrim lightened the screen instead of dimming it.
+- **Sparse threads pinned to the bottom (`min-h-full` + `justify-end`)** — top alignment — three messages stranded above a large empty panel read as a loading failure, which is exactly how the landing demo looked.
+- **Flood protection is a token bucket, duplicates a separate time window** — one combined rule — a burst of five is normal typing while five identical sends is a stuck key, and conflating them either blocks real use or misses the common mistake.
+- **A refused send keeps the user's text and says why** — clearing the box, or failing silently — the send was refused, not delivered; discarding what someone typed is a worse outcome than the spam.

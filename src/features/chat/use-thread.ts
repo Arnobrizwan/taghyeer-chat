@@ -7,6 +7,7 @@ import { useChatStore, newTempId, type OutboxEntry } from './store';
 import { publishCrossTab } from '@/lib/cross-tab';
 import { useSocket } from '@/lib/socket/provider';
 import { isSendableText } from '@/lib/utils';
+import { checkSend, type SendVerdict } from './send-guard';
 
 const PAGE_SIZE = 25;
 
@@ -89,11 +90,18 @@ export function useThread(conversationId: string | null, selfId: string | null) 
   }, [conversationId]);
 
   const send = useCallback(
-    (text: string) => {
-      if (!conversationId || !selfId) return;
+    (text: string): SendVerdict => {
+      if (!conversationId || !selfId) return { ok: true };
       // Guarded here as well as on the button: the server accepts empty and
       // whitespace-only text and broadcasts it (findings §5.1).
-      if (!isSendableText(text)) return;
+      if (!isSendableText(text)) return { ok: true };
+
+      // The API has no rate limiting of its own, so flood and duplicate protection has to
+      // live here. Checked at the point of enqueue, which covers the button, the Enter
+      // key and any direct form submit alike.
+      const verdict = checkSend(conversationId, text);
+      if (!verdict.ok) return verdict;
+
       const entry: Omit<OutboxEntry, 'attempts'> = {
         tempId: newTempId(),
         conversationId,
@@ -104,6 +112,7 @@ export function useThread(conversationId: string | null, selfId: string | null) 
       useChatStore.getState().enqueue(entry);
       // Show the pending message in every open tab, not only the one it was typed in.
       publishCrossTab({ type: 'outbox:enqueued', entry: { ...entry, attempts: 0 } });
+      return { ok: true };
     },
     [conversationId, selfId],
   );

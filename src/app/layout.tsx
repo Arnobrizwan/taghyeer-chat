@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Instrument_Serif } from 'next/font/google';
 import './globals.css';
+import { themeScript } from '@/features/theme';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -23,7 +24,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} h-full`}>
+    // suppressHydrationWarning: the inline script below sets data-theme before React
+    // hydrates, so the server markup and the live DOM legitimately differ on that attribute.
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${instrumentSerif.variable} h-full`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );

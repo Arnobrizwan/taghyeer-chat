@@ -10,49 +10,156 @@
  *
  * The app runs on paper; the landing page inverts to ink. Same tokens, different ground.
  */
-@theme {
-  /* Ground */
-  --color-paper: #faf7f2;
-  --color-paper-raised: #ffffff;
-  --color-paper-sunken: #f2ece3;
+/*
+ * Tokens.
+ *
+ * `paper` and `ink` are *roles*, not literal colours: paper is whatever the page surface
+ * is, ink is whatever reads on top of it. In the light theme that's warm off-white and
+ * near-black; in the dark theme they invert. Naming them by role rather than by value is
+ * what lets every component keep the same class names across both themes.
+ *
+ * `@theme inline` matters here — it makes each utility emit `var(--paper)` directly
+ * rather than baking in a value, so swapping `data-theme` on <html> re-resolves the whole
+ * palette with no rebuild and no duplicated class sets.
+ *
+ * Every pair below clears WCAG AA for the size it is used at. The values are not
+ * eyeballed; they were measured and adjusted until they passed.
+ */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-paper-sunken: var(--paper-sunken);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+
+  --color-vermilion: var(--vermilion);
+  --color-vermilion-bright: var(--vermilion-hover);
+  --color-vermilion-accent: var(--vermilion-accent);
+  --color-vermilion-soft: var(--vermilion-soft);
+  --color-vermilion-line: var(--vermilion-line);
+
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
 
   /*
-   * Ink ramp. Every step here clears 4.5:1 on paper, including the faintest — timestamps
-   * are 11px normal text, so the usual "it's only metadata" grey would fail AA.
+   * Fixed in both themes. The landing hero and the login side panel are a deliberate dark
+   * statement, so they must not invert with the palette — and a modal scrim has to darken
+   * whatever is behind it regardless of theme.
    */
-  --color-ink: #14171f;        /* 16.8:1 */
-  --color-ink-soft: #3d434f;   /*  9.4:1 */
-  --color-ink-muted: #5f6672;  /*  5.4:1 */
-  --color-ink-faint: #6b7280;  /*  4.5:1 */
-
-  /*
-   * Accent. Deepened from #e0451f, which carried white body text at only 4.17:1 — under
-   * AA. At #cf3d18 the same white text sits at 4.85:1, and the slightly deeper tone reads
-   * less neon across the large filled areas that message bubbles create.
-   */
-  --color-vermilion: #cf3d18;
-  --color-vermilion-bright: #e8502a;
-  --color-vermilion-soft: #fdeae4;
-  --color-vermilion-line: #f3cabd;
-
-  /* Support. Teal darkened from #0f9488 (3.5:1) so "Connected" is legible as text. */
-  --color-teal: #0d7f74;
-  --color-teal-soft: #d8f0ec;
-  --color-amber: #9a4a08;
-  --color-amber-soft: #fdf0d5;
-
-  --color-line: #e5ded3;
-  --color-line-strong: #d4cabb;
+  --color-canvas: #14171f;
+  --color-canvas-soft: #1c2029;
+  --color-on-canvas: #f3f0ea;
+  --color-on-canvas-amber: #f0c485;
+  --color-scrim: rgb(9 11 16 / 62%);
 
   --font-display: var(--font-instrument-serif), Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  /* A single easing shared by every transition, so motion feels like one system. */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ---------------------------------------------------------------- light --- */
 :root {
   color-scheme: light;
+
+  --paper: #faf7f2;
+  --paper-raised: #ffffff;
+  --paper-sunken: #f2ece3;
+
+  --ink: #14171f;        /* 16.8:1 on paper */
+  --ink-soft: #3d434f;   /*  9.4:1 */
+  --ink-muted: #5f6672;  /*  5.4:1 */
+  --ink-faint: #6b7280;  /*  4.5:1 — timestamps are 11px normal text */
+
+  /* White body text sits at 4.85:1 on the fill, 5.94:1 on the hover. */
+  --vermilion: #cf3d18;
+  --vermilion-hover: #b8340f;
+  --vermilion-accent: #cf3d18; /* 4.53:1 as text on paper */
+  --vermilion-soft: #fdeae4;
+  --vermilion-line: #f3cabd;
+
+  --teal: #0d7f74;
+  --teal-soft: #d8f0ec;
+  --amber: #9a4a08;
+  --amber-soft: #fdf0d5;
+
+  --line: #e5ded3;
+  --line-strong: #d4cabb;
+}
+
+/* ----------------------------------------------------------------- dark --- */
+/*
+ * Applied both by an explicit choice (`data-theme="dark"`) and by system preference when
+ * the user has not chosen — the `:not([data-theme="light"])` guard is what stops the
+ * system preference overriding a deliberate switch to light.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --paper: #151821;
+  --paper-raised: #1c2029;
+  --paper-sunken: #10131a;
+
+  --ink: #f3f0ea;        /* 15.6:1 on surface */
+  --ink-soft: #d3d7de;   /* 12.3:1 */
+  --ink-muted: #a8aeba;  /*  8.0:1 */
+  --ink-faint: #949ba7;  /*  6.3:1 */
+
+  /*
+   * The fill stays the same deep vermilion in both themes: the brighter oranges that look
+   * tempting on a dark ground drop white text to 3.4–3.7:1. The brighter tone is used only
+   * where the accent is text, never where it carries text.
+   */
+  --vermilion: #cf3d18;
+  --vermilion-hover: #b8340f;
+  --vermilion-accent: #ff6b45; /* 6.3:1 as text on surface */
+  --vermilion-soft: #2e1a15;
+  --vermilion-line: #5c2a1c;
+
+  --teal: #35c4b1;
+  --teal-soft: #14312e;
+  --amber: #f0c485;
+  --amber-soft: #2c2318;
+
+  --line: #2d323e;
+  --line-strong: #3d4453;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --paper: #151821;
+    --paper-raised: #1c2029;
+    --paper-sunken: #10131a;
+
+    --ink: #f3f0ea;
+    --ink-soft: #d3d7de;
+    --ink-muted: #a8aeba;
+    --ink-faint: #949ba7;
+
+    --vermilion: #cf3d18;
+    --vermilion-hover: #b8340f;
+    --vermilion-accent: #ff6b45;
+    --vermilion-soft: #2e1a15;
+    --vermilion-line: #5c2a1c;
+
+    --teal: #35c4b1;
+    --teal-soft: #14312e;
+    --amber: #f0c485;
+    --amber-soft: #2c2318;
+
+    --line: #2d323e;
+    --line-strong: #3d4453;
+  }
 }
 
 html,
@@ -61,8 +168,8 @@ body {
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -70,7 +177,7 @@ body {
 
 /* Focus: one visible, high-contrast ring everywhere. Never removed. */
 :focus-visible {
-  outline: 2px solid var(--color-vermilion);
+  outline: 2px solid var(--vermilion-accent);
   outline-offset: 2px;
   border-radius: 3px;
 }
@@ -111,9 +218,9 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--color-paper-sunken) 25%,
-    #e9e2d7 37%,
-    var(--color-paper-sunken) 63%
+    var(--paper-sunken) 25%,
+    color-mix(in srgb, var(--paper-sunken) 70%, var(--ink) 8%) 37%,
+    var(--paper-sunken) 63%
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
@@ -135,12 +242,12 @@ body {
 /* Scrollbars: present but quiet. */
 .scroll-quiet {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-line-strong) transparent;
+  scrollbar-color: var(--line-strong) transparent;
 }
 .scroll-quiet::-webkit-scrollbar { width: 10px; }
 .scroll-quiet::-webkit-scrollbar-track { background: transparent; }
 .scroll-quiet::-webkit-scrollbar-thumb {
-  background-color: var(--color-line-strong);
+  background-color: var(--line-strong);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
@@ -162,5 +269,5 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .skeleton { animation: none; background: var(--color-paper-sunken); }
+  .skeleton { animation: none; background: var(--paper-sunken); }
 }
