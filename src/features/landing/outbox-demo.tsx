@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cx, isSendableText } from '@/lib/utils';
+import { formatTime } from '@/lib/utils/time';
 
 /**
  * The landing page's original interaction: a working model of the offline outbox.
@@ -24,8 +25,9 @@ type DemoMessage = {
   at: string;
 };
 
-const clock = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
-const now = () => clock.format(new Date());
+// The same pinned formatter the app uses, so a message you send here cannot come out in a
+// different clock format from the seeded ones sitting directly above it.
+const now = () => formatTime(Date.now());
 
 const SCRIPTED_REPLIES = [
   'Ha — nice. Did that actually go through?',
@@ -34,10 +36,19 @@ const SCRIPTED_REPLIES = [
   'Neat.',
 ];
 
+/*
+ * Seven messages rather than three. The thread is bottom-anchored, so a short seed left
+ * roughly 230px of empty panel above the first bubble on desktop and the demo read as
+ * something that had failed to load rather than as a conversation in progress.
+ */
 const SEED: DemoMessage[] = [
-  { id: 's1', text: 'Are you on the train yet?', own: false, status: 'sent', at: '09:12' },
-  { id: 's2', text: 'Just got on. Signal is already terrible', own: true, status: 'sent', at: '09:12' },
-  { id: 's3', text: 'Classic. Try me when you hit the tunnel', own: false, status: 'sent', at: '09:13' },
+  { id: 's1', text: 'Are you heading in today?', own: false, status: 'sent', at: '09:08' },
+  { id: 's2', text: 'Yeah, on the 09:15. Should be at the office by ten', own: true, status: 'sent', at: '09:09' },
+  { id: 's3', text: 'Perfect — I will grab you a coffee', own: false, status: 'sent', at: '09:10' },
+  { id: 's4', text: 'Are you on the train yet?', own: false, status: 'sent', at: '09:12' },
+  { id: 's5', text: 'Just got on. Signal is already terrible', own: true, status: 'sent', at: '09:12' },
+  { id: 's6', text: 'Classic. Try me when you hit the tunnel', own: false, status: 'sent', at: '09:13' },
+  { id: 's7', text: 'Will do. Going under in a minute', own: true, status: 'sent', at: '09:13' },
 ];
 
 export function OutboxDemo() {
@@ -193,23 +204,38 @@ export function OutboxDemo() {
                 className={cx(
                   "animate-pop-in px-3 py-[7px] text-sm leading-[1.45] break-words after:block after:clear-both after:content-['']",
                   'shadow-[0_1px_1px_rgb(20_23_31_/_5%)]',
-                  m.own
+                  m.own && m.status !== 'queued'
                     ? 'bubble-out bg-vermilion text-white'
-                    : 'bubble-in border border-line bg-paper-raised text-ink',
-                  m.status !== 'sent' && 'opacity-80',
+                    : null,
+                  !m.own ? 'bubble-in border border-line bg-paper-raised text-ink' : null,
+                  // Queued must not read as delivered — see the app's message list.
+                  m.own && m.status === 'queued' &&
+                    'bubble-out border border-dashed border-amber/60 bg-amber-soft text-ink shadow-none',
+                  m.status === 'sending' && 'opacity-80',
                 )}
               >
                 <span className="whitespace-pre-wrap">{m.text}</span>
                 <span
                   className={cx(
-                    'float-right mt-[7px] ml-2.5 flex items-center gap-1 text-[10px] leading-none tabular-nums',
-                    m.own ? 'text-white/90' : 'text-ink-faint',
+                    'mt-[7px] flex items-center gap-1 text-[11px] leading-none tabular-nums',
+                    'justify-end max-sm:mt-1.5 sm:float-right sm:ml-2.5',
+                    m.own && m.status === 'queued'
+                      ? 'text-amber'
+                      : m.own
+                        ? 'text-white/90'
+                        : 'text-ink-faint',
                   )}
                 >
                   {m.at}
                   {m.own && m.status === 'sent' && (
                     <svg viewBox="0 0 16 16" className="size-3" fill="none" stroke="currentColor" strokeWidth="2.25" aria-hidden="true">
                       <path d="M2.5 8.5l3.5 3.5 7.5-8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  {m.own && m.status === 'queued' && (
+                    <svg viewBox="0 0 16 16" className="size-3" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="8" cy="8" r="6" strokeDasharray="2.4 2.2" />
+                      <path d="M8 4.8V8l2.2 1.3" strokeLinecap="round" />
                     </svg>
                   )}
                 </span>
@@ -235,7 +261,7 @@ export function OutboxDemo() {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={online ? 'Type a message…' : 'Still typing? Go ahead — it will queue'}
-          className="min-w-0 flex-1 rounded-xl border border-line-strong bg-paper px-3.5 py-2.5 text-sm placeholder:text-ink-faint"
+          className="min-w-0 flex-1 rounded-xl border border-line-strong bg-paper px-3.5 py-2.5 text-base placeholder:text-ink-faint"
         />
         <button
           type="submit"

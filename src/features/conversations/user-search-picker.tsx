@@ -86,7 +86,7 @@ export function UserSearchPicker({
               <button
                 type="button"
                 onClick={() => toggle(u)}
-                className="flex items-center gap-1.5 rounded-full bg-vermilion-soft py-1 pr-2 pl-2.5 text-xs font-medium text-vermilion transition-colors hover:bg-vermilion/15"
+                className="flex items-center gap-1.5 rounded-full bg-vermilion-soft py-1 pr-2 pl-2.5 text-xs font-medium text-vermilion-on-soft transition-colors hover:bg-vermilion/15"
               >
                 {u.name}
                 <span aria-hidden="true">×</span>

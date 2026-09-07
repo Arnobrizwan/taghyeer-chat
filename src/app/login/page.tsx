@@ -22,7 +22,11 @@ export default function LoginPage() {
           so the page carries nothing but that task — the body ground is already paper,
           so nothing here needs to paint its own.
         */}
-        <div className="relative flex flex-1 items-center justify-center px-5 py-12 sm:px-10">
+        <div
+          id="main-content"
+          tabIndex={-1}
+          className="relative flex flex-1 items-center justify-center px-5 py-12 sm:px-10"
+        >
           <ThemeToggle className="absolute top-6 right-6" />
 
           <div className="w-full max-w-sm">
@@ -34,7 +38,13 @@ export default function LoginPage() {
               Relay
             </Link>
 
-            <h1 className="font-display text-[42px] leading-[1.05] text-ink">Welcome back</h1>
+            {/*
+              Not "Welcome back": this same form signs up first-time visitors, and greeting
+              them as returning contradicted the sentence immediately underneath it.
+            */}
+            <h1 className="font-display text-[42px] leading-[1.05] text-ink">
+              Sign in to Relay
+            </h1>
             <p className="mt-3 mb-9 text-[15px] leading-relaxed text-ink-muted">
               Enter your number to sign in. If it&apos;s new here, we&apos;ll create your
               account automatically.

@@ -1,10 +1,23 @@
-const time = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+/*
+ * One clock format for the whole product, pinned rather than inherited.
+ *
+ * `undefined` locale meant the seeded landing-page thread rendered 24-hour ("09:12") while
+ * a message you sent yourself rendered 12-hour ("3:25 PM") on the same screen, because the
+ * seeds are literals and only the live ones went through Intl. An explicit locale plus
+ * `hourCycle` removes the split: every timestamp in the app and the demo is now zero-padded
+ * 24-hour, which is also the format that stays the same width as it ticks over.
+ */
+export const TIME_FORMAT = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
 const weekday = new Intl.DateTimeFormat(undefined, { weekday: 'long' });
 const fullDate = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
 const shortDate = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
 
 export function formatTime(ts: number): string {
-  return time.format(ts);
+  return TIME_FORMAT.format(ts);
 }
 
 function startOfDay(d: Date): number {

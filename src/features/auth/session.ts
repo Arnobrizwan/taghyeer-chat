@@ -13,6 +13,17 @@ import { isTokenUsable } from '@/lib/jwt';
 
 const TOKEN_KEY = 'taghyeer-chat:token:v1';
 const USER_KEY = 'taghyeer-chat:user:v1';
+/*
+ * Deliberately *not* cleared on sign-out.
+ *
+ * `POST /auth/login` takes phone and name together and has no "does this number exist"
+ * probe, so the form cannot ask for the name only when it is genuinely new. What it can do
+ * is stop asking the same person to retype it: this survives sign-out so a returning user
+ * on the same device finds the field already filled. It holds a display name the user
+ * chose for themselves — nothing secret, and nothing that identifies them if the token is
+ * gone.
+ */
+const LAST_NAME_KEY = 'taghyeer-chat:last-name:v1';
 
 export type SessionStatus = 'loading' | 'authenticated' | 'anonymous';
 
@@ -57,6 +68,7 @@ export const useSession = create<SessionState>((set) => ({
   signIn: (token, user) => {
     write(TOKEN_KEY, token);
     write(USER_KEY, user);
+    write(LAST_NAME_KEY, user.name);
     set({ token, user, status: 'authenticated', expired: false });
   },
 
@@ -85,3 +97,8 @@ export const useSession = create<SessionState>((set) => ({
 }));
 
 export const sessionToken = () => useSession.getState().token;
+
+/** The display name last signed in with on this device, so the form can prefill it. */
+export function lastUsedName(): string {
+  return read<string>(LAST_NAME_KEY) ?? '';
+}

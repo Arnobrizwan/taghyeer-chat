@@ -99,7 +99,8 @@ export function Composer({
             }
           }}
           className={cx(
-            'w-full resize-none rounded-2xl border bg-paper px-4 py-2.5 text-[15px] leading-relaxed',
+            // 16px: below that, focusing the composer makes iOS Safari zoom the whole thread.
+            'w-full resize-none rounded-2xl border bg-paper px-4 py-2.5 text-base leading-relaxed',
             'transition-colors duration-150 placeholder:text-ink-faint focus:outline-none',
             overLimit
               ? 'border-vermilion'

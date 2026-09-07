@@ -19,7 +19,10 @@ export function Reveal({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(false);
+  // Browsers without IntersectionObserver never get a hidden state to begin with.
+  const [shown, setShown] = useState(
+    () => typeof IntersectionObserver === 'undefined',
+  );
 
   /*
    * No reduced-motion branch here on purpose: the global stylesheet collapses transition
@@ -28,7 +31,18 @@ export function Reveal({
    */
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    /*
+     * Anything already on screen at mount is revealed without waiting for the observer to
+     * fire — that is what a deep link to an anchor lands on, and waiting a frame for it
+     * shows a flash of empty ground.
+     */
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setShown(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -40,7 +54,19 @@ export function Reveal({
       { threshold: 0.15, rootMargin: '0px 0px -40px 0px' },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+
+    /*
+     * A backstop, because the failure mode here is the worst one available: content that
+     * starts at `opacity: 0` and never gets its event is a blank page, not a missing
+     * animation. Three seconds is long past any legitimate reveal, and everything this
+     * fires for is below the fold, so nobody watches it happen.
+     */
+    const failsafe = window.setTimeout(() => setShown(true), 3_000);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(failsafe);
+    };
   }, []);
 
   return (

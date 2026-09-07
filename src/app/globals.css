@@ -40,6 +40,7 @@
   --color-vermilion-bright: var(--vermilion-hover);
   --color-vermilion-accent: var(--vermilion-accent);
   --color-vermilion-soft: var(--vermilion-soft);
+  --color-vermilion-on-soft: var(--vermilion-on-soft);
   --color-vermilion-line: var(--vermilion-line);
 
   --color-teal: var(--teal);
@@ -80,9 +81,15 @@
   --vermilion-hover: #b8340f;
   --vermilion-accent: #cf3d18; /* 4.53:1 as text on paper */
   --vermilion-soft: #fdeae4;
+  /*
+   * Text sitting *on* `vermilion-soft`. The accent itself only reaches 4.17:1 there, which
+   * fails AA at the sizes it is used at (11px chips, 10px avatar initials); this is the
+   * same hue carried down to 5.8:1 against that tint.
+   */
+  --vermilion-on-soft: #a82f10;
   --vermilion-line: #f3cabd;
 
-  --teal: #0d7f74;
+  --teal: #0a6f66; /* 5.1:1 on teal-soft — #0d7f74 was 4.09:1 and failed AA */
   --teal-soft: #d8f0ec;
   --amber: #9a4a08;
   --amber-soft: #fdf0d5;
@@ -118,6 +125,7 @@
   --vermilion-hover: #b8340f;
   --vermilion-accent: #ff6b45; /* 6.3:1 as text on surface */
   --vermilion-soft: #2e1a15;
+  --vermilion-on-soft: #ff8a68; /* 7.2:1 on the dark soft tint */
   --vermilion-line: #5c2a1c;
 
   --teal: #35c4b1;
@@ -146,6 +154,7 @@
     --vermilion-hover: #b8340f;
     --vermilion-accent: #ff6b45;
     --vermilion-soft: #2e1a15;
+    --vermilion-on-soft: #ff8a68;
     --vermilion-line: #5c2a1c;
 
     --teal: #35c4b1;

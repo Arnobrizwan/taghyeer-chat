@@ -103,21 +103,27 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
         aria-invalid={error ? true : undefined}
         aria-describedby={cx(error ? errorId : null, hint ? hintId : null) || undefined}
         className={cx(
-          'w-full rounded-lg border bg-paper-raised px-3.5 py-2.5 text-[15px] text-ink',
+          // 16px, not 15: iOS Safari zooms the whole page when a font-size under 16px is focused.
+          'w-full rounded-lg border bg-paper-raised px-3.5 py-2.5 text-base text-ink',
           'placeholder:text-ink-faint transition-colors duration-150',
           error ? 'border-vermilion' : 'border-line-strong focus:border-ink-muted',
           className,
         )}
         {...rest}
       />
-      {hint && !error && (
-        <p id={hintId} className="text-xs text-ink-muted">
-          {hint}
-        </p>
-      )}
+      {/*
+         The hint stays put when validation fires. It used to be swapped out for the error,
+         which removed the explanation ("no password — your number is your account") at
+         exactly the moment someone had got the field wrong and most needed it.
+       */}
       {error && (
         <p id={errorId} role="alert" className="text-xs font-medium text-vermilion">
           {error}
+        </p>
+      )}
+      {hint && (
+        <p id={hintId} className="text-xs text-ink-muted">
+          {hint}
         </p>
       )}
     </div>
@@ -128,7 +134,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
 
 /** Deterministic tint from the user id, so a person looks the same everywhere. */
 const AVATAR_TINTS = [
-  'bg-vermilion-soft text-vermilion',
+  'bg-vermilion-soft text-vermilion-on-soft',
   'bg-teal-soft text-teal',
   'bg-amber-soft text-amber',
   'bg-[#e6e9f5] text-[#3d4a7a]',

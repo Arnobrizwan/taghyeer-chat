@@ -6,7 +6,7 @@ import { login } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/errors';
 import { Button, Field } from '@/components/ui';
 import { normalisePhone, validateName, validatePhone } from '@/lib/utils';
-import { useSession } from './session';
+import { lastUsedName, useSession } from './session';
 
 export function LoginForm() {
   const router = useRouter();
@@ -15,7 +15,14 @@ export function LoginForm() {
   const expired = useSession((s) => s.expired);
 
   const [phone, setPhone] = useState('');
-  const [name, setName] = useState('');
+  /*
+   * Prefilled from the last sign-in on this device. The API needs a name on every login —
+   * there is no endpoint that answers "is this number already registered?" — so the field
+   * cannot be made conditional without an extra round trip that would tell an attacker
+   * which numbers exist. Remembering it locally gets the same result for the returning
+   * user: nothing to retype.
+   */
+  const [name, setName] = useState(lastUsedName);
   const [errors, setErrors] = useState<{ phone?: string; name?: string }>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -84,8 +91,8 @@ export function LoginForm() {
         type="tel"
         inputMode="tel"
         autoComplete="tel"
-        placeholder="+8801700000000"
-        hint="No password — your number is your account. A new number signs you up."
+        placeholder="e.g. +8801700000000"
+        hint="Include your country code. No password — your number is your account, and a number we haven't seen signs you up."
         value={phone}
         error={touched.phone ? errors.phone : null}
         onChange={(e) => {
@@ -102,6 +109,7 @@ export function LoginForm() {
         label="Display name"
         autoComplete="name"
         placeholder="Ada Lovelace"
+        hint="How other people see you. Remembered on this device, so you only type it once."
         value={name}
         error={touched.name ? errors.name : null}
         onChange={(e) => {

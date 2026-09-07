@@ -65,6 +65,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         if (!cancelled) setUser(fresh);
       })
       .catch((err: unknown) => {
+        /*
+         * The `cancelled` guard matters as much here as on the success path. `/auth/me`
+         * against a cold API can take most of a minute; without this, navigating away
+         * mid-flight and then having it fail still ran `signOut('expired')` against the
+         * shared session store, so a visitor who had already wandered back to the
+         * marketing page was signed out by a screen they had left.
+         */
+        if (cancelled) return;
         if (err instanceof ApiError && err.isAuthFailure) signOut('expired');
       });
     return () => {
@@ -171,7 +179,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* Thread */}
-        <main className={cx('min-h-0 flex-1', showListOnMobile ? 'hidden md:flex' : 'flex')}>
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className={cx('min-h-0 flex-1', showListOnMobile ? 'hidden md:flex' : 'flex')}
+        >
           {children}
         </main>
       </div>

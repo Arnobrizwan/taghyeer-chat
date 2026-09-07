@@ -34,7 +34,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {/*
+          Visible only once focused, which is the whole point: a keyboard user should not
+          have to tab through the nav on every page to reach the content. Every route
+          renders a `#main-content` anchor for it to land on.
+        */}
+        <a
+          href="#main-content"
+          className="sr-only rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-paper focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-[100]"
+        >
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

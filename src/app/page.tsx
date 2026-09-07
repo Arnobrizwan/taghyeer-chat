@@ -4,12 +4,25 @@ import { PrewarmApi, WarmLink } from '@/features/landing/warm-link';
 import { ThemeToggle } from '@/features/theme';
 import { Reveal } from '@/features/landing/reveal';
 import { Logo } from '@/components/ui/logo';
+import { ProductPreview } from '@/features/landing/product-preview';
 
 export const metadata: Metadata = {
   title: 'Relay — chat that survives a bad connection',
   description:
     'Direct and group messaging with an offline outbox. Messages you send on a dropped connection queue locally and flush in order when you reconnect — nothing is silently lost.',
 };
+
+const REPO = 'https://github.com/Arnobrizwan/taghyeer-chat';
+
+/**
+ * A take-home is read as much as it is used, so the reading material is linked rather than
+ * left for someone to go hunting through the repo for.
+ */
+const FOOTER_LINKS = [
+  { label: 'Source', href: REPO },
+  { label: 'Architecture write-up', href: `${REPO}#part-3--write-up` },
+  { label: 'API findings', href: `${REPO}/blob/main/docs/API.md` },
+];
 
 const CAPABILITIES = [
   {
@@ -61,23 +74,30 @@ export default function LandingPage() {
       </header>
 
       {/* --------------------------------------------------------------- Hero */}
-      <section className="mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-8 sm:pt-16">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
-          <div>
-            <Reveal>
+      <section id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-5 pt-10 pb-16 sm:px-8 sm:pt-16">
+        {/*
+          Below `lg` this is a flex column whose order is rearranged, not the grid's natural
+          source order: the demo is the single most convincing thing on the page and it was
+          sitting ~1,500px down on a phone, below the paragraph and the buttons. It now
+          comes straight after the headline. `contents` lets the copy's two halves take part
+          in that ordering on small screens and collapse back into one grid cell at `lg`.
+        */}
+        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
+          <div className="contents lg:block">
+            <Reveal className="order-1 lg:order-none">
               <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1 text-xs font-medium tracking-wide text-ink-muted uppercase">
                 <span className="size-1.5 rounded-full bg-vermilion-bright" />
                 Real-time messaging
               </p>
             </Reveal>
 
-            <Reveal delay={60}>
+            <Reveal delay={60} className="order-1 lg:order-none">
               {/*
                 Broken by hand rather than left to the browser: "…on a / dead connection"
                 stranded a two-word orphan, and `text-balance` can't fix a break inside a
                 styled span. Each line is a clause, so the emphasis lands where it reads.
               */}
-              <h1 className="font-display max-w-[13ch] text-[clamp(2.6rem,5.9vw,4.15rem)] leading-[1.03] tracking-tight sm:max-w-none">
+              <h1 className="font-display max-w-[16ch] text-[clamp(2.1rem,5.9vw,4.15rem)] leading-[1.03] tracking-tight sm:max-w-none">
                 <span className="block text-balance">Every message you send.</span>
                 {/*
                   Every line is balanced, not just the first. The hand-broken clauses hold
@@ -94,16 +114,16 @@ export default function LandingPage() {
               </h1>
             </Reveal>
 
-            <Reveal delay={120}>
-              <p className="mt-6 max-w-md text-[17px] leading-relaxed text-ink-muted">
+            <Reveal delay={120} className="order-3 lg:order-none">
+              <p className="max-w-md text-[17px] leading-relaxed text-ink-muted lg:mt-6">
                 Most chat apps quietly drop what you typed while the signal was gone. Relay
                 queues it, keeps the order, and sends it the moment you&apos;re back — so
                 the thread reads the way you actually wrote it.
               </p>
             </Reveal>
 
-            <Reveal delay={180}>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
+            <Reveal delay={180} className="order-4 lg:order-none">
+              <div className="flex flex-wrap items-center gap-3 lg:mt-9">
                 <WarmLink
                   href="/app"
                   className="group inline-flex items-center gap-2 rounded-xl bg-vermilion px-6 py-3.5 text-[15px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-vermilion-bright"
@@ -121,7 +141,7 @@ export default function LandingPage() {
           </div>
 
           {/* The product visual is the working demo itself. */}
-          <Reveal delay={220}>
+          <Reveal delay={220} className="order-2 lg:order-none">
             <div className="relative">
               <div
                 aria-hidden="true"
@@ -155,7 +175,25 @@ export default function LandingPage() {
             </p>
           </Reveal>
 
-          <div className="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2">
+          {/*
+            The product, not another paragraph about it. Sections 2 and 3 were the same
+            recipe — bold label, hairline rule, grey text — so the page went flat straight
+            after the hero. This gives section 2 its own register and, more importantly,
+            shows the group thread, the sidebar, the queued bubble and the pill, all of
+            which were previously only described.
+          */}
+          <Reveal delay={140}>
+            <div className="mt-12">
+              <ProductPreview />
+              {/* `ink-muted`: `ink-faint` is only 4.12:1 on the sunken ground, same as the footer was. */}
+              <p className="mt-3 text-center text-xs text-ink-muted">
+                The app itself: group thread, sidebar, a message still waiting to send, and
+                the pill that tells you about new arrivals instead of scrolling you to them.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="mt-16 grid gap-x-10 gap-y-10 sm:grid-cols-2">
             {CAPABILITIES.map((c, i) => (
               <Reveal key={c.title} delay={i * 70}>
                 <div className="border-t border-line pt-5">
@@ -228,13 +266,34 @@ export default function LandingPage() {
           </Reveal>
         </div>
 
+        {/*
+          `ink-muted`, not `ink-faint`: at 4.12:1 on this ground the old colour failed AA for
+          normal text. `ink-muted` clears it at 4.9:1.
+        */}
         <footer className="border-t border-line">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-7 text-sm text-ink-faint sm:flex-row sm:px-8">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-7 text-sm text-ink-muted sm:flex-row sm:justify-between sm:px-8">
             <span className="flex items-center gap-2">
               <Logo size={20} />
               Relay
             </span>
-            <span>Built by Arnob as a take-home for Taghyeer Technologies.</span>
+
+            <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              {FOOTER_LINKS.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
+                >
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+
+            <span className="text-center sm:text-right">
+              Built by Arnob as a take-home for Taghyeer Technologies.
+            </span>
           </div>
         </footer>
       </section>

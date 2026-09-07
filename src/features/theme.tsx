@@ -116,7 +116,13 @@ export function ThemeToggle({ className }: { className?: string }) {
             title={o.label}
             onClick={() => setTheme(o.value)}
             className={cx(
+              /*
+               * 24px is a fine mouse target and a poor finger one. `pointer-coarse` grows
+               * each control to 44px on touch devices without inflating the pill in a
+               * desktop nav, where it would dominate the header.
+               */
               'flex size-6 items-center justify-center rounded-full transition-colors duration-150',
+              'pointer-coarse:size-11',
               active
                 ? 'bg-vermilion text-white'
                 : 'text-current opacity-55 hover:opacity-100',

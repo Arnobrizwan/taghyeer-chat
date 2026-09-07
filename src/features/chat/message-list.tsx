@@ -273,7 +273,9 @@ function MessageRow({
   const own = message.senderId === selfId;
   const name = senderName(conversation, message.senderId, selfId);
   const failed = message.status === 'failed';
-  const pending = message.status === 'queued' || message.status === 'sending';
+
+  const queued = message.status === 'queued';
+  const sending = message.status === 'sending';
 
   /*
    * The timestamp sits inside the bubble rather than on its own row underneath. A row of
@@ -284,6 +286,10 @@ function MessageRow({
    * It is floated rather than absolutely positioned over a fixed-width spacer: the spacer
    * has to guess the rendered width of the time, and when it guesses low the text runs
    * underneath it. A float sizes itself and the text simply wraps around it.
+   *
+   * Below `sm` the float is dropped and the meta takes its own right-aligned line. On a
+   * narrow bubble a short last line left the time stranded at the far edge with a visible
+   * gap punched through the middle of the sentence; there isn't room for both on one line.
    */
 
   return (
@@ -314,10 +320,18 @@ function MessageRow({
             own
               ? tail ? 'bubble-out' : 'bubble-mid-out'
               : tail ? 'bubble-in' : 'bubble-mid-in',
-            own
+            /*
+             * A queued message must not be able to pass for a delivered one — that is the
+             * single claim this whole product makes. It drops the solid accent fill for a
+             * dashed amber outline, which is the palette's own "queued / waking" colour, so
+             * an undelivered message reads as visibly in-waiting rather than as sent.
+             */
+            own && !queued && !failed
               ? 'bg-vermilion text-white'
-              : 'border border-line bg-paper-raised text-ink',
-            pending && 'opacity-75',
+              : null,
+            !own && !failed ? 'border border-line bg-paper-raised text-ink' : null,
+            own && queued && 'border border-dashed border-amber/60 bg-amber-soft text-ink shadow-none',
+            sending && 'opacity-75',
             failed && 'border-vermilion-line bg-vermilion-soft text-ink shadow-none',
           )}
         >
@@ -325,8 +339,13 @@ function MessageRow({
 
           <span
             className={cx(
-              'float-right mt-[7px] ml-2.5 flex items-center gap-1 text-[10px] leading-none tabular-nums',
-              own && !failed ? 'text-white/90' : 'text-ink-faint',
+              'mt-[7px] flex items-center gap-1 text-[11px] leading-none tabular-nums',
+              'justify-end max-sm:mt-1.5 sm:float-right sm:ml-2.5',
+              own && queued
+                ? 'text-amber'
+                : own && !failed
+                  ? 'text-white/90'
+                  : 'text-ink-faint',
             )}
           >
             <time dateTime={new Date(message.createdAt).toISOString()}>
@@ -378,7 +397,23 @@ function DeliveryState({ status }: { status: Message['status'] }) {
       </>
     );
   }
-  // Queued and failed are spelled out beneath the bubble instead of encoded in a glyph.
+  if (status === 'queued') {
+    /*
+     * A clock, not a blank. Queued used to render no glyph at all, which meant the only
+     * thing separating "waiting" from "delivered" was the absence of a tick — a difference
+     * nobody notices. It is also spelled out beneath the bubble.
+     */
+    return (
+      <>
+        <svg viewBox="0 0 16 16" className="size-3" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <circle cx="8" cy="8" r="6" strokeDasharray="2.4 2.2" />
+          <path d="M8 4.8V8l2.2 1.3" strokeLinecap="round" />
+        </svg>
+        <span className="sr-only">Waiting to send</span>
+      </>
+    );
+  }
+  // Failed is spelled out beneath the bubble instead of encoded in a glyph.
   return null;
 }
 
