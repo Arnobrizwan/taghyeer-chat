@@ -32,7 +32,14 @@ const CAPABILITIES = [
 
 export default function LandingPage() {
   return (
-    <div className="bg-paper text-ink">
+    /*
+     * `overflow-x-clip`, not `overflow-x-hidden`: the hero's decorative glow is a
+     * `-inset-6` blur that deliberately bleeds past its container, and below ~420px that
+     * bleed reached past the viewport and gave the page a few pixels of sideways scroll.
+     * `clip` removes the overflow without creating a scroll container — `hidden` would
+     * force `overflow-y` to `auto` and move the page's scrolling inside this div.
+     */
+    <div className="overflow-x-clip bg-paper text-ink">
       {/* Begins waking the sleeping API while the visitor reads. Renders nothing. */}
       <PrewarmApi />
 
@@ -72,10 +79,18 @@ export default function LandingPage() {
               */}
               <h1 className="font-display max-w-[13ch] text-[clamp(2.6rem,5.9vw,4.15rem)] leading-[1.03] tracking-tight sm:max-w-none">
                 <span className="block text-balance">Every message you send.</span>
-                <span className="text-vermilion-accent block italic">
+                {/*
+                  Every line is balanced, not just the first. The hand-broken clauses hold
+                  their shape from `sm` up, but under the 13ch mobile measure each one wraps
+                  again — and left unbalanced the second stranded "sent" on a line of its
+                  own, which is the orphan these breaks exist to prevent.
+                */}
+                <span className="text-vermilion-accent block text-balance italic">
                   Even the ones you sent
                 </span>
-                <span className="text-vermilion-accent block italic">on a dead connection.</span>
+                <span className="text-vermilion-accent block text-balance italic">
+                  on a dead connection.
+                </span>
               </h1>
             </Reveal>
 
