@@ -48,9 +48,9 @@ export function ConversationList({
   }
 
   return (
-    <ul className="flex flex-col">
+    <ul className="flex flex-col px-2 pb-2">
       {conversations.map((c) => (
-        <li key={c.id}>
+        <li key={c.id} className="overflow-hidden rounded-lg">
           <ConversationRow conversation={c} active={c.id === activeId} selfId={selfId} />
         </li>
       ))}
@@ -82,24 +82,40 @@ function ConversationRow({
       href={`/app/c/${conversation.id}`}
       aria-current={active ? 'page' : undefined}
       className={cx(
-        'flex items-center gap-3 border-b border-line px-4 py-3 transition-colors duration-150',
-        active ? 'bg-vermilion-soft/60' : 'hover:bg-paper-sunken',
+        'relative flex items-center gap-3 px-4 py-2.5 transition-colors duration-150',
+        // A left rule marks the active thread. A background tint alone reads as a hover
+        // state, which is ambiguous when the pointer happens to be resting on a row.
+        active
+          ? 'bg-vermilion-soft before:absolute before:inset-y-1 before:left-0 before:w-[3px] before:rounded-r before:bg-vermilion before:content-[""]'
+          : 'hover:bg-paper-sunken',
       )}
     >
       <Avatar name={title} id={conversation.id} isGroup={group} />
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
         <span className="flex items-baseline justify-between gap-2">
-          <span className="truncate font-medium text-ink">{title}</span>
+          <span
+            className={cx(
+              'truncate text-[15px] leading-tight',
+              active ? 'font-semibold text-ink' : 'font-medium text-ink',
+            )}
+          >
+            {title}
+          </span>
           {last && (
             <time
               dateTime={new Date(last.createdAt).toISOString()}
-              className="shrink-0 text-[11px] text-ink-faint"
+              className="shrink-0 text-[11px] tabular-nums text-ink-faint"
             >
               {formatListTimestamp(last.createdAt)}
             </time>
           )}
         </span>
-        <span className={cx('truncate text-sm', last ? 'text-ink-muted' : 'text-ink-faint italic')}>
+        <span
+          className={cx(
+            'truncate text-[13px] leading-snug',
+            last ? 'text-ink-muted' : 'text-ink-faint italic',
+          )}
+        >
           {preview}
         </span>
       </span>
@@ -115,9 +131,9 @@ function shortName(conversation: Conversation, senderId: string): string {
 
 export function ConversationListSkeleton() {
   return (
-    <ul className="flex flex-col" aria-hidden="true">
+    <ul className="flex flex-col px-2 pt-1" aria-hidden="true">
       {Array.from({ length: 6 }).map((_, i) => (
-        <li key={i} className="flex items-center gap-3 border-b border-line px-4 py-3">
+        <li key={i} className="flex items-center gap-3 px-4 py-2.5">
           <Skeleton className="size-10 rounded-full" />
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <Skeleton className="h-3.5 w-1/3" />

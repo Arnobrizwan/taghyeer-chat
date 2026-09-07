@@ -104,9 +104,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             showListOnMobile ? 'flex' : 'hidden md:flex',
           )}
         >
-          <header className="flex items-center gap-3 border-b border-line px-4 py-3">
+          {/* Both headers are h-16 so the sidebar and thread rules meet exactly. */}
+          <header className="flex h-16 shrink-0 items-center gap-3 border-b border-line px-4">
             <Avatar name={user.name} id={user.id} size="sm" />
-            <div className="flex min-w-0 flex-1 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="truncate text-sm font-semibold text-ink">{user.name}</span>
               <ConnectionIndicator
                 connection={connection}
@@ -126,10 +127,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
           </header>
 
-          <div className="flex items-center justify-between gap-2 px-4 py-3">
-            <h1 className="font-display text-2xl text-ink">Chats</h1>
+          <div className="flex shrink-0 items-center justify-between gap-2 px-4 pt-4 pb-2">
+            <h1 className="font-display text-[26px] leading-none text-ink">Chats</h1>
             <Button size="sm" onClick={() => setNewChatOpen(true)}>
-              <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <path d="M10 4v12M4 10h12" strokeLinecap="round" />
               </svg>
               New
@@ -154,9 +155,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             />
           </nav>
 
-          <footer className="border-t border-line px-4 py-2">
-            <Link href="/" className="text-xs text-ink-faint transition-colors hover:text-ink-muted">
-              ← Back to relay.chat
+          <footer className="shrink-0 border-t border-line px-4 py-3">
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-1.5 text-xs font-medium text-ink-faint transition-colors hover:text-ink"
+            >
+              <svg viewBox="0 0 16 16" className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10 3.5L5.5 8l4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              About Relay
             </Link>
           </footer>
         </aside>

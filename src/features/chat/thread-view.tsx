@@ -59,7 +59,7 @@ export function ThreadView({
 
   return (
     <div className="flex min-h-0 w-full flex-col bg-paper">
-      <header className="flex items-center gap-3 border-b border-line bg-paper-raised px-3 py-2.5 sm:px-4">
+      <header className="flex h-16 shrink-0 items-center gap-3 border-b border-line bg-paper-raised px-3 sm:px-5">
         <Link
           href="/app"
           aria-label="Back to conversations"
@@ -73,7 +73,7 @@ export function ThreadView({
         <Avatar name={title} id={conversation.id} isGroup={group} />
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <h2 className="truncate font-semibold text-ink">{title}</h2>
+          <h2 className="truncate text-[15px] leading-tight font-semibold text-ink">{title}</h2>
           <p className="truncate text-xs text-ink-muted">
             {group
               ? `${conversation.participants.length} ${conversation.participants.length === 1 ? 'member' : 'members'}`
@@ -85,7 +85,7 @@ export function ThreadView({
           <button
             type="button"
             onClick={() => setDetailsOpen(true)}
-            className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:bg-paper-sunken"
+            className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:border-ink-faint hover:bg-paper-sunken"
           >
             Details
           </button>

@@ -52,8 +52,9 @@ export function Composer({
         e.preventDefault();
         submit();
       }}
-      className="flex items-end gap-2 border-t border-line bg-paper-raised px-3 py-3 sm:px-4"
+      className="border-t border-line bg-paper-raised px-3 py-3 sm:px-6"
     >
+      <div className="mx-auto flex w-full max-w-3xl items-end gap-2">
       <div className="flex min-w-0 flex-1 flex-col">
         <label htmlFor="composer" className="sr-only">
           Message
@@ -75,9 +76,11 @@ export function Composer({
             }
           }}
           className={cx(
-            'w-full resize-none rounded-xl border bg-paper px-3.5 py-2.5 text-[15px] leading-relaxed',
-            'placeholder:text-ink-faint focus:outline-none',
-            overLimit ? 'border-vermilion' : 'border-line-strong',
+            'w-full resize-none rounded-2xl border bg-paper px-4 py-2.5 text-[15px] leading-relaxed',
+            'transition-colors duration-150 placeholder:text-ink-faint focus:outline-none',
+            overLimit
+              ? 'border-vermilion'
+              : 'border-line-strong hover:border-ink-faint focus:border-ink-muted',
           )}
         />
         {overLimit && (
@@ -92,16 +95,17 @@ export function Composer({
         disabled={!canSend}
         aria-label="Send message"
         className={cx(
-          'mb-px flex size-10 shrink-0 items-center justify-center rounded-xl transition-all duration-150',
+          'mb-px flex size-11 shrink-0 items-center justify-center rounded-full transition-all duration-150',
           canSend
-            ? 'bg-vermilion text-white hover:bg-vermilion-bright active:translate-y-px'
+            ? 'bg-vermilion text-white shadow-sm hover:bg-vermilion-bright active:translate-y-px'
             : 'cursor-not-allowed bg-paper-sunken text-ink-faint',
         )}
       >
-        <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg viewBox="0 0 24 24" className="size-[18px]" fill="none" stroke="currentColor" strokeWidth="2.2">
           <path d="M4 12l16-8-6 16-2.5-6.5L4 12z" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
+      </div>
     </form>
   );
 }

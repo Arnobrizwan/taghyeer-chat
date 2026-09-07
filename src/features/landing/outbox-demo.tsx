@@ -21,7 +21,11 @@ type DemoMessage = {
   text: string;
   own: boolean;
   status: DemoStatus;
+  at: string;
 };
+
+const clock = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+const now = () => clock.format(new Date());
 
 const SCRIPTED_REPLIES = [
   'Ha — nice. Did that actually go through?',
@@ -31,9 +35,9 @@ const SCRIPTED_REPLIES = [
 ];
 
 const SEED: DemoMessage[] = [
-  { id: 's1', text: 'Are you on the train yet?', own: false, status: 'sent' },
-  { id: 's2', text: 'Just got on. Signal is already terrible', own: true, status: 'sent' },
-  { id: 's3', text: 'Classic. Try me when you hit the tunnel', own: false, status: 'sent' },
+  { id: 's1', text: 'Are you on the train yet?', own: false, status: 'sent', at: '09:12' },
+  { id: 's2', text: 'Just got on. Signal is already terrible', own: true, status: 'sent', at: '09:12' },
+  { id: 's3', text: 'Classic. Try me when you hit the tunnel', own: false, status: 'sent', at: '09:13' },
 ];
 
 export function OutboxDemo() {
@@ -94,7 +98,7 @@ export function OutboxDemo() {
       if (reply) {
         setMessages((cur) => [
           ...cur,
-          { id: `r${Date.now()}`, text: reply, own: false, status: 'sent' },
+          { id: `r${Date.now()}`, text: reply, own: false, status: 'sent', at: now() },
         ]);
       }
     }, queued.length * 420 + 700);
@@ -115,7 +119,7 @@ export function OutboxDemo() {
     const text = draft.trim();
     setDraft('');
 
-    setMessages((prev) => [...prev, { id, text, own: true, status: 'queued' }]);
+    setMessages((prev) => [...prev, { id, text, own: true, status: 'queued', at: now() }]);
 
     if (online) {
       schedule(() => {
@@ -176,26 +180,37 @@ export function OutboxDemo() {
       <div ref={scrollRef} className="scroll-quiet h-72 space-y-2 overflow-y-auto bg-paper px-4 py-4">
         {messages.map((m) => (
           <div key={m.id} className={cx('flex', m.own ? 'justify-end' : 'justify-start')}>
-            <div className={cx('flex max-w-[80%] flex-col', m.own ? 'items-end' : 'items-start')}>
+            <div className={cx('flex max-w-[82%] flex-col', m.own ? 'items-end' : 'items-start')}>
               <div
                 className={cx(
-                  'animate-pop-in px-3.5 py-2 text-sm leading-relaxed break-words',
+                  "animate-pop-in px-3 py-[7px] text-sm leading-[1.45] break-words after:block after:clear-both after:content-['']",
+                  'shadow-[0_1px_1px_rgb(20_23_31_/_5%)]',
                   m.own
                     ? 'bubble-out bg-vermilion text-white'
                     : 'bubble-in border border-line bg-paper-raised text-ink',
-                  m.status !== 'sent' && 'opacity-70',
+                  m.status !== 'sent' && 'opacity-80',
                 )}
               >
-                {m.text}
-              </div>
-              {m.own && (
-                <span className="mt-0.5 px-1 text-[10px] font-medium">
-                  {m.status === 'sent' && <span className="text-teal">Sent</span>}
-                  {m.status === 'sending' && <span className="text-ink-faint">Sending…</span>}
-                  {m.status === 'queued' && (
-                    <span className="text-amber">Queued — waiting for connection</span>
+                <span className="whitespace-pre-wrap">{m.text}</span>
+                <span
+                  className={cx(
+                    'float-right mt-[7px] ml-2.5 flex items-center gap-1 text-[10px] leading-none tabular-nums',
+                    m.own ? 'text-white/90' : 'text-ink-faint',
+                  )}
+                >
+                  {m.at}
+                  {m.own && m.status === 'sent' && (
+                    <svg viewBox="0 0 16 16" className="size-3" fill="none" stroke="currentColor" strokeWidth="2.25" aria-hidden="true">
+                      <path d="M2.5 8.5l3.5 3.5 7.5-8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   )}
                 </span>
+              </div>
+              {m.own && m.status === 'queued' && (
+                <span className="mt-1 px-1 text-[11px] text-amber">Waiting for connection</span>
+              )}
+              {m.own && m.status === 'sending' && (
+                <span className="mt-1 px-1 text-[11px] text-ink-faint">Sending…</span>
               )}
             </div>
           </div>

@@ -290,6 +290,19 @@ landing page a voice, and used sparingly in-app (screen titles, empty states) it
 moments feel considered instead of templated. Inter carries all UI and message text, where
 legibility at 15px matters more than character.
 
+**The chat panel got a second pass**, because the brief says that's where they look
+closest and the first version didn't hold up at desktop width. Three things were wrong.
+Every message carried its timestamp on a row underneath, which added ~18px between each
+pair and stopped consecutive messages grouping — the thread read as a stack of cards
+rather than a conversation; the time now floats inside the bubble, so a run of messages
+sits 3px apart and only the last one gets a tail. The thread ran the full width of the
+window, so the eye had to cross 1400px to pair a message with its timestamp; it's capped
+to a reading measure and centred, with the composer on the same measure. And the accent
+carried white body text at only **4.17:1** — under AA — so it was deepened to `#cf3d18`
+(4.85:1), which also reads less neon across the large filled areas bubbles create. The
+whole ink ramp went up with it: 11px timestamps are normal text, and the conventional
+metadata grey sat at 2.38:1.
+
 **Motion.** One easing curve (`cubic-bezier(0.22, 1, 0.36, 1)`) shared by every transition,
 so movement feels like one system. Motion is only ever used to explain something: messages
 pop in so a new arrival is noticed, the pill slides up because it arrived, sections reveal
@@ -440,8 +453,10 @@ are disabled anywhere in the codebase.
   Firefox, Safari 15.4+), and where it's missing every tab sends as before rather than not
   sending at all — but a `localStorage` lease with a heartbeat would close the gap
   properly.
-- **Accessibility beyond the basics.** ARIA, focus management, keyboard operation and the
-  message log's live region are in place, but I haven't tested with a real screen reader.
+- **Accessibility beyond the basics.** Every colour pair in the palette clears AA for its
+  text size, ARIA and focus management are in place, and the message log has a live region
+  scoped to additions — but I haven't tested with a real screen reader, which is the only
+  way to know whether the live region is actually pleasant rather than merely correct.
 - **`GET /conversations/{id}` on the server side.** Its absence forces the whole list to
   load before a deep-linked thread can render its own header.
 

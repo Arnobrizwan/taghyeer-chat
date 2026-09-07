@@ -59,3 +59,15 @@ Newest at the bottom of each phase. Feeds the Part 3 write-up.
 - **Pre-warm the API on landing-page mount and on CTA intent** — only handling the cold start once it happens — the boot can run while the visitor reads instead of while they wait; the banner stays for the cases this misses.
 - **`warmUp()` is fire-and-forget with a 60s cooldown** — pinging on every hover — six intent events across three CTAs must cost one request, not six, and a warm-up failure is not worth reporting because the real request will report it properly.
 - **Probe scheduled via `requestIdleCallback`** — firing it during mount — waking a server must never compete with first paint.
+
+## Design pass — chat panel refinement
+
+- **Timestamp floated inside the bubble, not on a row beneath it** — a meta row under every message — the row added ~18px between each pair, which defeated run-grouping entirely and made the thread read as a stack of cards rather than a conversation. Floated rather than absolutely positioned over a fixed-width spacer: the spacer has to guess the rendered width of the time, and when it guesses low the text runs underneath it.
+- **Tails only on the last bubble of a run; 3px within a run, 12px between runs** — a uniform gap and a tail on every bubble — consecutive messages from one person should read as one block of speech.
+- **Thread capped at `max-w-3xl` and centred** — full-width bubbles — on a 1440px window the eye has to cross the whole screen to pair a message with its timestamp. The composer is capped to the same measure so the two columns line up.
+- **Accent deepened from `#e0451f` to `#cf3d18`** — keeping the brighter tone — white body text on the original was **4.17:1**, under AA; it is 4.85:1 now. Message bubbles are large filled areas, so the deeper tone also reads less neon.
+- **Whole ink ramp raised so the faintest step still clears 4.5:1** — a conventional light grey for metadata — timestamps are 11px normal text, and `#9ca3af` sat at **2.38:1**. Teal moved from `#0f9488` (3.5:1) to `#0d7f74` so "Connected" is legible as text rather than decoration.
+- **Active conversation marked with a left rule, not only a tint** — background tint alone — a tint is indistinguishable from hover when the pointer happens to be resting on a row.
+- **Both headers pinned to `h-16`** — intrinsic heights — the sidebar and thread rules have to meet exactly across the split, and they did not.
+- **Login rebuilt as a split screen with the landing page's ink panel** — a form centred on an empty page — signing in should not feel like arriving at a different product; the panel also restates the one thing that makes this app different.
+- **The landing demo's bubbles rebuilt to match the app exactly** — leaving the demo on its original styling — the landing page is showing the product, and a reviewer clicking through would land somewhere that looks unrelated.

@@ -179,10 +179,15 @@ export function MessageList({
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="scroll-quiet h-full overflow-y-auto overscroll-contain px-4 py-4 sm:px-6"
+        className="scroll-quiet h-full overflow-y-auto overscroll-contain px-3 py-5 sm:px-6"
       >
+        {/*
+          A chat column that fills a 1400px window is unreadable — the eye has to travel
+          the full width to pair a message with its timestamp. Capped and centred.
+        */}
+        <div className="mx-auto w-full max-w-3xl">
         {hasMore && (
-          <div className="flex justify-center pb-4">
+          <div className="flex justify-center pb-5">
             {loadingOlder ? (
               <span className="flex items-center gap-2 text-xs text-ink-muted">
                 <Spinner className="size-3.5" /> Loading earlier messages…
@@ -215,8 +220,9 @@ export function MessageList({
         >
           {rows.map((row) =>
             row.kind === 'day' ? (
-              <li key={row.key} className="flex justify-center py-3">
-                <span className="rounded-full bg-paper-sunken px-3 py-1 text-[11px] font-medium tracking-wide text-ink-muted uppercase">
+              <li key={row.key} className="relative flex justify-center py-4">
+                <span aria-hidden="true" className="absolute inset-x-0 top-1/2 h-px bg-line" />
+                <span className="relative rounded-full border border-line bg-paper px-3 py-1 text-[11px] font-semibold tracking-wide text-ink-muted uppercase">
                   {formatDaySeparator(row.ts)}
                 </span>
               </li>
@@ -234,6 +240,7 @@ export function MessageList({
             ),
           )}
         </ol>
+        </div>
       </div>
 
       <NewMessagesPill count={unread} onClick={scrollToBottom} />
@@ -261,50 +268,84 @@ function MessageRow({
   const own = message.senderId === selfId;
   const name = senderName(conversation, message.senderId, selfId);
   const failed = message.status === 'failed';
-  const queued = message.status === 'queued';
-  const sending = message.status === 'sending';
+  const pending = message.status === 'queued' || message.status === 'sending';
+
+  /*
+   * The timestamp sits inside the bubble rather than on its own row underneath. A row of
+   * its own — the obvious first approach — added ~18px between every pair of messages,
+   * which stopped consecutive messages grouping and left the thread looking like a list of
+   * cards rather than a conversation.
+   *
+   * It is floated rather than absolutely positioned over a fixed-width spacer: the spacer
+   * has to guess the rendered width of the time, and when it guesses low the text runs
+   * underneath it. A float sizes itself and the text simply wraps around it.
+   */
 
   return (
-    <li className={cx('flex gap-2', own ? 'justify-end' : 'justify-start', tail ? 'mb-2' : 'mb-px')}>
+    <li
+      className={cx(
+        'flex gap-2',
+        own ? 'justify-end' : 'justify-start',
+        tail ? 'mb-3' : 'mb-[3px]',
+      )}
+    >
       {!own && isGroupChat && (
-        <span className={cx('shrink-0 self-end', showSender || tail ? 'visible' : 'invisible')}>
-          {tail ? <Avatar name={name} id={message.senderId} size="sm" /> : <span className="block size-7" />}
+        <span className="w-7 shrink-0 self-end">
+          {tail && <Avatar name={name} id={message.senderId} size="sm" />}
         </span>
       )}
 
-      <div className={cx('flex max-w-[min(78%,34rem)] flex-col', own ? 'items-end' : 'items-start')}>
+      <div className={cx('flex max-w-[min(74%,32rem)] flex-col', own ? 'items-end' : 'items-start')}>
         {showSender && !own && (
-          <span className="mb-0.5 px-1 text-xs font-medium text-ink-muted">{name}</span>
+          <span className="mb-1 px-1 text-xs font-semibold text-ink-muted">{name}</span>
         )}
 
         <div
           className={cx(
-            'animate-pop-in px-3.5 py-2 text-[15px] leading-relaxed break-words whitespace-pre-wrap',
+            'animate-pop-in px-3 py-[7px] text-[15px] leading-[1.45] break-words',
+            'shadow-[0_1px_1px_rgb(20_23_31_/_5%)]',
+            // Contains the floated timestamp so the bubble always wraps it.
+            "after:block after:clear-both after:content-['']",
             own
-              ? tail ? 'bubble-out bg-vermilion text-white' : 'rounded-xl bg-vermilion text-white'
-              : tail ? 'bubble-in bg-paper-raised text-ink border border-line' : 'rounded-xl border border-line bg-paper-raised text-ink',
-            (queued || sending) && 'opacity-70',
-            failed && 'border-vermilion/50 bg-vermilion-soft text-ink',
+              ? tail ? 'bubble-out' : 'bubble-mid-out'
+              : tail ? 'bubble-in' : 'bubble-mid-in',
+            own
+              ? 'bg-vermilion text-white'
+              : 'border border-line bg-paper-raised text-ink',
+            pending && 'opacity-75',
+            failed && 'border-vermilion-line bg-vermilion-soft text-ink shadow-none',
           )}
         >
-          {message.text}
+          <span className="whitespace-pre-wrap">{message.text}</span>
+
+          <span
+            className={cx(
+              'float-right mt-[7px] ml-2.5 flex items-center gap-1 text-[10px] leading-none tabular-nums',
+              own && !failed ? 'text-white/90' : 'text-ink-faint',
+            )}
+          >
+            <time dateTime={new Date(message.createdAt).toISOString()}>
+              {formatTime(message.createdAt)}
+            </time>
+            {own && <DeliveryState status={message.status} />}
+          </span>
         </div>
 
-        <span className="mt-0.5 flex items-center gap-1.5 px-1 text-[11px] text-ink-faint">
-          <time dateTime={new Date(message.createdAt).toISOString()}>
-            {formatTime(message.createdAt)}
-          </time>
-          {own && <DeliveryState status={message.status} />}
-          {failed && (
+        {failed && (
+          <span className="mt-1 flex items-center gap-2 px-1 text-[11px]">
+            <span className="font-medium text-vermilion">Not sent</span>
             <button
               type="button"
               onClick={() => onRetry(message.tempId ?? message.id)}
-              className="font-medium text-vermilion underline underline-offset-2 hover:no-underline"
+              className="font-semibold text-vermilion underline underline-offset-2 hover:no-underline"
             >
               Retry
             </button>
-          )}
-        </span>
+          </span>
+        )}
+        {message.status === 'queued' && (
+          <span className="mt-1 px-1 text-[11px] text-amber">Waiting for connection</span>
+        )}
       </div>
     </li>
   );
@@ -313,17 +354,27 @@ function MessageRow({
 function DeliveryState({ status }: { status: Message['status'] }) {
   if (status === 'sent') {
     return (
-      <span title="Sent" className="text-teal">
-        <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2">
+      <>
+        <svg viewBox="0 0 16 16" className="size-3" fill="none" stroke="currentColor" strokeWidth="2.25" aria-hidden="true">
           <path d="M2.5 8.5l3.5 3.5 7.5-8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <span className="sr-only">Sent</span>
-      </span>
+      </>
     );
   }
-  if (status === 'sending') return <span className="text-ink-faint">Sending…</span>;
-  if (status === 'queued') return <span className="text-amber">Queued — waiting for connection</span>;
-  return <span className="font-medium text-vermilion">Not sent</span>;
+  if (status === 'sending') {
+    return (
+      <>
+        <svg viewBox="0 0 16 16" className="size-3" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <circle cx="8" cy="8" r="6" />
+          <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
+        </svg>
+        <span className="sr-only">Sending</span>
+      </>
+    );
+  }
+  // Queued and failed are spelled out beneath the bubble instead of encoded in a glyph.
+  return null;
 }
 
 /**

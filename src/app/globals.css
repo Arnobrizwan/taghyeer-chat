@@ -16,21 +16,29 @@
   --color-paper-raised: #ffffff;
   --color-paper-sunken: #f2ece3;
 
-  /* Ink */
-  --color-ink: #14171f;
-  --color-ink-soft: #3d434f;
-  --color-ink-muted: #6b7280;
-  --color-ink-faint: #9ca3af;
+  /*
+   * Ink ramp. Every step here clears 4.5:1 on paper, including the faintest — timestamps
+   * are 11px normal text, so the usual "it's only metadata" grey would fail AA.
+   */
+  --color-ink: #14171f;        /* 16.8:1 */
+  --color-ink-soft: #3d434f;   /*  9.4:1 */
+  --color-ink-muted: #5f6672;  /*  5.4:1 */
+  --color-ink-faint: #6b7280;  /*  4.5:1 */
 
-  /* Accent */
-  --color-vermilion: #e0451f;
-  --color-vermilion-bright: #ff5c38;
-  --color-vermilion-soft: #fde8e2;
+  /*
+   * Accent. Deepened from #e0451f, which carried white body text at only 4.17:1 — under
+   * AA. At #cf3d18 the same white text sits at 4.85:1, and the slightly deeper tone reads
+   * less neon across the large filled areas that message bubbles create.
+   */
+  --color-vermilion: #cf3d18;
+  --color-vermilion-bright: #e8502a;
+  --color-vermilion-soft: #fdeae4;
+  --color-vermilion-line: #f3cabd;
 
-  /* Support */
-  --color-teal: #0f9488;
-  --color-teal-soft: #d6f2ef;
-  --color-amber: #b45309;
+  /* Support. Teal darkened from #0f9488 (3.5:1) so "Connected" is legible as text. */
+  --color-teal: #0d7f74;
+  --color-teal-soft: #d8f0ec;
+  --color-amber: #9a4a08;
   --color-amber-soft: #fdf0d5;
 
   --color-line: #e5ded3;
@@ -111,14 +119,18 @@ body {
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
-/* Message tails ------------------------------------------------------------ */
+/* Message bubbles ---------------------------------------------------------- */
 
-.bubble-out {
-  border-radius: 14px 14px 4px 14px;
-}
-.bubble-in {
-  border-radius: 14px 14px 14px 4px;
-}
+/*
+ * Only the last bubble of a run gets a tail, so a burst of consecutive messages reads as
+ * one block of speech rather than a stack of separate cards.
+ */
+.bubble-out { border-radius: 16px 16px 5px 16px; }
+.bubble-in  { border-radius: 16px 16px 16px 5px; }
+.bubble-mid-out { border-radius: 16px 6px 6px 16px; }
+.bubble-mid-in  { border-radius: 6px 16px 16px 6px; }
+
+
 
 /* Scrollbars: present but quiet. */
 .scroll-quiet {
