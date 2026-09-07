@@ -44,7 +44,24 @@ function makeQueryClient() {
  * function and reports auth failures through a callback. That keeps `request()` usable
  * from anywhere — including the outbox flusher, which runs outside React's tree.
  */
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  socket = true,
+}: {
+  children: React.ReactNode;
+  /**
+   * Whether this subtree should hold a live socket.
+   *
+   * `/login` and `/app` mount their own `Providers`, so signing in used to open a socket
+   * on the login page — the token lands, the `key` below changes, a handshake starts — and
+   * then the redirect to `/app` unmounted that subtree and closed the socket before it had
+   * connected ("WebSocket is closed before the connection is established"), leaving `/app`
+   * to start a second connection from nothing. Against a cold Render instance that wastes
+   * the slowest part of the boot. The login page has no use for inbound messages, so it
+   * opts out and lets `/app` own the only connection that matters.
+   */
+  socket?: boolean;
+}) {
   const [queryClient] = useState(makeQueryClient);
   const token = useSession((s) => s.token);
   const status = useSession((s) => s.status);
@@ -63,7 +80,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SocketProvider key={token ?? 'anonymous'} token={token}>
+      {/*
+        Always rendered so `useSocket()` has a context to find; passing a null token is what
+        keeps it dormant, which is the same path an anonymous visitor takes.
+      */}
+      <SocketProvider
+        key={socket ? (token ?? 'anonymous') : 'no-socket'}
+        token={socket ? token : null}
+      >
         {children}
       </SocketProvider>
     </QueryClientProvider>

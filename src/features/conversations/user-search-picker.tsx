@@ -53,6 +53,18 @@ export function UserSearchPicker({
         <label htmlFor="people-search" className="sr-only">
           Search people by name or phone
         </label>
+        {/* A leading magnifier so the field reads as search before it is focused. */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-faint"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="9" cy="9" r="5.5" />
+          <path d="M13.5 13.5 17.5 17.5" strokeLinecap="round" />
+        </svg>
         <input
           id="people-search"
           type="search"
@@ -60,7 +72,7 @@ export function UserSearchPicker({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name…"
-          className="w-full rounded-lg border border-line-strong bg-paper-raised py-2.5 pr-9 pl-3.5 text-[15px] placeholder:text-ink-faint"
+          className="w-full rounded-lg border border-line-strong bg-paper py-2.5 pr-9 pl-10 text-[15px] transition-colors placeholder:text-ink-faint hover:border-ink-faint"
         />
         {isSearching && (
           <Spinner className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-ink-faint" />
@@ -87,21 +99,22 @@ export function UserSearchPicker({
 
       <div className="max-h-56 min-h-[3rem] overflow-y-auto scroll-quiet">
         {!hasQuery && (
-          <p className="px-1 py-3 text-sm text-ink-muted">
+          <p className="px-2 py-6 text-center text-sm text-ink-muted">
             Type at least {MIN_QUERY_LENGTH} characters to search.
           </p>
         )}
 
         {hasQuery && !isSearching && available.length === 0 && (
-          <p className="px-1 py-3 text-sm text-ink-muted">
-            No one found for <span className="font-medium text-ink">“{debounced}”</span>.
-            <br />
-            <span className="text-xs text-ink-faint">
+          <div className="px-2 py-5 text-center">
+            <p className="text-sm text-ink-muted">
+              No one found for <span className="font-medium text-ink">“{debounced}”</span>.
+            </p>
+            <p className="mx-auto mt-2 max-w-xs text-xs leading-relaxed text-ink-faint">
               Names match from the start of a word and are case-sensitive. Phone numbers
               only match if typed exactly, and numbers stored with a “+” can&apos;t be
               searched at all.
-            </span>
-          </p>
+            </p>
+          </div>
         )}
 
         <ul className="flex flex-col">
@@ -135,7 +148,18 @@ export function UserSearchPicker({
         </ul>
       </div>
 
-      <div className="flex gap-2">
+      {/*
+        A ruled, right-aligned action row rather than a button floating at the bottom-left:
+        the rule gives the dialog a real footer edge, and the primary action lands where the
+        eye finishes reading. `justify-end` with cancel first keeps the destructive-free
+        ordering conventional.
+      */}
+      <div className="flex items-center justify-end gap-2 border-t border-line pt-3">
+        {onCancel && (
+          <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
         <Button
           type="button"
           size="sm"
@@ -146,11 +170,6 @@ export function UserSearchPicker({
           {confirmLabel}
           {selected.length > 0 && ` (${selected.length})`}
         </Button>
-        {onCancel && (
-          <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
-            Cancel
-          </Button>
-        )}
       </div>
     </div>
   );

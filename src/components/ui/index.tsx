@@ -11,13 +11,26 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
 };
 
+/*
+ * Disabled states are spelled out per variant rather than left to a blanket `opacity`.
+ * The primary variant used to fall back to `ink-faint` — a cold blue-grey — which on this
+ * warm paper ground read as a dead slab rather than a waiting button. Every disabled
+ * control now settles onto `paper-sunken`, the same surface the rest of the UI recesses
+ * into, so an unavailable action looks quiet instead of broken.
+ */
 const BUTTON_VARIANTS: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
-    'bg-vermilion text-white hover:bg-vermilion-bright active:translate-y-px disabled:bg-ink-faint',
+    'bg-vermilion text-white hover:bg-vermilion-bright active:translate-y-px ' +
+    'disabled:bg-paper-sunken disabled:text-ink-faint',
   secondary:
-    'bg-paper-raised text-ink border border-line-strong hover:border-ink-muted active:translate-y-px',
-  ghost: 'text-ink-soft hover:bg-paper-sunken active:translate-y-px',
-  danger: 'bg-white text-vermilion border border-vermilion/40 hover:bg-vermilion-soft',
+    'bg-paper-raised text-ink border border-line-strong hover:border-ink-muted active:translate-y-px ' +
+    'disabled:bg-paper-sunken disabled:text-ink-faint disabled:border-line',
+  ghost:
+    'text-ink-soft hover:bg-paper-sunken active:translate-y-px ' +
+    'disabled:text-ink-faint disabled:hover:bg-transparent',
+  danger:
+    'bg-white text-vermilion border border-vermilion/40 hover:bg-vermilion-soft ' +
+    'disabled:bg-paper-sunken disabled:text-ink-faint disabled:border-line',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -33,7 +46,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       className={cx(
         'inline-flex items-center justify-center gap-2 rounded-lg font-medium',
         'transition-[background-color,border-color,transform] duration-150',
-        'disabled:cursor-not-allowed disabled:opacity-60 disabled:active:translate-y-0',
+        'disabled:cursor-not-allowed disabled:active:translate-y-0',
         size === 'sm' ? 'px-3 py-1.5 text-sm' : 'px-4 py-2.5 text-[15px]',
         BUTTON_VARIANTS[variant],
         className,

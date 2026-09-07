@@ -82,7 +82,11 @@ export function NewChatDialog({
   return (
     <Modal open={open} onClose={close} title="New conversation">
       <div className="flex flex-col gap-4 p-5">
-        <div role="tablist" aria-label="Conversation type" className="flex gap-1 rounded-lg bg-paper-sunken p-1">
+        <div
+          role="tablist"
+          aria-label="Conversation type"
+          className="flex gap-1 rounded-xl border border-line bg-paper-sunken p-1"
+        >
           {(['direct', 'group'] as const).map((t) => (
             <button
               key={t}
@@ -94,8 +98,10 @@ export function NewChatDialog({
                 setError(null);
               }}
               className={cx(
-                'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                tab === t ? 'bg-paper-raised text-ink shadow-sm' : 'text-ink-muted hover:text-ink',
+                'flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                tab === t
+                  ? 'bg-paper-raised text-ink shadow-sm'
+                  : 'text-ink-muted hover:bg-paper-raised/50 hover:text-ink',
               )}
             >
               {t === 'direct' ? 'Direct message' : 'New group'}

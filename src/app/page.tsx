@@ -234,7 +234,7 @@ export default function LandingPage() {
               <Logo size={20} />
               Relay
             </span>
-            <span>Built as a take-home for Taghyeer Technologies.</span>
+            <span>Built by Arnob as a take-home for Taghyeer Technologies.</span>
           </div>
         </footer>
       </section>

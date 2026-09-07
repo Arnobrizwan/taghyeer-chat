@@ -10,7 +10,7 @@ export const metadata = { title: 'Sign in — Relay' };
 
 export default function LoginPage() {
   return (
-    <Providers>
+    <Providers socket={false}>
       {/* Someone signing in is about to make requests; start the boot now. */}
       <PrewarmApi />
 
